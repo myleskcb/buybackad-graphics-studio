@@ -6992,8 +6992,9 @@ designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/
 - **Paid.** Anyone designs and sees a card; the preview carries the WeBuy.AD mark until the plan
   downloads cards. The print file comes with Pro and Business (`plans.mjs` `cards`), decided by the
   function (`/api/export/check` and `/api/export`, kind `card`) and counted as one photo download.
-- **Print it today** is Google Maps searches near the customer's ZIP or town, which they open
-  themselves: nothing about them is sent anywhere by the page.
+- **Print it today** is map searches near the customer's ZIP or town, which they open themselves:
+  nothing about them is sent anywhere by the page. Apple Maps on Apple devices and in the iPhone app,
+  Google Maps elsewhere, and only chains that offer same-day cards named: below, 167 continued.
 - **Checked** by `scripts/business_card_check.mjs` (sizes, the safe area and overlaps across layouts,
   pairs, type and a long name; the product in the trim, on every front but Centred and on every back
   without a QR but Centred's, and never on a word; nothing under 7 pt; every QR 3/4 in or more and
@@ -7004,6 +7005,47 @@ designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/
   links; the paywall signed out, on Starter and on Pro, light and dark, at 390) and
   `scripts/billing_check.mjs` (the function's rule). A sweep of every layout × type pair × QR × three
   name lengths (1,740 sides) found one line under 7 pt: a 31-character website in the widest pair, at 6.7 pt, which the page names.
+
+## 167, continued (2026-11-24): Print it today opens the customer's own maps, and names only what is checked
+
+The owner, 2026-11-19: "suggest quick same day print locations near you?"; the brief that came back to
+it on 2026-11-24 asked for Apple Maps on Apple devices and in the iPhone app, Google Maps elsewhere,
+and no store named or promised the same day unless that was checked.
+
+- **Which maps.** Apple Maps on an iPhone, iPad or Mac (the user agent says iPhone, iPad, iPod or
+  Macintosh; iPadOS sends Macintosh) and always in the iPhone app (`WeBuyADApp`, where a
+  `maps.apple.com` link opens the Maps app: `ios/` `NavigationPolicy.opensInSystemApp`); Google Maps
+  everywhere else. Under the links, "Use Google Maps instead" (or Apple), remembered on the device
+  (`pgfx_card_maps`). The page says which app the links open.
+- **How Apple Maps is asked.** `https://maps.apple.com/?q=…&sll=lat,lon&spn=0.2,0.2`, the
+  long-standing form every iOS reads; Apple's newer `/search?query=&center=` form needs iOS 18.4, and
+  iOS 27 reads both. Measured in the iOS 27 simulator with Location Services off, near 90802 (Long
+  Beach): "same day business card printing near 90802" as words found T-shirt shops in Riverside and
+  Temecula; "business card printing near 90802" found copy shops 50 miles off first; "business card
+  printing" on 90802's own point found Long Beach's print shops; "FedEx Office" and "Office Depot
+  OfficeMax" on the point found the Long Beach stores. So Apple Maps gets the plain words on the
+  point, and "same day" is said on the page. Google Maps keeps "same day business card printing near
+  90802" as written.
+- **The point.** The area dialog's own `lat` and `lon` (`app.js` `resolveArea`). A place typed in
+  Near is looked up in the same tables (`assets/geo`: a whole ZIP, or a town's name with or without
+  its state, the largest town of that name), only when Apple Maps is the app and once the typing
+  pauses. A place the tables do not know goes into the search as words ("near …"); with no place at
+  all, Maps searches round where the customer is.
+- **Names only what is checked.** The chains named are those whose own sites offer same-day business
+  cards for pickup in the store, read 2026-11-24: FedEx Office (most orders the same day or within 24
+  hours), Staples (order by noon), Office Depot OfficeMax (order by 2 pm, in store). The UPS Store's
+  US pages offer business cards but promise no same day, so it is no longer named. The page says
+  "order by about midday", that other shops "may" too, and to call ahead. When a chain changes its
+  offer, this list changes with it.
+- **Not a studio format.** The brief also asked for a business card in the studio's `FORMATS`. The
+  card maker is that: each studio format keeps one 1080 px side for the templates authored on that
+  grid, so a 1050 × 600 card laid out by ad templates would be a second, weaker card maker. Easy
+  Mode's "Matching business card" is the studio's way in.
+- **Checked** by `scripts/business_card_check.mjs`: both maps' links near a ZIP, Apple's on the
+  area's point, a town, a bare town name and a ZIP typed in Near each moving it, a place the tables
+  do not know said as words, the switch and its memory, the app picked for the iPhone app, Safari on
+  an iPhone, Android and Windows, only the three chains named, and at 390 in dark and light no
+  sideways scroll and nothing in the section under 12 px.
 
 ## 168. Sign in with Apple and Google: one pair of buttons, shown when configured, checked on the server
 
@@ -7583,6 +7625,11 @@ of the picks too.
   NO FEES, REAL CASH • NOT CREDIT, NO LOWBALL OFFERS, TOP PAYOUTS • NO HAGGLING, MONEY IN YOUR POCKET.
   Its sticker adds TOP CASH, TOP $$$ and TOP DOLLAR. Over 4,680 drawn ads (39 lines, 120 seeds) 61% of
   badges and 53% of stickers are bold, and no badge is on more than a fifth of them.
+- **The owner sets the mix** (2026-11-25). The gallery's Tune the mix has a row for every badge line,
+  every sticker and the TOP DOLLAR points, each with its share and real ads (keys `badge:`, `sticker:`,
+  `point:top` in `tuning/choices`). `WORD_WEIGHTS` in `motion/fullad.js` takes the choices for the badges
+  and stickers (More 1.5, Less 0.5, Never 0, a line's Spanish twin set with it) and `PROMISES.top`'s .7
+  for the points. With every weight 1 the pick is the even one below, draw for draw.
 - **Each line that fits is as likely** (`fresh` in `fullStyle`). The badge, sticker and small line skip a
   line that repeats a word already on the ad. They used to walk from a random start to the next that
   fit, which gave a line every draw of the lines before it that rarely fit: WE PAY TOP DOLLAR took 21% of
@@ -7611,7 +7658,59 @@ of the picks too.
 
 Not done here: OPEN-ITEMS §CI.
 
-## 182. New look remembers what the shop posted: no look-alike, no scheme or layout again soon, a riff now and then
+
+## 182. Mail out: a reset link that tells nobody who has an account, and an address check that locks nobody out
+
+Added 2026-11-24, for §BX's "Mail out: none": a paying customer who forgot their password had no way
+back in. Asked for by another session for the owner.
+
+- **One provider, one key, nothing about the forwarding touched.** `netlify/lib/mail.mjs` sends through
+  Postmark's email API with `POSTMARK_TOKEN`, from `WeBuy.AD <support@webuy.ad>`, replies to
+  support@webuy.ad, on the transactional stream. Namecheap's free Email Forwarding owns webuy.ad's MX
+  records and cannot share the domain with another mail service, so a provider that needs an MX (Resend's
+  `send.webuy.ad`) is out: Postmark needs a DKIM TXT and a Return-Path CNAME on names of their own, and
+  the root's SPF stays the forwarding's (`docs/MAIL-SETUP.md`). No open or link tracking: a link in our
+  mail is the site's own address.
+- **Plain words, signed WeBuy.AD.** Hi; what happened; the one thing to do, as a button and as the
+  address; how long it works; what to do if it was not them ("ignore this email"); reply for help; then
+  WeBuy.AD and webuy.ad. No "click here", no shouting, no marketing in an account mail.
+- **Forgot password? sits on the Sign in side of both windows** (`app.js` and `account.js`), under the
+  password, and is a step of that window: the email alone, Send reset link, Back. The answer is the same
+  words for every address ("If … has a WeBuy.AD account, a link … is on its way"), and the server's reply
+  is the same status and body: the lookup and the mail run after the reply (`context.waitUntil`), so
+  neither the words nor the time say who has an account.
+- **A link works once, for a short time, and only the newest.** 32 random bytes after a `#` (never sent
+  to a server or in a Referer), kept only as their SHA-256 (`mt:<hash>`); a reset link works for 60
+  minutes, a confirmation link for 7 days; asking again retires the older; using one deletes it; deleting
+  the account deletes its links. A link's address is `SITE_URL`, else Netlify's `URL`, never the request's
+  Host.
+- **The pages a link opens are the site's information pages** (`reset.html`, `confirm.html`, `pages.css`,
+  one script `mail-link.js` under the production CSP): the token leaves the address bar at once, no
+  analytics and no Referer on them, `noindex`. A good reset link names the account and asks for the new
+  password; saving it signs the visitor in. A used or expired link says so and offers a new one on the
+  same page.
+- **Limits count every request, account or not**, in windows kept by hashes, never an address or an IP:
+  reset links 3 an hour for an address and 10 from an IP; confirmation links 3 an hour for an account and
+  10 from an IP, sign-ups included (the 11th account is still made, without mail); tries at a link 30 an
+  hour from an IP.
+- **The address check never locks anyone out.** A sign-up with a password mails a confirmation link and
+  works at once. Until it is opened, both account menus carry one gentle line, "Confirm your email so we
+  can always help you back in", with Send the link; nothing is gated on it. Google and Apple vouch for
+  their addresses, so their accounts are never asked, and a reset link confirms the address it came to.
+  A Google or Apple account can use Forgot password? to add a password; its button keeps working.
+- **Off until the key is in.** Without `POSTMARK_TOKEN` Forgot password? says to write to support@webuy.ad
+  (the same for every address) and no account is asked to confirm. `/api/health` and `/api/auth/config`
+  say `mail`. The windows show the function's own words for its own 502-504; "the account server is not
+  answering" is only for a reply that carries none (a gateway's).
+- **Held by** `scripts/mail_check.mjs`: the real function with a stand-in Postmark (the mail's sender,
+  words, link and tracking; the same reply for every address; once, 60 minutes, the newest; the limits and
+  their windows; the confirm flow; Google and Apple accounts; Postmark failing), both windows and both
+  pages in Chromium under the production CSP from 320 to 1280, and `scripts/social_signin_check.mjs` run
+  against the same worktree.
+
+Not done here: OPEN-ITEMS §CJ.
+
+## 184. New look remembers what the shop posted: no look-alike, no scheme or layout again soon, a riff now and then
 
 Added 2026-11-24. The owner asked how soon a shop's posts start to look the same ("How soon would these
 become generic after how many days or what quantity of post per day"), for "a similarity comparison ...

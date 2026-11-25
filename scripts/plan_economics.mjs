@@ -78,7 +78,8 @@ const pages = {
   'about.html': [`Starter, ${usd(st.price.month)} a month`, `Pro, ${usd(pro.price.month)} a month`, `Business, ${usd(biz.price.month)} a month`, `<td>${pro.monthly} a month</td>`, `<td>Download ${pro.videos} a month, no watermark</td>`, `downloading videos comes with Pro, ${pro.videos} a month, and Business, unlimited`,
     `<td>${free.credits}</td><td>${st.credits}</td><td>${pro.credits}</td><td>${biz.credits}</td>`, `<td>${free.library}</td><td>${st.library}</td><td>${n(pro.library)}</td><td>${n(biz.library)}</td>`],
   'terms.html': [`(${usd(st.price.month)}/month or ${usd(st.price.year)}/year)`, `(${usd(pro.price.month)}/month or ${usd(pro.price.year)}/year)`, `(${usd(biz.price.month)}/month or $${n(biz.price.year / 100)}/year)`,
-    `${st.monthly} photo downloads per month`, `${pro.monthly} photo downloads per month and ${pro.videos} video ad downloads per month`, 'unlimited photo and video downloads', `${biz.credits} AI credits per month`],
+    `${st.monthly} photo downloads per month`, `${pro.monthly} photo downloads per month and ${pro.videos} video ad downloads per month`, 'unlimited photo and video downloads', `${biz.credits} AI credits per month`,
+    `Essentials (${P.KITS.essentials.files} files, ${usd(P.KITS.essentials.price)})`, `Complete (${P.KITS.complete.files} files, ${usd(P.KITS.complete.price)})`, `costs ${usd(P.KIT_ADDON_OFF)} less`, `to Complete for ${usd(P.KIT_UPGRADE.price)}`],
 };
 // the video plans are the ones the pages say download video
 ok(!free.video && !st.video && pro.video && biz.video, 'plans.mjs: video should be Pro and Business only, as the pages say');

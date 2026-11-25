@@ -677,6 +677,10 @@ export const ICONS = ["cash"];
  *  DOLLAR, REAL CASH, NO LOWBALL OFFERS). HIGHEST, BEST PRICE, #1 and WE BEAT ANY OFFER stay out of every
  *  default: a shop types them if they are true of it, and the pre-flight says it may be asked to prove them.
  *  The card lines keep their collector's voice (claim_cards, burst_cards). */
+/** How often each badge, sticker and small line of FULL_WORDS is drawn, among those that fit an ad (fullStyle's fresh):
+ *  1 where a line is not named, 0 never. Set from the owner's Tune the mix in the gallery (tuning/choices, keys badge:,
+ *  sticker:; DESIGN-LAW 181): More 1.5, Less 0.5, Never 0, and a line's Spanish twin set with it. */
+export const WORD_WEIGHTS = {};
 export const FULL_WORDS = {
   claim: ["LOCAL BUYER • FAIR OFFERS", "QUICK REPLIES • CASH TODAY", "FAIR OFFER • NO PRESSURE", "LOCAL BUYER • PAID TODAY", "AN OFFER • YOU DECIDE",
     "TOP DOLLAR PAID", "WE PAY TOP DOLLAR", "TOP CASH • PAID TODAY", "TOP PRICES • NO FEES", "REAL CASH • NOT CREDIT", "NO LOWBALL OFFERS",
@@ -2088,7 +2092,7 @@ export function poolEntryFor(pool, seed) {
 const poolPictureId = ({ file, k }) => "sub-" + file + (k && k !== 1 ? "@" + k : "");
 /** The ids of the pictures a seed draws from a line's pool (poolEntryFor), as loadSubjectSet names them, without
  *  loading them: given to fullStyle as the phones, that entry is the one it draws (subjectDraw). For New look's
- *  freshness memory, which reads looks ahead without drawing them (DESIGN-LAW 182). */
+ *  freshness memory, which reads looks ahead without drawing them (DESIGN-LAW 184). */
 export function poolIdsFor(pool, seed) { const e = poolEntryFor(pool, seed); return e >= 0 ? pool[e].set.map(poolPictureId) : []; }
 /** One entry of a line's pool for a seed: the one poolEntryFor names, when its pictures are loaded
  *  (null otherwise: the maker loads it first). With the whole pool loaded, as the checks load it,
@@ -2377,7 +2381,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
     const gd = groundFor(st.subject, seed, key, productFor(st.subject, have), lean && H.ground && !pick.ground_kind ? { want: H.ground, photo: st.ground_hint || null, r: lr, pick: lean.pick } : null, metroOf(st.area), { kind: pick.ground_kind || "", treat: pick.photo_treat || "", clip: handClip, seedClips: !!opts.moving });
     if (gd) Object.assign(look, gd); else delete look.ground_photo;
   }
-  // (opts.preload false: a look read ahead and not drawn, as New look reads eighty, loads no photograph: DESIGN-LAW 182)
+  // (opts.preload false: a look read ahead and not drawn, as New look reads eighty, loads no photograph: DESIGN-LAW 184)
   if (look.ground_photo && opts.preload !== false) { loadGroundPhoto(look.ground_photo.src).catch(() => {}); if (clipOf(look.ground_photo)) loadClipSheet(look.ground_photo.clip).catch(() => {}); }
   /* THE LOOK'S STYLES (spec/full-styles.json, motion/full-styles.js; the owner, 2026-11-18: "notice how
      it's all same spiky circle?", "no variety in the text pure outlines?", "don't see any gradients
@@ -2451,8 +2455,16 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   // fullWords() says where they repeat). The order is the order they are read in.
   /* one of those that say nothing said, each as likely (2026-11-24): the walk from a random start to the next one
      that fits gave a line all the draws of the lines before it that rarely fit (WE PAY TOP DOLLAR 21% of badges, TOP
-     CASH • PAID TODAY 1%, TOP $$$ a third of stickers over 4,680 ads). One draw either way, so the seed's stream holds */
-  const fresh = (list, said) => { const u = r(), ok = list.filter(w => !said.some(x => sharesWord(w, x))), L = ok.length ? ok : list; return L[Math.floor(u * L.length) % L.length]; };
+     CASH • PAID TODAY 1%, TOP $$$ a third of stickers over 4,680 ads). One draw either way, so the seed's stream holds.
+     Each line weighs its WORD_WEIGHTS (the owner's Tune the mix; 1 unless set, 0 never drawn): with every weight 1 the
+     pick is the even one above, draw for draw */
+  const fresh = (list, said) => {
+    const u = r(), wt = w => WORD_WEIGHTS[w] ?? 1, live = list.filter(w => wt(w) > 0), pool = live.length ? live : list;
+    const ok = pool.filter(w => !said.some(x => sharesWord(w, x))), L = ok.length ? ok : pool;
+    const total = L.reduce((s, w) => s + (live.length ? wt(w) : 1), 0);
+    let acc = 0; for (const w of L) { acc += live.length ? wt(w) : 1; if (u * total < acc) return w; }
+    return L[L.length - 1];
+  };
   const label = st.number_label || (es ? "LLAMA O ESCRÍBENOS" : FULL_WORDS.label[0]);
   // a look's small line that says what the call to action says (a video look's tag CALL OR TEXT over its CALL OR
   // TEXT, rule 158) gives way to one from the list: the ad never says one thing twice

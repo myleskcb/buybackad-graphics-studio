@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choose a new password | WeBuy.AD</title>
+<meta name="description" content="Choose a new password for your WeBuy.AD account, or ask for a reset link.">
+<!-- the link carries its token after a #; it never reaches a server or a Referer, and this page has no analytics (DESIGN-LAW 182) -->
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="assets/brand/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/brand/icon-180.png">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body data-page="reset">
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <a class="brand" href="index.html">WeBuy<em>.AD</em></a>
+  <nav aria-label="Site">
+    <a href="about.html">About</a>
+    <a class="btn" href="index.html">Make my ad</a>
+  </nav>
+</header>
+<main id="main" class="acct-page">
+  <h1 id="ap-title">Choose a new password</h1>
+  <p class="lead" id="ap-lead">One moment, checking your link…</p>
+
+  <form class="acct-card" id="ap-new" hidden novalidate>
+    <input type="email" id="ap-user" autocomplete="username" hidden>
+    <label for="ap-pass">New password</label>
+    <div class="acct-field">
+      <input type="password" id="ap-pass" autocomplete="new-password" placeholder="At least 8 characters" minlength="8">
+      <button type="button" class="acct-eye" id="ap-eye" aria-label="Show password" aria-pressed="false">Show</button>
+    </div>
+    <p class="acct-msg" id="ap-new-msg" role="alert"></p>
+    <button type="submit" class="btn" id="ap-save">Save new password</button>
+  </form>
+
+  <form class="acct-card" id="ap-ask" hidden novalidate>
+    <label for="ap-email">Email</label>
+    <div class="acct-field"><input type="email" id="ap-email" autocomplete="email" placeholder="you@example.com"></div>
+    <p class="acct-msg" id="ap-ask-msg" role="alert"></p>
+    <p class="acct-ok" id="ap-ask-sent" role="status" hidden></p>
+    <button type="submit" class="btn" id="ap-send">Send reset link</button>
+  </form>
+
+  <div class="acct-card" id="ap-done" hidden>
+    <p class="acct-ok" role="status" id="ap-done-words"></p>
+    <a class="btn" href="index.html">Open WeBuy.AD</a>
+  </div>
+
+  <p class="note">Signed up with Google or Apple? Their buttons on the sign-in window keep working; a password here is an extra way in. Stuck? Write to <a href="mailto:support@webuy.ad">support@webuy.ad</a>.</p>
+</main>
+<footer class="bottom">
+  <a href="index.html">WeBuy.AD</a>
+  <a href="about.html">About</a>
+  <a href="terms.html">Terms</a>
+  <a href="privacy.html">Privacy</a>
+  <span>&copy; 2026 WeBuy.AD</span>
+</footer>
+<script src="mail-link.js" defer></script>
+</body>
+</html>

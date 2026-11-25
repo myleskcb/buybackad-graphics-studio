@@ -4045,7 +4045,7 @@ Open:
     - The layout goes first. Every ad is one skeleton with 60 settings, and at 3 a day 47% of posts
       reuse a layout from the past two weeks, from day 2.
     - Shown to the owner as a page with the pairs, 2026-11-24.
-    - **The freshness memory, done** (the owner, 2026-11-24: "Build it"; DESIGN-LAW 182,
+    - **The freshness memory, done** (the owner, 2026-11-24: "Build it"; DESIGN-LAW 184,
       `motion/freshness.js`). Product rotation and the riff cap came with it:
       - Each download is remembered for two weeks in that browser, with its fingerprint and its picture.
       - New look reads 80 looks ahead and takes the first that is no look-alike of a post. It also skips
@@ -4584,6 +4584,41 @@ The owner decides: the tier (Pro and Business, Business alone, or a one-time log
 like the AI credit packs), what a suggestion batch costs in credits, and the terms' line on who owns
 a logo made here.
 
+## CD. 2026-11-24 — Print it today opens the customer's own maps (DESIGN-LAW 167, continued)
+
+(CD because §CC was taken on `claude/sharp-lamport-781905`; set after §BU, which it amends.)
+
+A session was asked to build a business card designer, card layouts, a print-ready download and a "Print
+it today near you" button. §BU had built all of it on `main` (`cards/`, rule 167): five layouts and their
+backs, six styles, the 300 dpi PNGs and the 600 dpi PDF with the bleed and crop marks, Pro and Business,
+and a "Where to print today" button. So no second card maker was built. What the brief asked that `main`
+did not do, this branch does (`claude/distracted-pascal-31593b`):
+
+Done:
+- **Apple Maps on Apple devices and in the iPhone app**, Google Maps elsewhere, with a switch that is
+  remembered. Apple's searches are centred on the area's own point (the area dialog's `lat`/`lon`, or the
+  ZIP and town tables for a place typed in Near), which found Long Beach's print shops where a search in
+  words found T-shirt shops 50 miles off (iOS 27 simulator).
+- **Only chains that offer same-day cards on their own sites are named**: FedEx Office, Staples, Office
+  Depot OfficeMax. The UPS Store is dropped (its US pages promise no same day). The page no longer says
+  shops print "while you wait an hour or two", which nothing checked.
+- `scripts/business_card_check.mjs` covers it (80 checks pass).
+
+Not built, on purpose:
+- **No business card in the studio's `FORMATS`.** Each format keeps one 1080 px side for the templates
+  laid out on that grid; the card maker is the card format. Easy Mode links to it.
+
+Open:
+- **Not seen on a real device.** The Apple Maps links were opened in the iOS 27 simulator's Maps app,
+  and the page was checked in Chromium (1280 and 390, dark and light, with an iPhone, iPhone app,
+  Android and Windows user agent). Not tried: a real iPhone, the iPhone app's own build, Maps on a Mac,
+  Chrome on a Mac (where `maps.apple.com` opens Apple Maps on the web), and an Android phone.
+- **The chains' offers change.** Re-read FedEx Office's, Staples' and Office Depot's same-day pages now
+  and then; the owner may prefer naming no chain at all.
+- **`claude/sharp-lamport-781905` changes `cards/` too** (the gallery of finished cards, rule 176). A
+  trial merge of the two branches is clean; whichever lands second should run
+  `scripts/business_card_check.mjs` again.
+
 ## BV. 2026-11-19 — Sign in with Apple and Google (DESIGN-LAW 168)
 
 The owner: "apple and google sign in ?". Google's sign-in was built but switched off (no
@@ -4727,7 +4762,7 @@ ai, google false, billing (test mode).
 | `SITE_URL` | not set, not needed | Netlify's `URL` is the primary domain, https://webuy.ad |
 | Google sign-in | **live, 2026-11-23**: Google Cloud project `webuy-ad` (myleskcb@gmail.com), app WeBuy.AD in production, External, client "WeBuy.AD website" for https://webuy.ad and https://www.webuy.ad; `GOOGLE_CLIENT_ID` set; the owner's own sign-in by Google opened the operator account | Apple: `docs/SIGN-IN-SETUP.md` |
 | Mail in | live | none |
-| Mail out | none: no password reset, no address check | a build: a mail provider, its DNS records at Namecheap, and the reset flow |
+| Mail out | **built 2026-11-24, not live** (§CJ, DESIGN-LAW 182): Forgot password?, the reset page, the address check, through Postmark | the owner: Postmark, three DNS records at Namecheap, `POSTMARK_TOKEN` in Netlify (`docs/MAIL-SETUP.md`) |
 | Search | **Search Console verified 2026-11-23** (Domain property webuy.ad, myleskcb@gmail.com, TXT `google-site-verification` at Namecheap); https://webuy.ad/sitemap.xml submitted ("Couldn't fetch" on the first day; the file answers 200) | Bing Webmaster Tools can import from Search Console |
 | Analytics | **Cloudflare Web Analytics, live 2026-11-23** (195b5f1d): site webuy.ad in myleskcb@gmail.com's Cloudflare account, beside iphones.la and reselling.us; the beacon on the 26 public pages, its two CSP entries, the privacy row. No cookies | none |
 | Legal pages | live as WeBuy.AD | none |
@@ -5093,11 +5128,67 @@ buyer or highest paying"; asked how hard, "bold, no proof needed"; asked when, "
 Done: see DESIGN-LAW 181.
 
 Open:
-1. **The mix is a first guess.** About half the badges and stickers are bold, and the points draw `top` at .7. The
-   gallery's Tune the mix panel could carry each pitch line (More, Less, Same, Never) as it carries the grounds.
+1. **The mix is a first guess.** About half the badges and stickers are bold, and the points draw `top` at .7. Since
+   2026-11-25 the gallery's Tune the mix carries each line (More, Less, Same, Never). When the owner says done, set
+   `WORD_WEIGHTS` (and each line's Spanish twin) and `PROMISES.top` from `tuning/choices`, then redraw the library
+   renders and the landing stills.
 2. **HIGHEST, BEST PRICE, #1 and WE BEAT ANY OFFER as a shop's own pick.** Today a shop types them. A switch in the
    maker ("I can back this up") would offer them, with the pre-flight's note. Not built.
 3. **The photo templates and classic cards** (`app.js` TEMPLATES: LOCAL BUYER kickers on the phone and silver decks)
    are unchanged. Only the full ad, the video maker's looks and its catalogue were changed.
 4. **The hero wall** keeps its 18 approved stills. It shows the new words once they are drawn again (`--redraw`) and
    approved.
+
+## CJ. 2026-11-24 — mail out: Forgot password?, the reset page and the address check (DESIGN-LAW 182)
+
+(claude/funny-darwin-2b0c40, from `main` at 2bcf032c4, `main` merged in at d2465c806 and 6101ca668. Main's highest
+were rule 181 and §CI, with §CD taken by the print-it-today branch, so this is 182 and CJ; renumber at
+the merge if another branch took them first.)
+
+Asked for by another session for the owner: "Build outgoing email for webuy.ad: a password reset flow
+and an email address check for new email-and-password accounts", §BX's "Mail out: none".
+
+Done: see DESIGN-LAW 182. The provider is **Postmark**: Namecheap's free Email Forwarding owns the
+domain's MX records and cannot share the domain with another mail service, and Resend needs an MX on
+`send.webuy.ad` (Custom MX, which switches the forwarding off); Postmark needs a DKIM TXT and a
+Return-Path CNAME only. Free Developer plan: 100 emails a month, no expiry; Basic $15 for 10,000.
+`scripts/mail_check.mjs` passes 109 checks, including `scripts/social_signin_check.mjs` against this
+worktree. With no token the server's own words ("Email from WeBuy.AD isn't switched on yet. Write to
+support@webuy.ad") reach both windows: they used to turn every 502-504 into "The account server is not
+answering", and now do that only for a reply without words of its own (a gateway's).
+`social_signin_check`'s "44px or taller" caught the studio window mid-`pop` (scale .96 to 1 in .18s) on
+a busy Mac and read 358 x 43; it now waits for the window's animation to finish before measuring. `billing_check.mjs` (141 without the browser), `appleid_check`, `googleid_check`,
+`library_api_check` and `sync_css_fallback --check` pass. In a browser, `billing_check` and
+`ad_library_check` each fail one check (`fabric is not defined` with cdnjs blocked; `TYPE_VOICES`
+before initialization) on a clean copy of `main` as well, so not from this work.
+
+**The owner's steps** (`docs/MAIL-SETUP.md`):
+1. Sign up at Postmark, name the server WeBuy.AD, add the domain `webuy.ad`, ask for account approval
+   if it says pending.
+2. Namecheap → webuy.ad → Advanced DNS, three new host records: TXT `<date>pm._domainkey` (Postmark's
+   DKIM value), CNAME `pm-bounces` → `pm.mtasv.net`, TXT `_dmarc` `v=DMARC1; p=none;`. Mail Settings
+   stays Email Forwarding; the MX and the root SPF are not touched.
+3. Verify DKIM and Return-Path in Postmark.
+4. Netlify → buybackad-finished-copy → `POSTMARK_TOKEN` = the server's API token (secret, Functions,
+   Production), then a deploy.
+5. `/api/health` says `"mail":true`; Forgot password? on your own address; Gmail's Show original says
+   SPF, DKIM and DMARC pass.
+
+Open:
+1. **On `main` and live 2026-11-25, without the token** (the owner: "Yes, put it live"). Until the steps
+   above are done, Forgot password? says to write to support@webuy.ad and nothing asks anyone to confirm;
+   `/api/health` says `"mail":false`.
+2. **A reset does not sign other devices out.** Sign-in tokens last 30 days and carry no password
+   version. The account records `passwordAt`; a next step is to stamp tokens with their time and refuse
+   ones older than the last reset.
+3. **No "change password" or "change email" while signed in.** The reset link is the only way to a new
+   password; a new address needs support.
+4. **Apple's Hide My Email addresses** get no mail until `webuy.ad` and `support@webuy.ad` are
+   registered for Sign in with Apple's email relay (Apple Developer; `docs/MAIL-SETUP.md`).
+5. **The iPhone app** shows Forgot password? (it is the website's window); the mailed link opens in
+   Safari, which is signed in after the reset, not the app. The app signs in with the new password.
+6. **100 emails a month** on the free plan. Past it, the site still says a link is on its way and
+   nothing arrives; Netlify's function log says `Postmark: …`.
+7. **The words** were written here, plain and signed WeBuy.AD; the owner has not read them yet
+   (`netlify/lib/mail.mjs` resetMail and confirmMail).
+

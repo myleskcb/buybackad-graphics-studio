@@ -7066,6 +7066,25 @@ its toolbar took open item CF, so this one became CH. Every check passed on the 
 
 RESUME HERE: the owner's notes on the scenes (§CH 1); the golden-hour city and the phone may want redrawn clips (§CH 3).
 
+## 2026-11-25 — the pitch lines in Tune the mix (DESIGN-LAW 181; OPEN-ITEMS CI)
+
+Asked: the owner, after the bold lines went live: add each pitch line to the gallery's Tune the mix.
+  - The gallery is the "Ad Background Library" artifact; its panel saves to `tuning/choices`, and any `.opt` row the
+    page has is saved by the same script, so the new rows needed no code on the page.
+  - `WORD_WEIGHTS` lets the choices reach the engine; with every weight 1 it draws exactly what the even pick drew
+    (4,680 ads measured before and after), and a test Never and More moved the shares as asked.
+
+Found:
+  - A point in the list is not a point on the ad: where four do not fit the longest drops, so a sample for "TOP
+    DOLLAR in the points" must be read from the points drawn (`ad.perks.n`), not from `st.points`.
+  - `build_recipe_stills.mjs` draws its first still two ways from the same code (r-bandKnockout-ck07-35: the same words,
+    another type pair and number plate on alternate runs). Every other still is stable. A warm-up flake, not in this
+    change; it shows as one changed still in any redraw.
+  - The owner had already set four grounds to Less in the panel (abstract, colour and shape, painted scene, house);
+    those wait for their word that the panel is done.
+
+RESUME HERE: OPEN-ITEMS §CI 1, when the owner says the panel is done (§BZ 1 for the grounds).
+
 ## 2026-11-24 — how soon a shop's posts repeat (claude/zealous-dewdney-386bf8)
 
 Asked: how many days, at how many posts a day, before the ads start to look alike, with a
@@ -7087,7 +7106,7 @@ Learned:
   - New look moves the seed on by one, and each seed draws independently. A schedule's repeats
     follow from the pair rate: 1-(1-q)^m for m posts in memory.
 
-## 2026-11-24 — the freshness memory in New look (DESIGN-LAW 182; claude/zealous-dewdney-386bf8)
+## 2026-11-24 — the freshness memory in New look (DESIGN-LAW 184; claude/zealous-dewdney-386bf8)
 
 Asked: "Build it", the plan above. New look should pass over looks too close to the shop's recent
 posts, keep layouts and schemes from coming back soon, rotate the products and cap the riffs.

@@ -22,7 +22,7 @@
    first one does.
 
    The fingerprint, the comparisons and their lines live in motion/freshness.js, which the studio's New look keeps
-   to (DESIGN-LAW 182): what this test measures is what the studio passes over. --guard replays a shop posting with
+   to (DESIGN-LAW 184): what this test measures is what the studio passes over. --guard replays a shop posting with
    that memory against New look as it was (the next seed each time), over two weeks at each rate.
 
    usage:  GFX_BASE=http://127.0.0.1:8934/ node scripts/freshness_sim.mjs --draw [--lines iphone,gold,car] [--n 200]

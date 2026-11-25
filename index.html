@@ -144,6 +144,7 @@
         <button class="acct-chip" id="lp-acct-chip" title="Your account"><span id="lp-acct-label"></span><span class="acct-plan free" id="lp-acct-plan">FREE</span></button>
         <div class="view-drop acct-drop" id="lp-acct-menu">
           <div class="am-email" id="lpam-email"></div>
+          <div class="am-confirm" id="lpam-confirm" style="display:none"><span>Confirm your email so we can always help you back in.</span><button type="button" class="am-confirm-send">Send the link</button></div>
           <button class="view-item" id="lpam-plans">💳 Plan &amp; billing</button>
           <button class="view-item" id="lpam-exports">🕘 My downloads</button>
           <button class="view-item" id="lpam-adlib" style="display:none">📚 Ad library</button>
@@ -500,6 +501,7 @@
         <button class="acct-chip" id="acct-chip"><span id="acct-label">Sign in</span><span class="acct-plan free" id="acct-plan" style="display:none">FREE</span></button>
         <div class="view-drop acct-drop" id="acct-menu">
           <div class="am-email" id="am-email"></div>
+          <div class="am-confirm" id="am-confirm" style="display:none"><span>Confirm your email so we can always help you back in.</span><button type="button" class="am-confirm-send">Send the link</button></div>
           <button class="view-item" id="am-plans">💳 Plan &amp; billing</button>
           <button class="view-item" id="am-exports">🕘 My downloads</button>
           <button class="view-item" id="am-adlib" style="display:none">📚 Ad library</button>
@@ -1140,13 +1142,17 @@
       </div>
       <label for="auth-email">Email</label>
       <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
-      <label for="auth-pass">Password</label>
-      <div class="auth-pass-wrap">
-        <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password">
-        <button type="button" id="auth-pass-eye" title="Show password">👁</button>
+      <div id="auth-pass-box">
+        <label for="auth-pass">Password</label>
+        <div class="auth-pass-wrap">
+          <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password">
+          <button type="button" id="auth-pass-eye" title="Show password">👁</button>
+        </div>
+        <button type="button" class="auth-forgot" id="auth-forgot">Forgot password?</button>
       </div>
       <div class="auth-hint" id="auth-hint">At least 8 characters. Your account works on every device.</div>
       <div class="auth-err" id="auth-err"></div>
+      <div class="auth-sent" id="auth-sent" role="status" style="display:none"></div>
       <div class="modal-actions">
         <button class="btn btn-ghost" id="auth-cancel">Cancel</button>
         <button class="btn btn-primary" id="auth-go">Sign in</button>
@@ -1156,6 +1162,7 @@
     <div class="auth-type" id="auth-type" style="display:none">
       <h3 style="text-align:center">Pick your account type</h3>
       <div class="modal-sub" style="text-align:center">You can change plans any time from your account menu.</div>
+      <div class="auth-sent" id="auth-confirm-sent" role="status" style="display:none"></div>
       <button class="at-card" id="at-free">
         <span class="at-name">Free <em>$0</em></span>
         <span class="at-desc">3 photo downloads a week, every Phones design plus the top 3 in each other category, standard size with a light watermark.</span>

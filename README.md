@@ -48,6 +48,7 @@ redeploy. `.env.example` is the local copy for `netlify dev`.
 | `STRIPE_PUBLISHABLE_KEY` | optional, and the one to set with `STRIPE_SECRET`: `pk_test_…` with a test secret, `pk_live_…` with a live one. With it, checkout happens **on the site**: Stripe's payment form (card, Apple Pay, Google Pay, Link, whatever the Stripe dashboard's Payment methods switch on) opens inside the site's own dialog (`checkout-embed.js`, Stripe Embedded Checkout) and a card pays without leaving the page. Its look follows the Stripe dashboard's Settings → Branding (colours, font, corners). Without it, or with a key of the other mode, checkout is Stripe's hosted page |
 | `STRIPE_WEBHOOK_SECRET`, `PRICE_<KEY>`, `SITE_URL` | optional. A webhook you made by hand (otherwise the site registers its own); a price you made by hand (`PRICE_PRO_MONTH`, `PRICE_BUSINESS_YEAR`, `PRICE_CREDITS100`…; the old `PRICE_PRO` is `PRICE_PRO_MONTH`); the site's own https origin, where Stripe sends people back and events (defaults to Netlify's `URL`, which is the primary domain, `https://webuy.ad`, once it is set). Leave it unset, or make it `https://webuy.ad`: a netlify.app value keeps Checkout and the webhook on the old address. When the address changes, the next checkout moves the webhook to it (`ensureWebhook`) |
 | `GOOGLE_CLIENT_ID` | optional; shows the Google sign-in button |
+| `POSTMARK_TOKEN` | **switches mail out on**: Forgot password? mails a reset link and a new email-and-password account gets a link to confirm its address, from support@webuy.ad through Postmark (`netlify/lib/mail.mjs`, DESIGN-LAW 182). The Server API token of a Postmark server whose sending domain webuy.ad is verified; the owner's steps are `docs/MAIL-SETUP.md`. Until it is set, Forgot password? says to write to support@webuy.ad and nothing asks anyone to confirm. `GET /api/health` reports `mail:true` once it is set |
 | `LIBRARY_KEYS`, `LIBRARY_DAILY` | the partner library API, below |
 
 Stripe, once (owner, 2026-10-08: "make it live we can use stripe"):
@@ -139,7 +140,8 @@ costs at most $0.22 a month (`plan_economics.mjs` prints it).
 
 ## Notes
 - Test first with Stripe **test keys** + card 4242 4242 4242 4242.
-- No email verification / password reset in this MVP — add before wide launch.
+- Password reset and the email address check are built (DESIGN-LAW 182, OPEN-ITEMS §CJ) and
+  switch on with `POSTMARK_TOKEN` (`docs/MAIL-SETUP.md`). Unconfirmed accounts keep working.
 - The money side, measured against the market and the model's price:
   `docs/SAAS-AUDIT-2026-10-05.md`.
 

@@ -22,22 +22,25 @@
 </header>
 <main id="main">
   <h1>Privacy Policy</h1>
-  <p class="note">Effective July 2026, updated 23 November 2026. WeBuy.AD (&ldquo;we&rdquo;, &ldquo;us&rdquo;) runs this site and its ad maker and is responsible for the personal data described here.</p>
+  <p class="note">Effective July 2026, updated 24 November 2026. WeBuy.AD (&ldquo;we&rdquo;, &ldquo;us&rdquo;) runs this site and its ad maker and is responsible for the personal data described here.</p>
 
-  <p><strong>The short version.</strong> Most of what you make stays in your browser. We keep your account, your plan and your usage counts, and Stripe keeps your payment details. We do not sell your data, share it for advertising, or run ad trackers.</p>
+  <p><strong>The short version.</strong> Most of what you make stays in your browser. We keep your account, your plan, your usage counts and any brand kit you buy, and Stripe keeps your payment details. We do not sell your data, share it for advertising, or run ad trackers.</p>
 
   <h2>What stays in your browser</h2>
-  <p>Your drafts, saved templates, brand kit (phone number, website, business name), your area (ZIP or city), the photos you upload and your export history are stored in your browser on your device. They are not sent to us. Clearing your browser&rsquo;s site data removes them.</p>
+  <p>Your drafts, saved templates, the business details you give the studio (phone number, website, business name), your area (ZIP or city), the photos you upload and your export history are stored in your browser on your device. So is the logo you are designing in the logo maker, with the details you type for its kit, until you buy or save the kit. They are not sent to us. Clearing your browser&rsquo;s site data removes them.</p>
   <p>Your area is looked up in the browser against a list of US ZIP codes and cities that ships with the site. If you press &ldquo;Locate me&rdquo;, your browser asks your permission and the position is matched against the same list on your device; it is not sent to us.</p>
 
   <h2>What we store</h2>
   <p>If you create an account: your email, a salted password hash (or, if you sign in with Google or Apple, the email it confirms, which with Apple&rsquo;s Hide My Email is an address Apple forwards to you, and the name you share with it), when the account was created, your plan, how many exports you have used this week or month, and, if you subscribe, your Stripe customer reference. We also keep your AI credits (how many of the month&rsquo;s you have used, and how many you have bought), daily counters of how many backgrounds you published, and the references of the Stripe payments that bought credits, so the limits work and a payment is never counted twice. The AI backgrounds you generate are kept on our server, your newest 48, so the studio can load them for you; older ones are deleted. We do not store the ads you download.</p>
-  <p>When you buy a plan or credits we also keep the reference of your checkout, your subscription&rsquo;s status, plan and renewal date, and a record that you agreed to the Terms of Service: the version and the time. The same record is kept with the payment at Stripe.</p>
+  <p><strong>Brand kits.</strong> When you buy a brand kit, or save one your plan includes, we keep it with your account so you can download it again: the logo&rsquo;s design (the business name, the line under it, your town, and the colours, lettering, symbol and finish you chose) and the details you typed for its files, which may include your name and title, phone number, email, website, social media handle, business address and opening hours. We keep the design, not the downloaded files: they are drawn again each time you download. We also keep the reference of the payment that bought the kit.</p>
+  <p><strong>Email from us.</strong> We email you only about your account: a link to confirm your address when you create an account with an email and a password, and a link to choose a new password when you ask for one. We keep whether your address is confirmed, a scrambled copy (a hash) of the newest link of each kind until it is used, replaced or expires (an hour for a password link, seven days for a confirmation link), and, so nobody can flood an inbox, short-lived counts of these requests for each address and each internet address, kept as hashes, not as the addresses themselves. These emails are sent through Postmark, with no open or link tracking. We send no marketing email.</p>
+  <p>When you buy a plan, credits or a brand kit we also keep the reference of your checkout, your subscription&rsquo;s status, plan and renewal date, and a record that you agreed to the Terms of Service: the version and the time. The same record is kept with the payment at Stripe.</p>
 
   <h2>When something leaves your device</h2>
   <ul class="tidy">
     <li><strong>Publishing to the community gallery.</strong> Only if you choose to share a background. It becomes public to other users of the studio, with the part of your email before the @ shown as the author.</li>
     <li><strong>AI backgrounds.</strong> If you generate a background, the words you type are reduced to a few keywords and sent, with our own prompt and the choices you made (style, colours, size), to an image-generation provider (fal.ai or Google&rsquo;s Gemini). Products you pick are sent as our own product photographs. Your account email is not sent to them.</li>
+    <li><strong>AI name ideas.</strong> If you ask the AI for name ideas, the words you type for them, what you buy and your town are sent to Anthropic, whose Claude model writes the ideas. Your account email and your kit&rsquo;s contact details are not sent. The free name ideas are made on your device and send nothing.</li>
     <li><strong>A shop link.</strong> If a shop gives you a connect link (for example iPhones.LA&rsquo;s Auto-post page), the ads you download are also sent to that shop&rsquo;s picture library, with a list of the words and product pictures on the ad so the shop can write the listing. A phone number may be on the picture; ads that show a website, QR code, street address, social handle or watermark are not sent, and the studio tells you when that happens. The link only exists if you open one.</li>
     <li><strong>Printing and posting through SCANS.AD.</strong> Only for accounts that are also SCANS.AD members, and only when you choose &ldquo;Order prints + posting&rdquo;: the ad image, its name and size are handed to the SCANS.AD site in a new browser tab.</li>
     <li><strong>The video maker.</strong> Videos are made on your device and nothing is uploaded. It reads the area from your brand kit in this browser.</li>
@@ -51,11 +54,13 @@
   <p>These companies process data for us, only to run the Service:</p>
   <table>
     <tr><th>Service</th><th>What it does for us</th><th>What it receives</th></tr>
-    <tr><td>Netlify</td><td>Hosts the site, runs our server code and stores account records and generated backgrounds (United States)</td><td>Account and usage records, generated backgrounds, IP addresses in request logs</td></tr>
-    <tr><td>Stripe</td><td>Payments, subscriptions, invoices and receipts</td><td>Email, payment details, billing name, address and tax ID, the plan or pack bought</td></tr>
+    <tr><td>Netlify</td><td>Hosts the site, runs our server code and stores account records, brand kits and generated backgrounds (United States)</td><td>Account and usage records, brand kits and their details, generated backgrounds, IP addresses in request logs</td></tr>
+    <tr><td>Stripe</td><td>Payments, subscriptions, invoices and receipts</td><td>Email, payment details, billing name, address and tax ID, the plan, pack or brand kit bought</td></tr>
     <tr><td>fal.ai</td><td>AI image generation (first choice)</td><td>Keywords, your style and format choices, our product photographs; no email or account details</td></tr>
     <tr><td>Google</td><td>AI image generation (Gemini, the fallback), Google sign-in if you use it, Google Fonts</td><td>The same as fal.ai for generation; your Google sign-in token if you use it; IP address for fonts</td></tr>
+    <tr><td>Anthropic</td><td>AI name ideas (Claude), only when you ask the AI for names</td><td>The words you type for name ideas, what you buy and your town; no email, account or contact details</td></tr>
     <tr><td>Apple</td><td>Sign in with Apple, if you use it</td><td>Your Apple sign-in token, which carries the email and the name you choose to share</td></tr>
+    <tr><td>Postmark</td><td>Sends our account emails: the address confirmation and the password reset link</td><td>Your email address and the email itself; no open or link tracking</td></tr>
     <tr><td>Cloudflare (cdnjs), jsDelivr, unpkg</td><td>Deliver code libraries the studio loads</td><td>IP address, like any website request</td></tr>
     <tr><td>Cloudflare Web Analytics</td><td>Counts page visits and how fast pages load, with no cookies</td><td>The page address, the page you came from, your browser and device type, and the country worked out from your IP address; Cloudflare says it does not fingerprint visitors or build profiles</td></tr>
   </table>
@@ -72,7 +77,7 @@
 
   <h2>How long we keep it</h2>
   <ul class="tidy">
-    <li>Account records: while your account exists. When you delete your account, we delete its record, its usage counts and its generated backgrounds.</li>
+    <li>Account records: while your account exists. When you delete your account, we delete its record, its usage counts, its brand kits and its generated backgrounds. Download any kit you want to keep first.</li>
     <li>Payment and tax records: Stripe keeps them, and we keep the references to them, for as long as tax and accounting law requires, even after an account is deleted.</li>
     <li>Generated backgrounds: your newest 48; older ones are deleted as new ones are made.</li>
     <li>Community publishes: until you or we remove them.</li>
@@ -87,7 +92,7 @@
   <p>If you are in the EU or UK you may also complain to your data protection authority.</p>
 
   <h2>Deleting your data</h2>
-  <p>To delete your account, open the account menu and choose Delete account (on the website or in the app): your saved ads and AI pictures are deleted with it and any paid plan is cancelled. Or email <a href="mailto:support@webuy.ad">support@webuy.ad</a> from your account email, or text (562) 999-4994 with your account email. Cancel any paid plan first in Manage billing. Community publishes can be removed on request the same way.</p>
+  <p>To delete your account, open the account menu and choose Delete account (on the website or in the app): your saved ads, brand kits and AI pictures are deleted with it and any paid plan is cancelled. Or email <a href="mailto:support@webuy.ad">support@webuy.ad</a> from your account email, or text (562) 999-4994 with your account email. Cancel any paid plan first in Manage billing. Community publishes can be removed on request the same way.</p>
 
   <h2>Children</h2>
   <p>The Service is for businesses and is not directed to anyone under 18. We do not knowingly collect data from children.</p>

@@ -198,7 +198,7 @@ the same way before you build on top of it.
 
 ### 8. New look is seed + 1 only in a browser that has downloaded nothing
 
-Since DESIGN-LAW 182, New look in Easy Mode's full ad passes over looks that would repeat the shop's
+Since DESIGN-LAW 184, New look in Easy Mode's full ad passes over looks that would repeat the shop's
 recent downloads (`motion/freshness.js`, remembered in `pgfx_fresh_v1`). A check or a script that presses
 New look after a download, and expects the next seed, must clear that key first. A script that sets the
 seed itself (`FullAdStudio.state.seed`) is not affected. Change the memory's rules or numbers only in
