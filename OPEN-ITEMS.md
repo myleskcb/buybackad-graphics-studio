@@ -5064,8 +5064,10 @@ buyer or highest paying"; asked how hard, "bold, no proof needed"; asked when, "
 Done: see DESIGN-LAW 181.
 
 Open:
-1. **The mix is a first guess.** About half the badges and stickers are bold, and the points draw `top` at .7. The
-   gallery's Tune the mix panel could carry each pitch line (More, Less, Same, Never) as it carries the grounds.
+1. **The mix is a first guess.** About half the badges and stickers are bold, and the points draw `top` at .7. Since
+   2026-11-25 the gallery's Tune the mix carries each line (More, Less, Same, Never). When the owner says done, set
+   `WORD_WEIGHTS` (and each line's Spanish twin) and `PROMISES.top` from `tuning/choices`, then redraw the library
+   renders and the landing stills.
 2. **HIGHEST, BEST PRICE, #1 and WE BEAT ANY OFFER as a shop's own pick.** Today a shop types them. A switch in the
    maker ("I can back this up") would offer them, with the pre-flight's note. Not built.
 3. **The photo templates and classic cards** (`app.js` TEMPLATES: LOCAL BUYER kickers on the phone and silver decks)
