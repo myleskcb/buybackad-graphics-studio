@@ -7044,4 +7044,7 @@ Learned:
 Checked: `clip_grounds_check` (all five parts), `full_ad_check`, `quick_ad_check`, `buylist_check`,
 `motion_music_check`; twelve exports read back (1080 square, H.264 with AAC).
 
-RESUME HERE: the owner watches the review page (§CH 1) and says which scenes work and whether it goes on `main` (§CH 2).
+Then, at the owner's word ("Yes, put it live"), `main` (15 commits on: the trimmed toolbar, the card ads) merged in;
+its toolbar took open item CF, so this one became CH. Every check passed on the merge, and it went on `main`.
+
+RESUME HERE: the owner's notes on the scenes (§CH 1); the golden-hour city and the phone may want redrawn clips (§CH 3).

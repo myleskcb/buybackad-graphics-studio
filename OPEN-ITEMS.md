@@ -5006,7 +5006,8 @@ Done:
 
 Open:
 1. **The owner to watch and listen** on the review page, and say which scenes work.
-2. **Not on `main`** until the owner says so.
+2. **On `main`, at the owner's word** (2026-11-25: "Yes, put it live"), after `main` (the trimmed toolbar, the
+   card ads) was merged in and every check passed on the result.
 3. **The golden-hour city and the phone barely move** on their own (the city's light 0.3 of a level, the phone's
    2): the ad's light and sound carry their beat. Redrawn clips with more motion would serve them better.
 4. **Any look** (the plain engine) still has no moving ground (§CB 2), and so no scene kit.
