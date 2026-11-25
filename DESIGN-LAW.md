@@ -7501,7 +7501,13 @@ buy a month subscription as well"; "does it have name suggestions?", "tries to m
    Starter plan's checkout, $5 to take Essentials to Complete; Pro and Business include Complete. A kit bought
    is a credit until it is saved for one business name; the design under that name may change any time, a new
    name takes a new kit. A refund takes the credit back, or stops the kit it made.
-6. **Names**: the free mixer (names.js) blends the customer's words with the line's goods, its town and the
+6. **Finish and file type are the customer's**: a logo may be flat (the default), a gradient (a gentle sheen
+   down its body, its own colour lighter to darker) or a pattern (a faint texture in its own colour: engraved
+   rings on a round body, pinstripes or dots), never a second colour and never in the one-colour versions; the
+   gallery shows a few. A kit downloads as PNG (with the vectors and the card's print PDF), JPG, SVG, PDF (each
+   file a page, print pieces at their size in inches) or all of them, again any time: the same designs, any
+   file type. The line under a name is set below the name's ink, so a script's descenders never touch it.
+7. **Names**: the free mixer (names.js) blends the customer's words with the line's goods, its town and the
    trade's words, shown as little logos; the AI's (netlify/lib/names.mjs, Claude Opus 5.5) for AI credits, only
    with `ANTHROPIC_API_KEY`. Both keep the same never-list: no other firm's name or mark, no claim.
 

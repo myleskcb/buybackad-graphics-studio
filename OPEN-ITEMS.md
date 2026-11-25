@@ -4999,6 +4999,10 @@ Done:
   the kit at $5 off.
 - **Name ideas**: the free mixer, and Ask AI (`/api/names`, 2 AI credits a batch, refunded if it fails).
 - `@anthropic-ai/sdk` joins package.json for the AI names; it loads only when a batch is asked for.
+- The owner, on seeing it: "some people like logos with gradients", "or patterns", "clean simple and
+  professional": a Finish row (Flat, Gradient, Pattern) and a few in the gallery. "does it allow you to pick
+  a type or redownload in another format?": PNG, JPG, SVG, PDF or All, any time. And a script's descender
+  touching the small line under it ("where minor overlap"): a block's foot now counts its ink.
 
 Open, the owner's:
 1. **The prices.** $14.99 and $19.99 are one line each in plans.mjs KITS (the owner weighed $11.99 and

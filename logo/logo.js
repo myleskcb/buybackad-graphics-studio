@@ -22,7 +22,7 @@
 import * as E from "./engine.js";
 import * as KIT from "./kit.js";
 import { nameIdeas } from "./names.js";
-import { cardPdf, printLinks } from "./pdf.js";
+import { cardPdf, imagePdf, printLinks } from "./pdf.js";
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -37,9 +37,10 @@ const CATS = [["phones", "Phones & devices"], ["gaming", "Games & consoles"], ["
   ["wearables", "Watches & wearables"], ["cameras", "Cameras & drones"], ["strips", "Diabetic test strips"],
   ["devices", "Device store"], ["wholesale", "Wholesale & bulk lots"], ["resale", "Resale & trade-ins"]];
 const STORE = "pgfx_logo", KITKEY = "pgfx_logo_kit";
-const state = Object.assign({ name: "", cat: "", town: "", small: "", seed: 1, group: "", picked: null, details: {}, looks: {}, ok: {}, tier: "complete" }, jget(STORE, null) || {});
+const state = Object.assign({ name: "", cat: "", town: "", small: "", seed: 1, group: "", picked: null, details: {}, looks: {}, ok: {}, tier: "complete", format: "png" }, jget(STORE, null) || {});
+if (!KIT.KIT_FORMATS[state.format]) state.format = "png";
 state.details ||= {}; state.looks ||= {}; state.ok ||= {};
-const keep = () => jset(STORE, { name: state.name, cat: state.cat, town: state.town, small: state.small, seed: state.seed, group: state.group, picked: state.picked, details: state.details, looks: state.looks, ok: state.ok, tier: state.tier });
+const keep = () => jset(STORE, { name: state.name, cat: state.cat, town: state.town, small: state.small, seed: state.seed, group: state.group, picked: state.picked, details: state.details, looks: state.looks, ok: state.ok, tier: state.tier, format: state.format });
 /** the logo the rest of the site wears: the card maker and the full ad read it */
 const keepKit = () => { if (state.picked) jset(KITKEY, { v: E.ENGINE_VERSION, design: state.picked, at: Date.now() }); };
 const spec = () => ({ design: state.picked, details: state.details, looks: state.looks });
@@ -183,7 +184,7 @@ function pick(d, tile) {
 function changed() { state.ok = {}; keep(); rail(); }
 let pickRun = 0;
 const ROWS = [["row-pair", "pair", d => E.paletteOf(d.pair).name], ["row-voice", "voice", d => E.LOGO_VOICES[d.voice].name],
-  ["row-layout", "t", d => E.LOGO_LAYOUTS[d.t].name], ["row-icon", "icon", d => d.icon ? E.LOGO_ICONS[d.icon][1] : "Initials"]];
+  ["row-layout", "t", d => E.LOGO_LAYOUTS[d.t].name], ["row-icon", "icon", d => d.icon ? E.LOGO_ICONS[d.icon][1] : "Initials"], ["row-finish", "finish", d => E.FINISHES[d.finish || "flat"]]];
 async function drawPicked() {
   const run = ++pickRun, d = state.picked; if (!d) return;
   const big = $("lg-big"), mine = owned();
@@ -195,6 +196,8 @@ async function drawPicked() {
     const row = $(id), list = E.variants(d, axis === "t" ? "layout" : axis, 8);
     await needFor(list);
     if (run !== pickRun) return;
+    // a finish needs a body to sit on: a wordmark has none, so its row is not offered
+    if (axis === "finish") { const has = /linearGradient/.test(E.logoSvg({ ...d, finish: "gradient" }, FACES, {}).svg); row.hidden = !has; row.previousElementSibling.hidden = !has; if (!has) continue; }
     row.innerHTML = "";
     for (const v of list) {
       const b = document.createElement("button"); b.type = "button";
@@ -336,6 +339,7 @@ function mineUI() {
   $("kit-mine-list").innerHTML = list.map(k => `<div class="kit-mine-item"><div><b>${esc(k.name)}</b><small>${esc(KIT.KIT_TIERS[k.tier].name)} · ${KIT.COUNTS[k.tier]} files · saved ${new Date(k.at).toLocaleDateString()}</small></div>
     <div class="kit-mine-acts"><button class="lg-btn" type="button" data-open="${esc(k.id)}">Open</button><button class="lg-btn primary" type="button" data-dl="${esc(k.id)}">Download again</button></div></div>`).join("");
   sec.querySelectorAll("[data-dl]").forEach(b => b.onclick = () => downloadSaved(b.dataset.dl, b));
+  if (list.length) $("kit-mine-list").before(formatPicker());
   sec.querySelectorAll("[data-open]").forEach(b => b.onclick = () => openSaved(b.dataset.open));
 }
 function openSaved(id) {
@@ -386,9 +390,17 @@ function buyUI() {
     <label class="kit-agree"><input type="checkbox" id="kit-agree"> I agree to the <a href="../terms.html" target="_blank" rel="noopener">Terms of Service</a> and have read the <a href="../privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</label>
     ${btn("kit-pay-go", "Buy " + T.name + " for " + usd(P[t]))}<a class="lg-link" href="../?plans=1">Or get a plan: Pro includes Complete</a></div>`;
   el.innerHTML = html;
-  const dl = $("kit-dl"); if (dl) dl.onclick = () => getAndDownload(dl);
+  const dl = $("kit-dl"); if (dl) { dl.before(formatPicker()); dl.onclick = () => getAndDownload(dl); }
   const up = $("kit-up"); if (up) up.onclick = () => pay("upgrade", up, { kitId: sk.id });
   const go = $("kit-pay-go"); if (go) { go.disabled = true; $("kit-agree").onchange = e => { go.disabled = !e.target.checked; }; go.onclick = () => pay(t, go); }
+}
+/** the file types: the same designs as PNG, JPG, SVG, PDF or all of them, downloaded again any time */
+function formatPicker() {
+  const box = document.createElement("div"); box.className = "kit-format"; box.setAttribute("role", "radiogroup"); box.setAttribute("aria-label", "File type");
+  box.innerHTML = `<span class="kit-format-h">File type</span>` + Object.entries(KIT.KIT_FORMATS).map(([k, f]) => `<button type="button" role="radio" data-fmt="${k}" aria-checked="${state.format === k}" title="${esc(f.says)}">${f.name}</button>`).join("")
+    + `<small>${esc(KIT.KIT_FORMATS[state.format].says)}. Download again in any type, any time.</small>`;
+  box.onclick = e => { const b = e.target.closest("[data-fmt]"); if (!b) return; state.format = b.dataset.fmt; keep(); box.replaceWith(formatPicker()); document.querySelectorAll(".kit-mine .kit-format").forEach(x => x.replaceWith(formatPicker())); };
+  return box;
 }
 function note(msg, bad) { const n = $("lg-note"); if (n) { n.textContent = msg; n.classList.toggle("bad", !!bad); } const b = $("kit-buy"); const m = b && b.querySelector(".kit-msg"); if (m) m.remove(); if (b && msg) { const p = document.createElement("p"); p.className = "kit-msg" + (bad ? " bad" : ""); p.textContent = msg; b.appendChild(p); } }
 const VH = () => window.VideoHelp;
@@ -396,7 +408,7 @@ const VH = () => window.VideoHelp;
 /** Save this kit on the account (a bought kit, or the plan's), then download it */
 async function getAndDownload(btn) {
   const acct = window.pgfxAccount;
-  if (acct && acct.demo) return busy(btn, () => downloadFiles({ files: localFiles(state.tier), readme: KIT.readme(spec(), state.tier, FACES), tier: state.tier, name: state.picked.name }));
+  if (acct && acct.demo) return busy(btn, () => downloadFiles({ files: localFiles(state.tier), readme: KIT.readme(spec(), state.tier, FACES), tier: state.tier, name: state.picked.name }, state.format));
   if (!acct || !acct.signedIn()) { acct && acct.openAuth({ message: "Create a free account, or sign in, to keep your brand kit.", next: () => loadKits().then(() => { drawReview(); }) }); return; }
   await busy(btn, async () => {
     let kit;
@@ -408,7 +420,7 @@ async function getAndDownload(btn) {
 }
 async function downloadSaved(id, btn) {
   const acct = window.pgfxAccount;
-  const run = async () => { const got = await acct.api("/kits/file", { id }); await downloadFiles({ ...got, name: got.kit.name }); };
+  const run = async () => { const got = await acct.api("/kits/file", { id }); await downloadFiles({ ...got, name: got.kit.name }, state.format); };
   return btn ? busy(btn, run) : run();
 }
 /** the demo, which has no function: the same files drawn here */
@@ -425,6 +437,16 @@ async function png(svg, { long, w, h, scale = 1 } = {}) {
   c.width = c.height = 1;
   return bytes;
 }
+/** a JPEG at a file's size, on a colour where the file is see-through (a JPEG has no see-through) */
+async function jpegAt(svg, { long, w, h, scale = 1 }, bg) {
+  const im = await svgImage(svg), ar = (im.naturalWidth || 1) / (im.naturalHeight || 1);
+  const W = Math.round((w || (ar >= 1 ? long : long * ar)) * scale), H = Math.round((h || (ar >= 1 ? long / ar : long)) * scale);
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const x = c.getContext("2d"); x.fillStyle = bg || "#ffffff"; x.fillRect(0, 0, W, H); x.drawImage(im, 0, 0, W, H);
+  const bytes = await new Promise(res => c.toBlob(b => b.arrayBuffer().then(a => res(new Uint8Array(a))), "image/jpeg", .92));
+  c.width = c.height = 1;
+  return { bytes, w: W, h: H };
+}
 async function jpeg(svg, w, h) {
   const im = await svgImage(svg), c = document.createElement("canvas"); c.width = w; c.height = h;
   c.getContext("2d").drawImage(im, 0, 0, w, h);
@@ -433,22 +455,26 @@ async function jpeg(svg, w, h) {
   return { bytes, w, h };
 }
 const slugOf = n => (String(n || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "business");
-async function downloadFiles(got) {
-  const enc = new TextEncoder(), out = [], list = KIT.kitFor(got.tier), root = slugOf(got.name) + "-brand-kit/";
+async function downloadFiles(got, fmt = "png") {
+  if (!KIT.KIT_FORMATS[fmt]) fmt = "png";
+  const enc = new TextEncoder(), out = [], list = KIT.kitFor(got.tier), root = slugOf(got.name) + "-brand-kit" + (fmt === "png" ? "" : "-" + fmt) + "/", want = f => fmt === "all" || fmt === f;
   let i = 0;
   for (const F of list) {
     const svg = got.files[F.id]; if (!svg) continue;
     note("Making your files: " + (++i) + " of " + list.length + "…");
-    out.push([root + F.dir + "/" + F.file + ".png", await png(svg, F.long ? { long: F.long } : { w: F.w, h: F.h, scale: F.id === "sign-window" ? 1.5 : 1 })]);
-    if (F.vector) out.push([root + F.dir + "/" + F.file + ".svg", enc.encode(svg)]);
+    const size = F.long ? { long: F.long } : { w: F.w, h: F.h, scale: F.id === "sign-window" ? 1.5 : 1 }, base = root + F.dir + "/" + F.file;
+    if (want("png")) out.push([base + ".png", await png(svg, size)]);
+    if (want("jpg")) out.push([base + ".jpg", (await jpegAt(svg, size, F.clear ? (F.on || "#ffffff") : null)).bytes]);
+    if (want("svg") || (fmt === "png" && F.vector)) out.push([base + ".svg", enc.encode(svg)]);
+    if (want("pdf")) { const j = await jpegAt(svg, size, F.clear ? (F.on || "#ffffff") : null), pt = F.inches ? [F.inches[0] * 72, F.inches[1] * 72] : [j.w * .75, j.h * .75]; out.push([base + ".pdf", imagePdf(j, pt[0], pt[1])]); }
   }
   if (got.files["card-front"] && got.files["card-back"]) {
     const pdf = cardPdf([await jpeg(got.files["card-front"], 2250, 1350), await jpeg(got.files["card-back"], 2250, 1350)]);
     out.push([root + "04-business-card/business-card-print.pdf", pdf]);
   }
   out.push([root + "README.txt", enc.encode(got.readme || "")]);
-  save(zip(out), slugOf(got.name) + "-brand-kit.zip", "application/zip");
-  note("Downloaded: your " + KIT.KIT_TIERS[got.tier].name + " brand kit, " + list.length + " files in one folder. It's saved to your account; download it again any time.");
+  save(zip(out), slugOf(got.name) + "-brand-kit" + (fmt === "png" ? "" : "-" + fmt) + ".zip", "application/zip");
+  note("Downloaded: your " + KIT.KIT_TIERS[got.tier].name + " brand kit as " + KIT.KIT_FORMATS[fmt].name + ", " + list.length + " files in one folder. Download it again any time, in any file type.");
 }
 function save(bytes, name, type) { const blob = new Blob([bytes], { type }); if (VH() && VH().save) VH().save(blob, name); else { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); } }
 async function busy(btn, fn) {

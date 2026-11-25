@@ -35,6 +35,25 @@ export function cardPdf(jpegs) {
   return out;
 }
 
+/** one JPEG on a page of w × h points (72 a inch): any kit file as a PDF */
+export function imagePdf(j, wPt, hPt) {
+  const enc = new TextEncoder(), parts = [], offs = []; let len = 0;
+  const put = x => { const u = typeof x === "string" ? enc.encode(x) : x; parts.push(u); len += u.length; };
+  const f2 = v => (Math.round(v * 100) / 100).toString(), obj = (id, body) => { offs[id] = len; put(id + " 0 obj\n"); body(); put("\nendobj\n"); };
+  put("%PDF-1.4\n%\xe2\xe3\xcf\xd3\n");
+  obj(1, () => put("<< /Type /Catalog /Pages 2 0 R >>"));
+  obj(2, () => put("<< /Type /Pages /Kids [3 0 R] /Count 1 >>"));
+  const content = "q " + f2(wPt) + " 0 0 " + f2(hPt) + " 0 0 cm /Im0 Do Q\n";
+  obj(3, () => put("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + f2(wPt) + " " + f2(hPt) + "] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>"));
+  obj(4, () => { put("<< /Length " + enc.encode(content).length + " >>\nstream\n"); put(content); put("\nendstream"); });
+  obj(5, () => { put("<< /Type /XObject /Subtype /Image /Width " + j.w + " /Height " + j.h + " /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " + j.bytes.length + " >>\nstream\n"); put(j.bytes); put("\nendstream"); });
+  const xref = len; put("xref\n0 6\n0000000000 65535 f \n");
+  for (let i = 1; i < 6; i++) put(String(offs[i]).padStart(10, "0") + " 00000 n \n");
+  put("trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n" + xref + "\n%%EOF\n");
+  const out = new Uint8Array(len); let o = 0; parts.forEach(p => { out.set(p, o); o += p.length; });
+  return out;
+}
+
 /* print it today (the card maker's printLinks): Google Maps searches the customer opens themselves */
 const CHAINS = ["FedEx Office", "Staples", "Office Depot OfficeMax", "The UPS Store"];
 export function printLinks(q) {

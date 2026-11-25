@@ -387,8 +387,8 @@ export const FORMATS = [
   S({ id: "cover-youtube", tier: "essentials", step: "social", dir: "03-banners", file: "youtube-banner", title: "YouTube banner", sub: "2560 × 1440", w: 2560, h: 1440, draw: (s, f) => banner(s, f, 2560, 1440, { safe: [507, 508, 1546, 423], i: 2, title: "YouTube banner" }) }),
   S({ id: "cover-linkedin", tier: "essentials", step: "social", dir: "03-banners", file: "linkedin-banner", title: "LinkedIn banner", sub: "1584 × 396", w: 1584, h: 396, draw: (s, f) => banner(s, f, 1584, 396, { safe: [420, 30, 1100, 336], i: 3, contact: "site", title: "LinkedIn banner" }) }),
   S({ id: "cover-google", tier: "essentials", step: "social", dir: "03-banners", file: "google-business-cover", title: "Google Business cover", sub: "1024 × 576", w: 1024, h: 576, draw: (s, f) => banner(s, f, 1024, 576, { safe: [60, 50, 904, 476], i: 4, title: "Google Business cover" }) }),
-  S({ id: "card-front", tier: "essentials", step: "card", dir: "04-business-card", file: "business-card-front", title: "Business card, front", sub: "3.5 × 2 in, print-ready", w: CARD.w, h: CARD.h, card: true, draw: cardFront }),
-  S({ id: "card-back", tier: "essentials", step: "card", dir: "04-business-card", file: "business-card-back", title: "Business card, back", sub: "Your details", w: CARD.w, h: CARD.h, card: true, draw: cardBack }),
+  S({ id: "card-front", tier: "essentials", step: "card", dir: "04-business-card", file: "business-card-front", title: "Business card, front", sub: "3.5 × 2 in, print-ready", w: CARD.w, h: CARD.h, card: true, inches: [3.75, 2.25], draw: cardFront }),
+  S({ id: "card-back", tier: "essentials", step: "card", dir: "04-business-card", file: "business-card-back", title: "Business card, back", sub: "Your details", w: CARD.w, h: CARD.h, card: true, inches: [3.75, 2.25], draw: cardBack }),
   S({ id: "app-icon", tier: "essentials", step: "print", dir: "05-web-and-email", file: "app-icon-512", title: "App icon", sub: "512 × 512", w: 512, h: 512, draw: logoFile({ form: "mark", mode: "colour", pad: .1 }) }),
   S({ id: "touch-icon", tier: "essentials", step: "print", dir: "05-web-and-email", file: "apple-touch-icon-180", title: "Home-screen icon", sub: "180 × 180", w: 180, h: 180, draw: logoFile({ form: "mark", mode: "colour", pad: .1 }) }),
   S({ id: "favicon", tier: "essentials", step: "print", dir: "05-web-and-email", file: "favicon-32", title: "Website icon", sub: "32 × 32", w: 32, h: 32, draw: logoFile({ form: "mark", mode: "colour", pad: .04 }) }),
@@ -412,17 +412,26 @@ export const FORMATS = [
   S({ id: "post-google", tier: "complete", step: "posts", dir: "08-posts", file: "google-business-post", title: "Google Business post", sub: "1200 × 900", w: 1200, h: 900, draw: (s, f) => poster(s, f, 1200, 900, { head: headFor(s.design.cat), sub: promiseFor(s.design.cat), cta: "CALL " + det(s.details, "phone"), i: 6, title: "Google post" }) }),
   S({ id: "thumb-youtube", tier: "complete", step: "posts", dir: "08-posts", file: "youtube-thumbnail", title: "YouTube thumbnail", sub: "1280 × 720", w: 1280, h: 720, draw: (s, f) => poster(s, f, 1280, 720, { head: "WHAT WE BOUGHT THIS WEEK", foot: false, i: 7, big: .2, title: "YouTube thumbnail" }) }),
   S({ id: "post-x", tier: "complete", step: "posts", dir: "08-posts", file: "x-post", title: "X post", sub: "1600 × 900", w: 1600, h: 900, draw: (s, f) => poster(s, f, 1600, 900, { head: "NOW BUYING", sub: headFor(s.design.cat).replace(/^WE BUY /, ""), cta: "CALL " + det(s.details, "phone"), i: 8, title: "X post" }) }),
-  S({ id: "sign-window", tier: "complete", step: "print", dir: "09-print", file: "window-poster-18x24", title: "Window poster", sub: "18 × 24 in", w: 1800, h: 2400, vector: true, draw: (s, f) => poster(s, f, 1800, 2400, { head: headFor(s.design.cat), sub: promiseFor(s.design.cat), list: pointsFor(s.design.cat), cta: det(s.details, "phone"), look: lookOf(s, "print"), title: "window poster" }) }),
-  S({ id: "sign-hours", tier: "complete", step: "print", dir: "09-print", file: "door-hours-sign-letter", title: "Door hours sign", sub: "8.5 × 11 in", w: 2550, h: 3300, vector: true, draw: (s, f) => poster(s, f, 2550, 3300, { head: "COME ON IN", sub: det(s.details, "hours"), cta: det(s.details, "phone"), logo: "primary", look: lookOf(s, "print", 1), title: "door sign" }) }),
-  S({ id: "sticker", tier: "complete", step: "print", dir: "09-print", file: "thank-you-sticker-3in", title: "Thank-you sticker", sub: "3 in round", w: 900, h: 900, vector: true, round: true, draw: sticker }),
+  S({ id: "sign-window", tier: "complete", step: "print", dir: "09-print", file: "window-poster-18x24", title: "Window poster", sub: "18 × 24 in", w: 1800, h: 2400, vector: true, inches: [18, 24], draw: (s, f) => poster(s, f, 1800, 2400, { head: headFor(s.design.cat), sub: promiseFor(s.design.cat), list: pointsFor(s.design.cat), cta: det(s.details, "phone"), look: lookOf(s, "print"), title: "window poster" }) }),
+  S({ id: "sign-hours", tier: "complete", step: "print", dir: "09-print", file: "door-hours-sign-letter", title: "Door hours sign", sub: "8.5 × 11 in", w: 2550, h: 3300, vector: true, inches: [8.5, 11], draw: (s, f) => poster(s, f, 2550, 3300, { head: "COME ON IN", sub: det(s.details, "hours"), cta: det(s.details, "phone"), logo: "primary", look: lookOf(s, "print", 1), title: "door sign" }) }),
+  S({ id: "sticker", tier: "complete", step: "print", dir: "09-print", file: "thank-you-sticker-3in", title: "Thank-you sticker", sub: "3 in round", w: 900, h: 900, vector: true, round: true, inches: [3, 3], draw: sticker }),
   S({ id: "watermark", tier: "complete", step: "print", dir: "10-brand", file: "photo-watermark", title: "Photo watermark", sub: "For your listing photos", long: 1200, clear: true, on: "#6b7280", draw: (s, f) => E.logoSvg(s.design, f, { form: "horizontal", mode: "white", pad: .04 }) }),
   S({ id: "email-header", tier: "complete", step: "print", dir: "10-brand", file: "email-header", title: "Email and invoice header", sub: "1200 × 300", w: 1200, h: 300, draw: (s, f) => banner(s, f, 1200, 300, { safe: [40, 20, 1120, 260], step: "print", i: 2, contact: "site", title: "email header" }) }),
-  S({ id: "guide", tier: "complete", step: "print", dir: "10-brand", file: "brand-guide", title: "Brand guide", sub: "Your colours, lettering and logo", w: 1700, h: 2200, vector: true, draw: guide }),
+  S({ id: "guide", tier: "complete", step: "print", dir: "10-brand", file: "brand-guide", title: "Brand guide", sub: "Your colours, lettering and logo", w: 1700, h: 2200, vector: true, inches: [8.5, 11], draw: guide }),
 ];
 const ctxTown = s => up(tidy(s.design.town));
 export const FORMAT = Object.fromEntries(FORMATS.map(f => [f.id, f]));
 export const kitFor = tier => FORMATS.filter(f => tier === "complete" || f.tier === "essentials");
 export const COUNTS = { essentials: kitFor("essentials").length, complete: kitFor("complete").length };
+
+/** the file types a kit downloads in: the same designs, any of them, as often as the customer likes */
+export const KIT_FORMATS = {
+  png: { name: "PNG", says: "Pictures, ready to post, with the logo as vectors and the card as a print PDF" },
+  jpg: { name: "JPG", says: "Smaller pictures for email and the web" },
+  svg: { name: "SVG", says: "Every file as a vector, sharp at any size" },
+  pdf: { name: "PDF", says: "Every file as a page, ready to print or send to a shop" },
+  all: { name: "All", says: "Every file in every format" },
+};
 
 /** one file as SVG */
 export function kitSvg(id, spec, faces) {

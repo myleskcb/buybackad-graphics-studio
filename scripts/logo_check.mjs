@@ -133,6 +133,12 @@ const NAMES = ['Long Beach Phone Buyers', 'Gold Rush Cash', "Sam's Coins", 'MK E
   ok(['logo.svg', 'logo-on-colour.svg', 'logo-black.svg', 'logo-white.svg', 'logo-side-by-side.svg', 'mark.svg', 'mark-on-colour.svg', 'profile.svg', 'cover.svg', 'README.txt'].every((n) => k[n]), 'the kit has its ten files');
   ok(/width="1080" height="1080"/.test(k['profile.svg']) && /width="1640" height="624"/.test(k['cover.svg']), 'the profile picture is 1080 square and the cover 1640 × 624');
   ok(!/<text\b/.test(Object.values(k).join('')), 'no file sets a word as <text>: every word is outlines');
+  // the finishes (DESIGN-LAW 180): a gradient or a pattern on the body, never in the one-colour versions
+  const fd = { t: 'seal', name: 'Gold Coast Buyers', cat: 'gold', voice: 'street', pair: 'navy_gold', seed: 2 };
+  const fg = E.logoSvg({ ...fd, finish: 'gradient' }, faces, {}).svg, fp = E.logoSvg({ ...fd, finish: 'pattern' }, faces, {}).svg;
+  ok(/linearGradient/.test(fg) && /clipPath/.test(fp) && !/linearGradient|clipPath/.test(E.logoSvg(fd, faces, {}).svg), 'a gradient and a pattern finish draw; flat draws neither');
+  ok(!/clipPath/.test(E.logoSvg({ ...fd, finish: 'pattern' }, faces, { mode: 'black' }).svg) && !/clipPath/.test(E.logoSvg({ ...fd, finish: 'pattern' }, faces, { mode: 'white' }).svg), 'the one-colour versions stay flat');
+  ok(E.cleanDesign({ ...fd, finish: 'nope' }).finish === 'flat' && E.cleanDesign({ ...fd, finish: 'pattern' }).finish === 'pattern', 'a design keeps its finish, and only a real one');
 }
 
 /* ---------- 2. the function ---------- */
@@ -336,6 +342,15 @@ if (!NO_BROWSER) {
     const pp = png('profile-instagram-facebook-tiktok.png'), cv = png('facebook-cover.png'), lg = png('01-logo/logo-full-colour.png'), cf = png('business-card-front.png');
     ok(pp && pp[0] === 1080 && cv && cv[0] === 1640 && cv[1] === 624 && lg && Math.max(...lg) === 2400 && cf && cf[0] === 1125 && cf[1] === 675, 'each picture at its size (' + JSON.stringify({ pp, cv, lg, cf }) + ')');
     ok(entries.every((e) => /^gold-rush-cash-brand-kit\/(0\d|10)-[a-z-]+\/|README/.test(e.name)), 'the folders are numbered in the order of the steps');
+    // the same kit again, as vectors: a file type is the customer's to pick, as often as they like
+    await page.click('#kit-buy [data-fmt="svg"]');
+    const dl2 = page.waitForEvent('download', { timeout: 120000 });
+    await page.click('#kit-dl');
+    const d2 = await dl2.catch(() => null), b2 = d2 ? readFileSync(await d2.path()) : null, names2 = [];
+    if (b2) for (let o = b2.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06])), n = b2.readUInt16LE(o + 10), p = b2.readUInt32LE(o + 16), i = 0; i < n; i++) { const nl = b2.readUInt16LE(p + 28); names2.push(b2.slice(p + 46, p + 46 + nl).toString()); p += 46 + nl + b2.readUInt16LE(p + 30) + b2.readUInt16LE(p + 32); }
+    ok(d2 && /brand-kit-svg\.zip$/.test(d2.suggestedFilename()) && names2.filter((n) => n.endsWith('.svg')).length === 20 && !names2.some((n) => n.endsWith('.png')) && names2.some((n) => n.endsWith('business-card-print.pdf')),
+      'downloaded again as SVG: the same 20 files as vectors, and the card\'s print PDF (' + names2.length + ')');
+    ok(await page.evaluate(() => !document.getElementById('row-finish').hidden || document.querySelectorAll('#row-finish button').length === 0), 'the Finish row shows where the logo has a body');
     ok((await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 0, 'no sideways scroll at 1300');
     ok(errors.length === 0, 'no page error (' + errors.slice(0, 2).join(' | ') + ')');
     await ctx.close();
