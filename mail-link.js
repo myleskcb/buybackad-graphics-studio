@@ -80,7 +80,7 @@
       const j = await api('/auth/reset', { token, password: pass });
       keep('pgfx_token', j.token);           // the studio's own sign-in (app.js, account.js)
       keep('pgfx_seen_account', true);
-      done('Your new password is saved', "You're signed in as " + j.user.email + '. Use the new password next time you sign in, on any device.');
+      done('Your new password is saved', "You're signed in as " + j.user.email + '. Any other phone or computer that was signed in is signed out now: use the new password there.');
     } catch (err) {
       if (err.data && err.data.link) ask(err.message);
       else say('ap-new-msg', err.message);

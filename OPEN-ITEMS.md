@@ -5149,9 +5149,9 @@ Open:
 1. **On `main` and live 2026-11-25, without the token** (the owner: "Yes, put it live"). Until the steps
    above are done, Forgot password? says to write to support@webuy.ad and nothing asks anyone to confirm;
    `/api/health` says `"mail":false`.
-2. **A reset does not sign other devices out.** Sign-in tokens last 30 days and carry no password
-   version. The account records `passwordAt`; a next step is to stamp tokens with their time and refuse
-   ones older than the last reset.
+2. ~~A reset does not sign other devices out.~~ **Done 2026-11-25** (the owner: "Yes, add it"): tokens
+   carry `iat`, and `readToken` refuses any made before the account's `passwordAt` (rule 182). mail_check
+   holds it: 115 passed. Not on `main` until the owner says to put it live.
 3. **No "change password" or "change email" while signed in.** The reset link is the only way to a new
    password; a new address needs support.
 4. **Apple's Hide My Email addresses** get no mail until `webuy.ad` and `support@webuy.ad` are

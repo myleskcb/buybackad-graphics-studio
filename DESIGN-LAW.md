@@ -7689,6 +7689,12 @@ back in. Asked for by another session for the owner.
   analytics and no Referer on them, `noindex`. A good reset link names the account and asks for the new
   password; saving it signs the visitor in. A used or expired link says so and offers a new one on the
   same page.
+- **A reset signs the account out everywhere else** (added 2026-11-25, the owner: "Yes, add it"). Every
+  sign-in token carries the time it was made (`iat`); `readToken` refuses one made before the account's
+  `passwordAt`, and one with no `iat` once the account has a `passwordAt`. The reset's own token is made
+  after it, and accounts that never reset keep their older sign-ins. The account `readToken` reads is kept
+  for that request (`seenUser`), so a route does not read it twice. The mail and the saved page say so in
+  one line: other phones and computers are signed out.
 - **Limits count every request, account or not**, in windows kept by hashes, never an address or an IP:
   reset links 3 an hour for an address and 10 from an IP; confirmation links 3 an hour for an account and
   10 from an IP, sign-ups included (the 11th account is still made, without mail); tries at a link 30 an
