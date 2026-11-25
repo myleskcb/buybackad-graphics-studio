@@ -44,7 +44,12 @@
  * netlify/lib/plans.mjs. A paid model call spends credits; a model with no
  * price there is not sold.
  *
- * Env vars: JWT_SECRET (required), FAL_KEY and/or GEMINI_KEY (AI backgrounds:
+ * Mail out (netlify/lib/mail.mjs, DESIGN-LAW 182): POST /api/auth/forgot,
+ * /auth/reset/check, /auth/reset, /auth/confirm, /auth/confirm/send. A
+ * reset link and an address check from support@webuy.ad through Postmark;
+ * off until POSTMARK_TOKEN is set (the routes say so, nobody is locked out).
+ *
+ * Env vars: JWT_SECRET (required), POSTMARK_TOKEN (mail out), FAL_KEY and/or GEMINI_KEY (AI backgrounds:
  * fal Seedream first when FAL_KEY is set, the other the fallback), ADMIN_EMAILS
  * (comma-separated), optional: the PGFX_* and AI_MAX_PER_RUN settings listed in
  * netlify/lib/bggen.mjs, PGFX_BG_MODEL, MODEL_COSTS (JSON,
@@ -71,6 +76,7 @@ import {
 import { bggenRoute, generateImage, loadRecipe, dataUrlOf } from '../lib/bggen.mjs';
 import { verifyAppleIdToken } from '../lib/appleid.mjs';
 import { verifyGoogleToken, googleProfileName } from '../lib/googleid.mjs';
+import { mailOn, sendMail, resetMail, confirmMail, newToken, tokenShape, sha256, siteOf, windowLimit, LIMITS, RESET_MINUTES, CONFIRM_DAYS } from '../lib/mail.mjs';
 
 export const config = { path: '/api/*' };
 
@@ -125,10 +131,16 @@ const roleFor = (email, env) => (adminEmails(env).includes(email) ? 'admin' : 'u
    is billed on: no download cap, watermark or size limit (/export), video,
    AI not charged (bggen.mjs), the biggest library (adlibrary.mjs). `plan` stays
    the billed one, so checkout can still be tried; credits say unlimited. */
+/* An address is confirmed once its owner opened a link mailed to it (a
+   confirmation or a reset), or Google or Apple vouched for it at sign-in.
+   askConfirm: the account menu's gentle note, only when mail can be sent and
+   the account has a password (rule 182). Nobody is locked out either way. */
+const confirmedOf = (u) => !!(u.confirmed || u.provider === 'google' || u.provider === 'apple' || u.appleSub);
 const publicUser = (u, env) => ({
   email: u.email, plan: planId(u.plan), exports: u.exports, videos: u.videos || { period: '', count: 0 }, role: roleFor(u.email, env),
   credits: roleFor(u.email, env) === 'admin' ? { ...creditState(u), unlimited: true } : creditState(u),
   sub: u.sub && u.sub.id ? { plan: u.sub.plan, interval: u.sub.interval, status: u.sub.status, periodEnd: u.sub.periodEnd, cancelAt: u.sub.cancelAt } : null,
+  confirmed: confirmedOf(u), askConfirm: mailOn(env) && !confirmedOf(u) && !!u.hash,
 });
 /* the download meter of an account's plan: this period's count, its cap */
 function exportMeter(user) {
@@ -195,9 +207,58 @@ async function bumpBy(key, n, cap) {
   return true;
 }
 
+// ---------- mail out: the reset link and the address check (netlify/lib/mail.mjs, rule 182) ----------
+/* the caller's IP, for the rate limits only (kept as a hash, never stored as is) */
+const ipOf = (req, context) => String((context && context.ip) || req.headers.get('x-nf-client-connection-ip')
+  || (req.headers.get('x-forwarded-for') || '').split(',')[0] || 'unknown').trim();
+const limited = async (key, [max, ms]) => windowLimit(users(), key, max, ms);
+const LINK_FIELD = { reset: 'resetLink', confirm: 'confirmLink' };
+/* A new link of one kind for an account: the older one of that kind stops
+   working, the new one is kept only as its hash, then mailed. */
+async function mailLink(user, kind, env, origin) {
+  const token = newToken(), h = await sha256(token), field = LINK_FIELD[kind], store = users();
+  const exp = Date.now() + (kind === 'reset' ? RESET_MINUTES * 60e3 : CONFIRM_DAYS * 86400e3);
+  await store.set('mt:' + h, JSON.stringify({ kind, email: user.email, exp }));
+  /* the account as it is now (this can run after the reply, beside the next request) */
+  const cur = (await getUser(user.email)) || user;
+  if (cur[field]) await store.delete('mt:' + cur[field]).catch(() => {});
+  cur[field] = user[field] = h;
+  await putUser(cur);
+  const link = siteOf(env, origin) + (kind === 'reset' ? '/reset.html' : '/confirm.html') + '#t=' + token;
+  const social = user.provider === 'google' || user.provider === 'apple' ? (user.provider === 'google' ? 'Google' : 'Apple') : user.appleSub ? 'Apple' : '';
+  const m = kind === 'reset' ? resetMail({ link, social }) : confirmMail({ link });
+  return sendMail(env, { to: user.email, ...m });
+}
+/* The link a page sends back: what it is for and whose, or why it does not
+   work. Only the account's newest link of its kind works, once. */
+async function readLink(token, kind) {
+  if (!tokenShape(token)) return { error: 'bad' };
+  const h = await sha256(token), store = users();
+  const rec = JSON.parse((await store.get('mt:' + h)) || 'null');
+  if (!rec || rec.kind !== kind) return { error: 'used' };
+  const user = await getUser(rec.email);
+  if (!user || user[LINK_FIELD[kind]] !== h) { await store.delete('mt:' + h).catch(() => {}); return { error: 'used' }; }
+  if (!(rec.exp > Date.now())) return { error: 'expired' };
+  return { h, user };
+}
+async function spendLink(user, kind) {
+  const field = LINK_FIELD[kind];
+  if (user[field]) await users().delete('mt:' + user[field]).catch(() => {});
+  user[field] = null;
+}
+const LINK_SAYS = {
+  reset: { bad: 'This link is not complete. Open it from the email again, or ask for a new one.',
+    used: 'This link has already been used, or a newer one was sent. Ask for a new one.',
+    expired: 'This link has expired: a reset link works for ' + RESET_MINUTES + ' minutes. Ask for a new one.' },
+  confirm: { bad: 'This link is not complete. Open it from the email again.',
+    used: 'This link has already been used, or a newer one was sent. Sign in and send a new one from your account menu.',
+    expired: 'This link has expired: a confirmation link works for ' + CONFIRM_DAYS + ' days. Sign in and send a new one from your account menu.' },
+};
+const MAIL_OFF = "Email from WeBuy.AD isn't switched on yet. Write to support@webuy.ad and we'll get you back in.";
+
 const BG_FILE_RE = /^dl_[a-z]+_[A-Za-z]+_[a-z]+\.jpg$/; // Designer Library names only
 
-export default async (req) => {
+export default async (req, context) => {
   const env = process.env;
   const url = new URL(req.url);
   const p = url.pathname.replace(/^\/api/, '').replace(/\/$/, '') || '/';
@@ -243,7 +304,7 @@ export default async (req) => {
     if (p === '/health') {
       let store = 'ok';
       try { await users().get('u:health@probe.invalid'); } catch (e) { store = 'error: ' + String((e && e.message) || e).slice(0, 160); }
-      return json({ ok: store === 'ok' && !!env.JWT_SECRET, accounts: !!env.JWT_SECRET, store, ai: !!(env.GEMINI_KEY || env.FAL_KEY), google: !!env.GOOGLE_CLIENT_ID, billing: billingOn(env) });
+      return json({ ok: store === 'ok' && !!env.JWT_SECRET, accounts: !!env.JWT_SECRET, store, ai: !!(env.GEMINI_KEY || env.FAL_KEY), google: !!env.GOOGLE_CLIENT_ID, billing: billingOn(env), mail: mailOn(env) });
     }
     if (!env.JWT_SECRET) return json({ error: 'Backend not configured (JWT_SECRET missing)' }, 500);
 
@@ -270,9 +331,18 @@ export default async (req) => {
       if (!password || password.length < 8) return json({ error: 'Password needs at least 8 characters' }, 400);
       if (await getUser(em)) return json({ error: 'An account with that email already exists' }, 409);
       const salt = hex(crypto.getRandomValues(new Uint8Array(16)));
-      const user = { email: em, salt, hash: await pbkdf2(password, salt), plan: 'free', exports: { period: '', count: 0 }, created: Date.now() };
+      const user = { email: em, salt, hash: await pbkdf2(password, salt), plan: 'free', exports: { period: '', count: 0 }, created: Date.now(), confirmed: null };
       await putUser(user);
-      return json({ token: await makeToken(em, env), user: publicUser(user, env) });
+      /* the address check (rule 182): a link to confirm it, mailed after the
+         reply; the account works now whether or not it is ever confirmed.
+         Ten a hour from one IP, so sign-ups cannot be used to mail strangers. */
+      let confirmSent = false;
+      if (mailOn(env) && (await limited('rl:ci:' + (await sha256(ipOf(req, context))), LIMITS.confirmIp)).ok) {
+        const work = mailLink(user, 'confirm', env, url.origin).catch((e) => console.error('signup: the confirmation mail', e.message));
+        if (context && typeof context.waitUntil === 'function') context.waitUntil(work); else await work;
+        confirmSent = true;
+      }
+      return json({ token: await makeToken(em, env), user: publicUser(user, env), confirmSent });
     }
 
     if (p === '/auth/login' && req.method === 'POST') {
@@ -286,12 +356,86 @@ export default async (req) => {
       return json({ token: await makeToken(em, env), user: publicUser(user, env) });
     }
 
+    /* FORGOT PASSWORD (rule 182). One reply for every address, whether or
+       not it has an account: the lookup and the mail happen after the reply
+       (context.waitUntil), so neither the words nor the time say which. The
+       limits count every request, account or not: 3 an hour for an address,
+       10 an hour from an IP. An account that signs in with Google or Apple
+       gets a link too, and can add a password with it. */
+    if (p === '/auth/forgot' && req.method === 'POST') {
+      const { email } = await req.json().catch(() => ({}));
+      const em = String(email || '').trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return json({ error: 'Enter a valid email address' }, 400);
+      if (!mailOn(env)) return json({ error: MAIL_OFF }, 503);
+      for (const [key, lim] of [['rl:fi:' + (await sha256(ipOf(req, context))), LIMITS.forgotIp], ['rl:fa:' + (await sha256(em)), LIMITS.forgotAddress]]) {
+        const r = await limited(key, lim);
+        if (!r.ok) return json({ error: 'Too many reset requests. Try again in ' + r.retry + ' minute' + (r.retry === 1 ? '' : 's') + '.', retry: r.retry }, 429);
+      }
+      const work = (async () => {
+        const user = await getUser(em);
+        if (user) await mailLink(user, 'reset', env, url.origin);
+      })().catch((e) => console.error('forgot: the reset mail', e.message));
+      if (context && typeof context.waitUntil === 'function') context.waitUntil(work); else await work;
+      return json({ ok: true });
+    }
+
+    /* the reset page: is this link good (and for which address), then the new password */
+    if ((p === '/auth/reset/check' || p === '/auth/reset') && req.method === 'POST') {
+      const { token, password } = await req.json().catch(() => ({}));
+      const lim = await limited('rl:li:' + (await sha256(ipOf(req, context))), LIMITS.linkIp);
+      if (!lim.ok) return json({ error: 'Too many tries. Try again in ' + lim.retry + ' minutes.' }, 429);
+      const got = await readLink(token, 'reset');
+      if (got.error) return json({ error: LINK_SAYS.reset[got.error], link: got.error }, 400);
+      if (p === '/auth/reset/check') return json({ ok: true, email: got.user.email });
+      if (!password || String(password).length < 8) return json({ error: 'Password needs at least 8 characters' }, 400);
+      const user = got.user;
+      user.salt = hex(crypto.getRandomValues(new Uint8Array(16)));
+      user.hash = await pbkdf2(String(password), user.salt);
+      user.passwordAt = Date.now();
+      await spendLink(user, 'reset');
+      /* the link came to this inbox, so the address is confirmed too */
+      if (!user.confirmed) { user.confirmed = Date.now(); await spendLink(user, 'confirm'); }
+      await putUser(user);
+      return json({ token: await makeToken(user.email, env), user: publicUser(user, env) });
+    }
+
+    /* the address check: the link from the sign-up mail, no sign-in needed */
+    if (p === '/auth/confirm' && req.method === 'POST') {
+      const { token } = await req.json().catch(() => ({}));
+      const lim = await limited('rl:li:' + (await sha256(ipOf(req, context))), LIMITS.linkIp);
+      if (!lim.ok) return json({ error: 'Too many tries. Try again in ' + lim.retry + ' minutes.' }, 429);
+      const got = await readLink(token, 'confirm');
+      if (got.error) return json({ error: LINK_SAYS.confirm[got.error], link: got.error }, 400);
+      got.user.confirmed = got.user.confirmed || Date.now();
+      await spendLink(got.user, 'confirm');
+      await putUser(got.user);
+      return json({ ok: true, email: got.user.email });
+    }
+
+    /* the account menu's "Send the link again": the signed-in account only,
+       3 an hour for it and 10 an hour from an IP */
+    if (p === '/auth/confirm/send' && req.method === 'POST') {
+      const em = await readToken(req, env);
+      if (!em) return json({ error: 'Sign in first' }, 401);
+      const user = await getUser(em);
+      if (!user) return json({ error: 'Account not found' }, 404);
+      if (confirmedOf(user)) return json({ ok: true, already: true, user: publicUser(user, env) });
+      if (!mailOn(env)) return json({ error: MAIL_OFF }, 503);
+      for (const [key, lim] of [['rl:ci:' + (await sha256(ipOf(req, context))), LIMITS.confirmIp], ['rl:ca:' + (await sha256(em)), LIMITS.confirmAccount]]) {
+        const r = await limited(key, lim);
+        if (!r.ok) return json({ error: 'That is a lot of links. Try again in ' + r.retry + ' minute' + (r.retry === 1 ? '' : 's') + '.', retry: r.retry }, 429);
+      }
+      try { await mailLink(user, 'confirm', env, url.origin); }
+      catch (e) { console.error('confirm: the mail', e.message); return json({ error: 'The email did not go out. Try again in a minute.' }, 502); }
+      return json({ ok: true, sent: true, user: publicUser(user, env) });
+    }
+
     // Which auth methods the frontend should render. Google appears only when
     // GOOGLE_CLIENT_ID is configured in the Netlify env; Apple only when
     // APPLE_CLIENT_ID (the web Services ID) is.
     if (p === '/auth/config') {
       return json({ google: !!env.GOOGLE_CLIENT_ID, googleClientId: env.GOOGLE_CLIENT_ID || '',
-        apple: !!env.APPLE_CLIENT_ID, appleClientId: env.APPLE_CLIENT_ID || '' });
+        apple: !!env.APPLE_CLIENT_ID, appleClientId: env.APPLE_CLIENT_ID || '', mail: mailOn(env) });
     }
 
     // Sign in with Apple (2026-11-19, the owner: "apple and google sign in ?"). The
@@ -337,6 +481,9 @@ export default async (req) => {
       if (!user) {
         const name = who.name || (accessToken ? await googleProfileName(accessToken) : '');
         user = { email: who.email, provider: 'google', plan: 'free', exports: { period: '', count: 0 }, created: Date.now(), name };
+        await putUser(user);
+      } else if (!user.confirmed) {
+        user.confirmed = Date.now();   // Google confirmed this address (googleid.mjs asks for a confirmed email)
         await putUser(user);
       }
       return json({ token: await makeToken(who.email, env), user: publicUser(user, env) });
@@ -388,6 +535,7 @@ export default async (req) => {
         for (const id of ids) await gen.delete('img/' + id);
         await gen.delete('idx/' + em);
       } catch (e) { console.warn('account delete: the AI pictures', e.message); }
+      for (const h of [user.resetLink, user.confirmLink]) if (h) await users().delete('mt:' + h).catch(() => {});   // its mailed links stop working
       await users().delete('u:' + em);
       return json({ ok: true });
     }
