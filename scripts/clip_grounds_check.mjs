@@ -10,6 +10,9 @@
    3. The export: a 6 s MP4 of a clip ad moves under its words in the file (read back), and puts its player away.
    4. The maker: Background offers the scenes; one picked stands the ad on it, its colours have light words,
       the preview's clip plays, and the pre-flight panel (which reads the preview's own ad) finds nothing to fix.
+   5. A scene is one ad (rule 179): each draws from its own kit; its moment lands on a beat after the number with
+      the clip's own peak under it; nothing on the ad stands still long before the end card; its sound is heard at
+      the moment; and every scene ad is at -16 LUFS with peaks at or under -1 dBFS.
 
    usage:  node .motion-test/serve.mjs 8971 (or any server that answers byte ranges, which a video's seek
            needs), then  [GFX_BASE=http://127.0.0.1:8971/] [PLAYWRIGHT_MODULE=…] node scripts/clip_grounds_check.mjs
@@ -124,11 +127,13 @@ const exp = await page.evaluate(async () => {
   await new Promise(res => { v.onloadeddata = res; });
   const x = E.canvas(1080, 1080).getContext('2d', { willReadFrequently: true });
   const at = async t => { await new Promise(res => { v.onseeked = res; v.currentTime = t; }); x.drawImage(v, 0, 0); return x.getImageData(0, 600, 300, 300).data; };
-  const a = await at(3), b = await at(3.4); let d = 0; for (let i = 0; i < a.length; i += 4) d += Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2]);
-  return { secs, dur: v.duration, change: d / (a.length / 4), put: ad.clipSrc === null && ad._clipWas === undefined };
+  // the clip starts at its scene's offset (rule 179), so read the late stretch through, not one moment of it
+  let d = 0, when = 0;
+  for (let t0 = 2; t0 <= 5; t0 += .5) { const a = await at(t0), b = await at(t0 + .4); let e = 0; for (let i = 0; i < a.length; i += 4) e += Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2]); if (e > d) { d = e; when = t0; } }
+  return { secs, dur: v.duration, change: d / (300 * 300), when, put: ad.clipSrc === null && ad._clipWas === undefined };
 });
 ok(Math.abs(exp.dur - 6) < .1, `a 6 s MP4 (${exp.dur.toFixed(2)} s, made in ${exp.secs.toFixed(1)} s)`);
-ok(exp.change > 3, `its ground moves in the file after the words are in (${exp.change.toFixed(1)} a pixel between 3.0 s and 3.4 s)`);
+ok(exp.change > 3, `its ground moves in the file after the words are in (${exp.change.toFixed(1)} a pixel at most, over 0.4 s from ${exp.when.toFixed(1)} s)`);
 ok(exp.put, 'the export puts its own player away');
 
 /* ---------- 4. the maker ---------- */
@@ -158,6 +163,54 @@ ok(maker.playing, 'the preview plays the clip');
 ok(maker.change > 1, `the preview's ground moves (${maker.change.toFixed(1)} a pixel in half a second)`);
 ok(!maker.preFix, `the pre-flight panel finds nothing to fix on the playing clip (${maker.pre}${maker.preFix ? ': ' + maker.note : ''})`);
 ok(!errors.length, 'no page errors' + (errors.length ? ': ' + errors.slice(0, 3).join(' | ') : ''));
+
+/* ---------- 5. a scene is one ad (rule 179) ---------- */
+console.log('5. a scene is one ad: its kit, its moment on a beat, its sound, the late stretch moving');
+const scenes = await page.evaluate(async () => {
+  const E = await import('/motion/engine.js'), F = await import('/motion/fullad.js'), C = await import('/motion/clips.js'), K = await import('/motion/catalog.js'), AU = await import('/motion/audit.js'), S = await import('/motion/audio.js');
+  const { phones, index } = await E.loadPhones('/motion/phones/');
+  const out = { offKit: [], offBeat: [], still: [], sound: [], level: [], ads: 0, worstStill: 0 };
+  for (const id of C.CLIP_IDS) for (const [seed, dur] of [[105, 6], [211, 6], [307, 8], [419, 5]]) {
+    const base = { ...K.DEFAULT_STYLE, headline: 'SELL YOUR IPHONE', number: '(562) 555-0142', area: 'Long Beach, CA', duration: dur, phones: ['17-pro-max-cosmic-orange'].filter(k => phones[k]) };
+    const st = F.fullStyle(base, seed, index, { ground_kind: 'moving', ground_clip: id }, [], { moving: true }), sc = C.CLIPS[id].scene;
+    if (st.full_look) continue;
+    for (const [k, list] of Object.entries(sc.kit)) if (!list.includes(st[k])) out.offKit.push(`${id} ${seed}: ${k} ${st[k]}`);
+    if (!st.shine) out.offKit.push(`${id} ${seed}: no light`);
+    await F.fullGroundReady(st); await E.loadFonts(E.fontsFor(st));
+    const ad = new F.FullAd(st, { phones }, 540, 540), b = 60 / (st.bpm || 112), on = x => Math.abs((x - ad.tl.hit) / b - Math.round((x - ad.tl.hit) / b)) < 1e-6;
+    if (!on(ad.sceneT) || ad.sceneT < ad.tl.number + .8) out.offBeat.push(`${id} ${seed}: moment ${ad.sceneT.toFixed(2)}`);
+    if (sc.moment != null && Math.abs(ad.clipTime(ad.sceneT) - sc.moment) > .01) out.offBeat.push(`${id} ${seed}: clip at ${ad.clipTime(ad.sceneT).toFixed(2)} on its moment, not ${sc.moment}`);
+    if (ad.pulseT != null && (!on(ad.pulseT) || ad.pulseT < ad.sceneT + b - 1e-6 || ad.pulseT + .45 > Math.min(ad.tOutro ?? dur, ad.tHold) - .05 + 1e-6)) out.offBeat.push(`${id} ${seed}: push ${ad.pulseT.toFixed(2)}`);
+    // the ad's own layers, drawn without the clip: the longest still stretch between the number and the end card
+    const rep = await AU.auditLook(st, { phones }, { size: 160, secs: dur, sound: false, AdClass: F.FullAd }), fps = rep.fps;
+    let run = 0, best = 0; for (let i = Math.round((ad.tl.number + .5) * fps); i < Math.min(rep.motion.length, Math.round((ad.tOutro ?? dur) * fps)); i++) { run = rep.motion[i] < 1.5 ? run + 1 : 0; best = Math.max(best, run); }
+    out.worstStill = Math.max(out.worstStill, best / fps);
+    if (best / fps > (dur >= 8 ? 2 : 1.5)) out.still.push(`${id} ${seed} ${dur} s: still ${(best / fps).toFixed(2)} s`);
+    // the scene's sound: rendered with it and with it taken out (deterministic, the same seed), what it adds over its
+    // moment against the bed there (its hit ducks the bed, so the window's own energy can stay level while a new sound
+    // plays), and its loudest tenth of a second against the headline hit's; the mix at its level
+    const buf = await S.renderSoundtrack(ad), bare = new F.FullAd(st, { phones }, 540, 540); delete bare.cues.scene; delete bare.cues.restamp;
+    const b0 = await S.renderSoundtrack(bare), sr = buf.sampleRate, T = ad.sceneT;
+    let ed = 0, e0 = 0, pk = 0;
+    for (const ch of [0, 1]) { const a = buf.getChannelData(ch), z = b0.getChannelData(ch);
+      for (let i = 0; i < a.length; i++) pk = Math.max(pk, Math.abs(a[i]));
+      for (let i = Math.round((T - .6) * sr); i < Math.round((T + .25) * sr); i++) { ed += (a[i] - z[i]) ** 2; e0 += z[i] * z[i]; } }
+    const loud = (t0, t1) => { const L = buf.getChannelData(0), R = buf.getChannelData(1), w = Math.round(sr * .1); let best = 0;
+      for (let q = Math.max(0, Math.round(t0 * sr)); q + w <= Math.min(L.length, Math.round(t1 * sr)); q += Math.round(sr * .02)) { let e = 0; for (let i = q; i < q + w; i++) e += L[i] * L[i] + R[i] * R[i]; best = Math.max(best, e / w); }
+      return 10 * Math.log10(best); };
+    const added = 10 * Math.log10(ed / Math.max(1e-12, e0)), under = loud(ad.tl.hit - .05, ad.tl.hit + .3) - loud(T - .6, T + .25), lufs = S.loudness(buf);
+    out.added = Math.min(out.added ?? 99, added); out.under = Math.min(out.under ?? 99, under);
+    if (added < -8 || under < 1.5) out.sound.push(`${id} ${seed}: the moment adds ${added.toFixed(1)} dB against the bed, ${under.toFixed(1)} dB under the headline hit`);
+    if (Math.abs(lufs + 16) > .5 || 20 * Math.log10(pk) > -.95) out.level.push(`${id} ${seed}: ${lufs.toFixed(2)} LUFS, peak ${(20 * Math.log10(pk)).toFixed(2)} dBFS`);
+    out.ads++;
+  }
+  return out;
+});
+ok(!scenes.offKit.length, `each scene draws its entrance, phone move, bed, hits and chimes from its own kit, with its light (${scenes.ads} ads)${scenes.offKit.length ? ':\n       ' + scenes.offKit.join('\n       ') : ''}`);
+ok(!scenes.offBeat.length, `the moment lands on a beat after the number, with the clip's own peak under it; the push before the still's moment${scenes.offBeat.length ? ':\n       ' + scenes.offBeat.join('\n       ') : ''}`);
+ok(!scenes.still.length, `nothing on the ad stands still long between the number and the end card (longest ${scenes.worstStill.toFixed(2)} s; 1.5 s allowed, 2 s in an 8 s ad; it was 1.7 to 4.7 s)${scenes.still.length ? ':\n       ' + scenes.still.join('\n       ') : ''}`);
+ok(!scenes.sound.length, `the scene's sound is heard at its moment: it adds sound no more than 8 dB under the bed there, and stays 1.5 dB or more under the headline's hit (least ${scenes.added.toFixed(1)} dB, ${scenes.under.toFixed(1)} dB)${scenes.sound.length ? ':\n       ' + scenes.sound.join('\n       ') : ''}`);
+ok(!scenes.level.length, `every scene ad at -16 LUFS, peaks at or under -1 dBFS${scenes.level.length ? ':\n       ' + scenes.level.join('\n       ') : ''}`);
 
 await browser.close();
 console.log(failures.length ? `\n${failures.length} failed` : '\nall clear');

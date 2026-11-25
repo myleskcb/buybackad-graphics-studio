@@ -756,8 +756,10 @@ produced." DESIGN-LAW rule 87. In practice:
   `clip` names it. Every still path draws its first frame; the preview plays it
   (`attachClip`); a download seeks a player of its own (`prepareExport`,
   `prepareFrame`, `endExport`), so a new export path calls those three too. The
-  files come from `scripts/build_clip_grounds.sh`, never by hand. Before a commit
-  that touches them or the full ad's ground: `node scripts/clip_grounds_check.mjs`,
+  files come from `scripts/build_clip_grounds.sh`, never by hand. Each clip's `scene`
+  (rule 179) is its kit: its moment, light, sound and choices; `FullAd._sceneBeats` lays the
+  ad's beats round it and every new beat is at rest in the still (`_still`). Before a commit
+  that touches them, the full ad's ground or a scene's sound (`audio.js` `sceneSfx`): `node scripts/clip_grounds_check.mjs`,
   on a server that answers byte ranges (Python's http.server does not, and a video
   that cannot seek fails it).
 

@@ -6961,3 +6961,27 @@ a check that reads "the still" must draw the still, not whatever a live source s
 
 RESUME HERE: the owner looks at a moving scene in the maker (§CB 1); then more clips
 (§CB 4), Any look (§CB 2), stories and wide frames (§CB 3).
+
+## 2026-11-25 — a moving scene is one ad (DESIGN-LAW 179; claude/modest-maxwell-ce019b)
+
+The owner, the day the moving grounds went live: a moving background "doesn't really mean it's a good ad"; it needs
+moving elements, sound, "cohesive elements". Measured first, then each scene given a kit: its moment on a beat, its
+light, its sound, its choices; the ad's arc built round it to the end card. A review page with sound went to the owner.
+
+Learned:
+  - Measure the ad without the ground to see what the ad itself does: the full ad's own layers stood still on 47 of
+    52 late frames, under a clip that never stopped. The clip hid it.
+  - A clip's best moment is rarely where the ad needs it: the gold flare peaked inside the headline's entrance. Start
+    the clip at an offset so its moment lands on the ad's beat.
+  - A hit under a new sound ducks the bed by about what the sound adds: at .2 to .3 the scene's sound changed its
+    window's level by -0.5 to +1.2 dB. Measure what a sound adds (the render with it less the render without it), not
+    the window's level.
+  - The still is drawn at rest: every new beat (a pulse, a stamp, a light) checks `_still`, or the photo and the
+    pre-flight catch it mid-move.
+  - Rule numbers 177 and 178, and open items CD and CE, were taken on other branches the same day. Grep every branch,
+    worktree and commit message right before writing one.
+
+Checked: `clip_grounds_check` (all five parts), `full_ad_check`, `quick_ad_check`, `buylist_check`,
+`motion_music_check`; twelve exports read back (1080 square, H.264 with AAC).
+
+RESUME HERE: the owner watches the review page (§CF 1) and says which scenes work and whether it goes on `main` (§CF 2).
