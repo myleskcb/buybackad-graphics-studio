@@ -4032,6 +4032,26 @@ Open:
     - **owner**: whether any dark, muted pair should leave the draw now that the vivid look holds
       20. Candidates: Navy & Orange, Midnight & Cyan, Blue & Green, Teal & Orange, White on Navy.
       Nothing was retired without the word.
+15. **How soon a shop's posts repeat** (the owner, 2026-11-24: "How soon would these become generic
+    after how many days or what quantity of post per day", "have a similarity comparison ... there's
+    an amount that's OK but too similar", "riffing off of a good design doesn't hurt ... but then if
+    we keep doing that same thing, it becomes a repetitive cycle"). **measured**:
+    - The test is `scripts/freshness_sim.mjs`. It draws full ads in New look's order and fingerprints
+      each: colours, ground, layout, type, details, products, words.
+    - Too similar means half the fingerprint shared, or pictures within 0.085, set by eye on the
+      closest pairs drawn.
+    - Look-alikes, 3 posts a day, two-week memory: an iPhone shop from day 4 (6% of posts), a gold
+      shop from day 3 (28%: gold has eight colour schemes).
+    - The layout goes first. Every ad is one skeleton with 60 settings, and at 3 a day 47% of posts
+      reuse a layout from the past two weeks, from day 2.
+    - Shown to the owner as a page with the pairs, 2026-11-24.
+    - **owner**: which first, of:
+      - a freshness memory in New look: skip a look too similar to a recent download or reusing a
+        recent layout;
+      - more layout families: split, poster, hero, card, stack;
+      - more looks for gold;
+      - product rotation;
+      - riffs capped at one in five.
 
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 

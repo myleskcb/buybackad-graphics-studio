@@ -7048,3 +7048,24 @@ Then, at the owner's word ("Yes, put it live"), `main` (15 commits on: the trimm
 its toolbar took open item CF, so this one became CH. Every check passed on the merge, and it went on `main`.
 
 RESUME HERE: the owner's notes on the scenes (§CH 1); the golden-hour city and the phone may want redrawn clips (§CH 3).
+
+## 2026-11-24 — how soon a shop's posts repeat (claude/zealous-dewdney-386bf8)
+
+Asked: how many days, at how many posts a day, before the ads start to look alike, with a
+similarity line between "OK" and "too similar".
+
+Changed: `scripts/freshness_sim.mjs` draws full ads in New look's order (`--draw`) and replays
+posting schedules against a viewer's two-week memory.
+
+Learned:
+  - A fingerprint alone misses what a viewer sees. Two ads 0.068 apart in the picture read as
+    one while sharing only 40% of their parts (both lavender and purple). Calibrate the line on
+    the closest pairs, by eye. Every look-alike shared its colour scheme.
+  - The colours, grounds and type are varied enough for weeks. An iPhone shop at 3 a day posts its
+    first look-alike on day 4, and 6% of its posts are look-alikes over two weeks.
+  - The layout is not. Every full ad is one skeleton with 60 settings (5 arrangements, 3 block
+    orders, 2 sides, 2 alignments). At 3 a day, 47% of posts reuse a layout from the past two weeks.
+  - A line with few colour schemes repeats soonest: gold (8 schemes) at 3 a day from day 3, 28% of
+    posts.
+  - New look moves the seed on by one, and each seed draws independently. A schedule's repeats
+    follow from the pair rate: 1-(1-q)^m for m posts in memory.
