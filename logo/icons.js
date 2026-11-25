@@ -30,6 +30,23 @@ export const LOGO_ICONS = {
   headphones: ["M19 62 V52 A31 31 0 0 1 81 52 V62 M19 60 H27 A5 5 0 0 1 32 65 V79 A5 5 0 0 1 27 84 H24 A5 5 0 0 1 19 79 Z M81 60 H73 A5 5 0 0 0 68 65 V79 A5 5 0 0 0 73 84 H76 A5 5 0 0 0 81 79 Z", "Headphones"],
   watch: ["M37 29 H63 A9 9 0 0 1 72 38 V62 A9 9 0 0 1 63 71 H37 A9 9 0 0 1 28 62 V38 A9 9 0 0 1 37 29 Z M39 29 L42 13 H58 L61 29 M39 71 L42 87 H58 L61 71 M50 40 V50 L57 55", "Watch"],
   camera: ["M19 35 H34 L40 25 H60 L66 35 H81 A7 7 0 0 1 88 42 V73 A7 7 0 0 1 81 80 H19 A7 7 0 0 1 12 73 V42 A7 7 0 0 1 19 35 Z M50 43 A14 14 0 1 0 50 71 A14 14 0 1 0 50 43 Z", "Camera"],
+  // the trade's own (wholesale, device stores, resale), 2026-11-24, in the same grammar
+  swap: ["M18 36 H76 M64 22 L78 36 L64 50 M82 64 H24 M36 50 L22 64 L36 78", "Trade"],
+  boxes: ["M14 52 H48 V86 H14 Z M52 52 H86 V86 H52 Z M33 16 H67 V50 H33 Z M27 52 V62 M71 52 V62 M46 16 V26", "Boxes"],
+  store: ["M14 40 L22 16 H78 L86 40 Q86 50 75.5 50 Q65 50 65 40 Q65 50 50 50 Q35 50 35 40 Q35 50 24.5 50 Q14 50 14 40 Z M22 50 V86 H78 V50 M42 86 V64 H58 V86", "Store"],
+  tablet: ["M28 10 H72 A10 10 0 0 1 82 20 V80 A10 10 0 0 1 72 90 H28 A10 10 0 0 1 18 80 V20 A10 10 0 0 1 28 10 Z M44 80 H56", "Tablet"],
+  // the kit's highlight covers and posts: what a shop's story highlights are about
+  clock: ["M50 14 A36 36 0 1 0 50 86 A36 36 0 1 0 50 14 Z M50 30 V50 L64 59", "Hours"],
+  pin: ["M50 88 C50 88 22 60 22 40 A28 28 0 0 1 78 40 C78 60 50 88 50 88 Z M50 30 A10 10 0 1 0 50 50 A10 10 0 1 0 50 30 Z", "Location"],
+  chat: ["M24 18 H76 A10 10 0 0 1 86 28 V62 A10 10 0 0 1 76 72 H46 L28 86 V72 H24 A10 10 0 0 1 14 62 V28 A10 10 0 0 1 24 18 Z M32 40 H68 M32 54 H56", "Message"],
+  star: ["M50 12 L60.6 37.6 L88 39.9 L67.2 58 L73.5 84.8 L50 70.4 L26.5 84.8 L32.8 58 L12 39.9 L39.4 37.6 Z", "Reviews"],
+  dollar: ["M50 10 V90 M68 28 Q62 20 50 20 Q32 20 32 34 Q32 46 50 50 Q68 54 68 66 Q68 80 50 80 Q36 80 30 70", "Prices"],
+  check: ["M50 12 A38 38 0 1 0 50 88 A38 38 0 1 0 50 12 Z M34 51 L45 62 L67 38", "Sold"],
+  heart: ["M50 84 C50 84 14 60 14 36 A18 18 0 0 1 50 28 A18 18 0 0 1 86 36 C86 60 50 84 50 84 Z", "Thanks"],
+  // a business card's contact rows
+  mail: ["M20 24 H80 A8 8 0 0 1 88 32 V68 A8 8 0 0 1 80 76 H20 A8 8 0 0 1 12 68 V32 A8 8 0 0 1 20 24 Z M14 30 L50 56 L86 30", "Email"],
+  globe: ["M50 14 A36 36 0 1 0 50 86 A36 36 0 1 0 50 14 Z M14 50 H86 M50 14 Q28 50 50 86 M50 14 Q72 50 50 86", "Website"],
+  call: ["M30 14 L42 30 L35 40 Q42 56 60 65 L70 58 L86 70 L80 82 Q72 88 60 84 Q30 72 18 42 Q14 28 22 20 Z", "Call"],
 };
 /** the symbols that suit each line Easy Mode lists (app.js CATS), the best first */
 export const ICONS_FOR = {
@@ -46,4 +63,7 @@ export const ICONS_FOR = {
   wearables: ["watch","ring","sparkle","cashTag"],
   cameras: ["camera","loupe","sparkle","cashTag"],
   strips: ["testStrip","sealedBox","shieldTick","cashTag"],
+  wholesale: ["boxes","swap","sealedBox","cashTag"],
+  devices: ["store","tablet","phone","laptop"],
+  resale: ["swap","cashTag","store","sparkle"],
 };

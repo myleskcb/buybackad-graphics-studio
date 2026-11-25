@@ -68,13 +68,19 @@ export function paletteOf(key) {
 const GENERIC = new Set(("BUYERS BUYER BUY BUYS BUYING CASH CO CO. COMPANY INC INC. LLC EXCHANGE TRADING TRADERS TRADE ELECTRONICS WIRELESS MOBILE " +
   "MOBILES PAWN SHOP STORE GOLD SILVER COINS COIN CARDS CARD PHONES PHONE CELL AUTO AUTOS MOTORS CARS DEALS OUTLET DEPOT HUB LAB PLUS PRO GROUP TECH " +
   "REPAIR REPAIRS BUYBACK BUYBACKS BULLION JEWELRY JEWELERS JEWELLERS GAMES GAMING COLLECTIBLES COLLECTABLES SUPPLY SUPPLIES DEVICES GADGETS " +
-  "RECYCLING RECYCLERS RESALE RESELLERS LOANS").split(" "));
+  "RECYCLING RECYCLERS RESALE RESELLERS LOANS WHOLESALE WHOLESALERS TRADERS DISTRIBUTORS LIQUIDATION LIQUIDATORS").split(" "));
 const STOP = new Set(["THE", "OF", "AND", "&", "A", "AN", "LLC", "INC", "INC.", "CO", "CO.", "WE"]);
 /** what a logo says for each line Easy Mode lists (app.js CATS): generic, never another firm's name */
 export const LINE_WORDS = { phones: "PHONES", gaming: "GAMES & CONSOLES", gold: "GOLD & JEWELRY", coins: "COINS", pokemon: "TRADING CARDS",
   silver: "SILVER", cars: "CARS & TRUCKS", sports: "SPORTS CARDS", computers: "COMPUTERS", audio: "AUDIO & HEADPHONES", wearables: "WATCHES",
-  cameras: "CAMERAS & DRONES", strips: "TEST STRIPS" };
+  cameras: "CAMERAS & DRONES", strips: "TEST STRIPS",
+  /* the trade's own shops (the owner, 2026-11-24: "tech, buyers, wholesale traders, device stores ... resellers") */
+  wholesale: "WHOLESALE LOTS", devices: "DEVICES", resale: "RESALE" };
 export const LINES = Object.keys(LINE_WORDS);
+/** the small line a logo says by default: "WE BUY" and the line's goods, or the trade's own words where
+ *  "WE BUY" says less than the shop does (a wholesaler, a device store, a reseller) */
+export const LINE_SMALL = { wholesale: "WHOLESALE · BULK · TRADE-INS", devices: "PHONES · TABLETS · LAPTOPS", resale: "BUY · SELL · TRADE" };
+export const smallFor = cat => LINE_SMALL[cat] || "WE BUY " + (LINE_WORDS[cat] || "PHONES");
 const up = s => String(s || "").toUpperCase().replace(/\bIPHONE/g, "iPHONE").replace(/\bIPAD/g, "iPAD").replace(/\bIMAC/g, "iMAC");
 const titleCase = s => String(s || "").split(/(\s+)/).map(w => /^\s+$/.test(w) || !w ? w : w === w.toUpperCase() && w.length <= 3 ? w : w[0].toUpperCase() + w.slice(1).toLowerCase()).join("");
 const tidy = s => String(s || "").replace(/[\u0000-\u001f<>]/g, "").replace(/\s+/g, " ").trim();
@@ -90,7 +96,10 @@ export function partsOf(raw, script = false) {
   const lead = cut > 0 ? words.slice(0, cut).join(" ") : set, trail = cut > 0 ? words.slice(cut).join(" ") : "";
   const sig = (cut > 0 && cut >= 2 ? words.slice(0, cut) : words).filter(w => !STOP.has(bare(w)) && /[A-Za-z0-9]/.test(w));
   let init;
-  if (sig.length === 1) { const b = bare(sig[0]).replace(/[^A-Z0-9]/g, ""); init = b.length <= 3 && sig[0] === sig[0].toUpperCase() ? b : b.slice(0, 1); }
+  // a short name in capitals before the trade's words is the shop's own initials: MK ELECTRONICS is MK
+  const own = cut === 1 && /^[A-Z0-9&]{2,3}$/.test(bare(words[0]).replace(/[^A-Z0-9&]/g, "")) && words[0] === words[0].toUpperCase() ? bare(words[0]).replace(/[^A-Z0-9]/g, "") : "";
+  if (own) init = own;
+  else if (sig.length === 1) { const b = bare(sig[0]).replace(/[^A-Z0-9]/g, ""); init = b.length <= 3 && sig[0] === sig[0].toUpperCase() ? b : b.slice(0, 1); }
   else init = sig.slice(0, 2).map(w => bare(w).replace(/[^A-Z0-9]/g, "").slice(0, 1)).join("");
   return { full: set, lead, trail, init: init || "W", words };
 }
@@ -163,7 +172,9 @@ function drawBlock(items, F, B, x, cy, { align = "center", lead = 1.3, track = 0
     box = box ? { x0: Math.min(box.x0, t.box.x0), x1: Math.max(box.x1, t.box.x1), top: Math.min(box.top, t.box.top), bot: Math.max(box.bot, t.box.bot) } : t.box;
     y += pitch;
   }
-  return Object.assign(box || { x0: x, x1: x, top: cy, bot: cy }, { cap: c, top0: cy - total / 2, bot0: cy + total / 2 });
+  // bot0 is the foot the next line is set from: the capitals' line, or the ink below it where letters hang
+  // (a script's y, g, p, the comma of a title), so a small line never runs into a descender
+  return Object.assign(box || { x0: x, x1: x, top: cy, bot: cy }, { cap: c, top0: cy - total / 2, bot0: Math.max(cy + total / 2, box ? box.bot + c * .12 : -Infinity) });
 }
 /** Text round a circle: dir 1 along the top (reading clockwise, letters outward), -1 along the foot
  *  (reading left to right, letters toward the centre). Spaced on the letters' middle radius. */
@@ -214,6 +225,190 @@ function iconItem(key, cx, cy, s, stroke = "A", tone = 1, sw = 7) {
 const ring = (cx, cy, r, w, stroke = "A", tone = 0) => ({ d: circleD(cx, cy, r), stroke, sw: w, tone });
 const dot = (cx, cy, r, fill = "A", tone = 0) => ({ d: circleD(cx, cy, r), fill, tone });
 
+/* ---------- the industry marks (DESIGN-LAW 180) ----------
+   The owner, 2026-11-24: "a logo maker that has industry relevant assets and elements so they feel
+   personalized and actually graphic design oriented". A mark here is the shop's own initials built into
+   the thing it buys: struck into a coin, stamped on a bar, printed on a graded slab's label, lit on a
+   phone's screen, set in a watch dial. Every shop's is its own (its initials), and every one says its
+   trade at a glance. On the 1000 box; tone 1 is the ink, tone 0 what is cut out of it (the one-colour
+   versions read the same). Never a brand's shape: no real phone's camera, no grading company's label. */
+const deg = a => a * Math.PI / 180;
+const onC = (cx, cy, r, a) => [cx + r * Math.sin(deg(a)), cy - r * Math.cos(deg(a))];
+const arcPath = (cx, cy, r, a0, a1) => { const [x0, y0] = onC(cx, cy, r, a0), [x1, y1] = onC(cx, cy, r, a1); return `M${f1(x0)},${f1(y0)}A${f1(r)},${f1(r)} 0 ${Math.abs(a1 - a0) > 180 ? 1 : 0},1 ${f1(x1)},${f1(y1)}`; };
+const LEAF = "M0,-30Q17,0 0,30Q-17,0 0,-30Z";
+/** a laurel of leaves along a rising curve under a centre, both sides */
+function laurel(it, cx, cy, r, fill, tone, n = 5) {
+  // two branches along an arc under the centre, from the middle out and up; a pair of leaves at each step
+  for (const side of [-1, 1]) {
+    it.push({ d: arcPath(cx, cy - r, r, side > 0 ? 168 : 120, side > 0 ? 240 : 192), stroke: fill, sw: 9, tone, round: true });
+    for (let i = 0; i < n; i++) {
+      const a = side > 0 ? 172 - i * 15 : 188 + i * 15, [x, y] = onC(cx, cy - r, r, a), tang = a + (side > 0 ? -90 : 90);
+      for (const off of [-1, 1]) it.push({ d: LEAF, tf: `translate(${f1(x)} ${f1(y)}) rotate(${f1(180 - tang + off * 40 + (side > 0 ? 0 : 180))}) translate(0 -26) scale(${(1.25 - i * .08).toFixed(3)})`, fill, tone });
+    }
+  }
+}
+const initialsAt = (it, c, x, y, w, cap, fill, tone, track = .02) => { const s = fitSize(c.D, c.N.init, w, cap, track); it.push(textLine(c.D, c.N.init, s, x, y + capOf(c.D, s) / 2, { fill, tone, track }).item); return capOf(c.D, s); };
+const MARKS = {
+  /* a coin with a reeded edge and beads, the initials struck in it, a laurel under them */
+  coinStruck(c) {
+    const it = [], cx = 500, cy = 500, reed = [], beads = [];
+    it.push({ d: circleD(cx, cy, 490), fill: "A", tone: 1, body: true, round: true });
+    for (let i = 0; i < 120; i++) { const [x0, y0] = onC(cx, cy, 452, i * 3), [x1, y1] = onC(cx, cy, 482, i * 3); reed.push(`M${f1(x0)},${f1(y0)}L${f1(x1)},${f1(y1)}`); }
+    it.push({ d: reed.join(""), stroke: "G", sw: 7, tone: 0 });
+    it.push(ring(cx, cy, 430, 10, "G", 0));
+    for (let i = 0; i < 60; i++) { const [x, y] = onC(cx, cy, 394, i * 6); beads.push(circleD(x, y, 7)); }
+    it.push({ d: beads.join(""), fill: "G", tone: 0 });
+    initialsAt(it, c, cx, cy - 50, 420, 210, "G", 0);
+    laurel(it, cx, cy + 250, 230, "G", 0, 4);
+    it.push({ d: starD(cx, cy - 250, 30), fill: "G", tone: 0 });
+    return it;
+  },
+  /* a cast bar seen from above: its bevel, the initials stamped in its face, three stars */
+  ingot(c) {
+    const it = [];
+    it.push({ d: polyD([[175, 230], [825, 230], [965, 770], [35, 770]]), fill: "A", tone: 1, body: true });
+    it.push({ d: polyD([[255, 310], [745, 310], [850, 690], [150, 690]]), stroke: "G", sw: 9, tone: 0, join: true });
+    it.push({ d: "M175,230L255,310M825,230L745,310M965,770L850,690M35,770L150,690", stroke: "G", sw: 7, tone: 0 });
+    const ch = initialsAt(it, c, 500, 470, 470, 200, "G", 0, .05);
+    for (const dx of [-70, 0, 70]) it.push({ d: starD(500 + dx, 470 + ch / 2 + 80, dx ? 18 : 24), fill: "G", tone: 0 });
+    return it;
+  },
+  /* a graded card in its case: the initials on the label, a card with a sparkle in the window */
+  slab(c) {
+    const it = [], x = 240, y = 30, w = 520, h = 940;
+    it.push({ d: rectD(x, y, w, h, 60), fill: "P", tone: 1, body: true });
+    it.push({ d: rectD(x + 32, y + 32, w - 64, 200, 26), fill: "G", tone: 0 });
+    const s = fitSize(c.D, c.N.init, 280, 120, .02);
+    it.push(textLine(c.D, c.N.init, s, x + 32 + 34, y + 32 + 100 + capOf(c.D, s) / 2, { align: "left", fill: "I", tone: 1, track: .02 }).item);
+    it.push({ d: starD(x + w - 32 - 78, y + 132, 46), fill: "A", tone: 1 });
+    it.push({ d: rectD(x + 32, y + 264, w - 64, h - 296, 26), fill: "G", tone: 0 });
+    it.push({ d: rectD(x + 92, y + 318, w - 184, h - 400, 20), fill: "A", tone: 1 });
+    it.push({ d: rectD(x + 120, y + 348, w - 240, (h - 400) * .56, 12), stroke: "G", sw: 9, tone: 0 });
+    it.push({ d: starD(500, y + 348 + (h - 400) * .28, 82, 4, .36), fill: "G", tone: 0 });
+    it.push({ d: rectD(x + 150, y + 348 + (h - 400) * .56 + 40, w - 300, 16, 8) + rectD(x + 150, y + 348 + (h - 400) * .56 + 80, w - 380, 16, 8), fill: "G", tone: 0 });
+    return it;
+  },
+  /* a phone's front: its rounded body, a pill at the head of the screen, the initials lit on it */
+  device(c) {
+    const it = [], x = 255, y = 25, w = 490, h = 950;
+    it.push({ d: rectD(x, y, w, h, 112), fill: "P", tone: 1, body: true });
+    it.push({ d: rectD(x + 30, y + 30, w - 60, h - 60, 86), fill: "G", tone: 0 });
+    it.push({ d: rectD(500 - 72, y + 66, 144, 42, 21), fill: "P", tone: 1 });
+    initialsAt(it, c, 500, 470, 360, 230, "A", 1);
+    it.push({ d: rectD(500 - 95, y + h - 90, 190, 16, 8), fill: "I", tone: 1 });
+    for (let i = 0; i < 3; i++) it.push({ d: rectD(500 - 66 + i * 50, 690 - i * 26, 32, 50 + i * 26, 8), fill: "A", tone: 1 });
+    return it;
+  },
+  /* a controller: the pad and the buttons, the initials between the grips */
+  pad(c) {
+    const it = [], body = LOGO_ICONS.controller[0].split(" M")[0];
+    it.push({ d: body, tf: "translate(0 -40) scale(10)", fill: "P", tone: 1, body: true });
+    it.push({ d: rectD(178, 420, 150, 46, 10) + rectD(230, 368, 46, 150, 10), fill: "G", tone: 0 });
+    for (const [x, y] of [[760, 395], [822, 450], [698, 450], [760, 505]]) it.push({ d: circleD(x, y, 27), fill: "G", tone: 0 });
+    initialsAt(it, c, 500, 445, 250, 120, "G", 0);
+    return it;
+  },
+  /* a watch: the straps, the case and its crown, twelve marks round the dial, the initials in it */
+  dial(c) {
+    const it = [], cx = 500, cy = 500, ticks = [];
+    it.push({ d: rectD(375, 15, 250, 210, 34) + rectD(375, 775, 250, 210, 34), fill: "S", tone: 1 });
+    it.push({ d: rectD(830, 455, 64, 90, 16), fill: "P", tone: 1 });
+    it.push({ d: circleD(cx, cy, 345), fill: "P", tone: 1, body: true, round: true });
+    it.push(ring(cx, cy, 300, 9, "G", 0));
+    for (let i = 0; i < 12; i++) { const r0 = i % 3 === 0 ? 228 : 250, [x0, y0] = onC(cx, cy, r0, i * 30), [x1, y1] = onC(cx, cy, 282, i * 30); ticks.push(`M${f1(x0)},${f1(y0)}L${f1(x1)},${f1(y1)}`); }
+    it.push({ d: ticks.join(""), stroke: "G", sw: 14, tone: 0, round: true });
+    initialsAt(it, c, cx, cy, 300, 150, "Q", 0);
+    return it;
+  },
+  /* a speedometer: the arc and its marks, the needle past the middle, the initials under the hub */
+  gauge(c) {
+    const it = [], cx = 500, cy = 540, ticks = [];
+    it.push({ d: arcPath(cx, cy, 400, -125, 125), stroke: "A", sw: 52, tone: 1, round: true });
+    for (let a = -120; a <= 120; a += 20) { const [x0, y0] = onC(cx, cy, a % 60 === 0 ? 285 : 310, a), [x1, y1] = onC(cx, cy, 340, a); ticks.push(`M${f1(x0)},${f1(y0)}L${f1(x1)},${f1(y1)}`); }
+    it.push({ d: ticks.join(""), stroke: "I", sw: 12, tone: 1, round: true });
+    const [nx, ny] = onC(cx, cy, 330, 48), [l0x, l0y] = onC(cx, cy, 26, 48 - 90), [l1x, l1y] = onC(cx, cy, 26, 48 + 90);
+    it.push({ d: polyD([[l0x, l0y], [nx, ny], [l1x, l1y]]), fill: "I", tone: 1 });
+    it.push({ d: circleD(cx, cy, 44), fill: "I", tone: 1 });
+    initialsAt(it, c, cx, cy + 235, 400, 150, "I", 1);
+    return it;
+  },
+  /* a chip: its pins, its die, the initials etched on it */
+  chip(c) {
+    const it = [], pins = [];
+    for (let i = 0; i < 5; i++) { const p = 290 + i * 105; pins.push(rectD(p - 20, 80, 40, 130, 12), rectD(p - 20, 790, 40, 130, 12), rectD(80, p - 20, 130, 40, 12), rectD(790, p - 20, 130, 40, 12)); }
+    it.push({ d: pins.join(""), fill: "A", tone: 1 });
+    it.push({ d: rectD(190, 190, 620, 620, 56), fill: "P", tone: 1, body: true });
+    it.push({ d: rectD(252, 252, 496, 496, 30), stroke: "Q", sw: 9, tone: 0 });
+    it.push({ d: circleD(300, 300, 18), fill: "Q", tone: 0 });
+    initialsAt(it, c, 500, 500, 380, 200, "Q", 0);
+    return it;
+  },
+  /* a lens: the barrel, six blades round the opening, the initials in it */
+  aperture(c) {
+    const it = [], cx = 500, cy = 500, blades = [], hex = [];
+    it.push({ d: circleD(cx, cy, 480), fill: "P", tone: 1, body: true, round: true });
+    it.push(ring(cx, cy, 438, 9, "Q", 0));
+    for (let i = 0; i < 6; i++) { const [x0, y0] = onC(cx, cy, 250, i * 60), [x1, y1] = onC(cx, cy, 438, i * 60 + 62); blades.push(`M${f1(x0)},${f1(y0)}L${f1(x1)},${f1(y1)}`); hex.push([x0, y0]); }
+    it.push({ d: blades.join(""), stroke: "Q", sw: 10, tone: 0 });
+    it.push({ d: polyD(hex), stroke: "Q", sw: 10, tone: 0, join: true });
+    initialsAt(it, c, cx, cy, 300, 140, "Q", 0);
+    return it;
+  },
+  /* two arrows chasing each other round the initials: buy, sell, trade */
+  cycle(c) {
+    const it = [], cx = 500, cy = 500, r = 385;
+    for (const [a0, a1] of [[-150, -20], [30, 160]]) {
+      it.push({ d: arcPath(cx, cy, r, a0, a1), stroke: "A", sw: 58, tone: 1 });
+      const [tx, ty] = onC(cx, cy, r, a1 + 22), [b0x, b0y] = onC(cx, cy, r - 78, a1 - 2), [b1x, b1y] = onC(cx, cy, r + 78, a1 - 2);
+      it.push({ d: polyD([[b0x, b0y], [tx, ty], [b1x, b1y]]), fill: "A", tone: 1, join: true });
+    }
+    initialsAt(it, c, cx, cy, 470, 250, "I", 1);
+    return it;
+  },
+  /* a crate seen from its corner: the tape across its lid, the initials on its side */
+  crate(c) {
+    const it = [];
+    it.push({ d: polyD([[500, 150], [835, 330], [500, 510], [165, 330]]), fill: "A", tone: 1 });
+    it.push({ d: polyD([[165, 330], [500, 510], [500, 880], [165, 700]]), fill: "P", tone: 1 });
+    it.push({ d: polyD([[500, 510], [835, 330], [835, 700], [500, 880]]), fill: "S", tone: 1 });
+    it.push({ d: polyD([[300, 225], [365, 190], [700, 370], [635, 405]]), fill: "G", tone: 0 });
+    it.push({ d: "M165,330L500,510L835,330M500,510V880", stroke: "G", sw: 8, tone: 0, join: true });
+    const s = fitSize(c.D, c.N.init, 250, 150, .02), t = textLine(c.D, c.N.init, s, 0, capOf(c.D, s) / 2, { fill: "Q", tone: 0, track: .02 });
+    it.push({ g: [t.item], tf: "translate(332 610) skewY(28.3)" });
+    return it;
+  },
+  /* a drop, for test strips: the initials in it */
+  drop(c) {
+    const it = [];
+    it.push({ d: "M500,40C500,40 170,430 170,640A330,330 0 0 0 830,640C830,430 500,40 500,40Z", fill: "P", tone: 1, body: true });
+    it.push({ d: "M262,520Q284,430 340,350", stroke: "Q", sw: 22, tone: 0, round: true });
+    initialsAt(it, c, 520, 680, 380, 190, "Q", 0);
+    return it;
+  },
+  /* headphones: the band over the initials, a cup each side */
+  phones2(c) {
+    const it = [];
+    it.push({ d: "M190,560A310,310 0 0 1 810,560", stroke: "A", sw: 62, tone: 1, round: true });
+    it.push({ d: rectD(100, 500, 190, 330, 72) + rectD(710, 500, 190, 330, 72), fill: "P", tone: 1 });
+    it.push({ d: rectD(140, 560, 110, 210, 50) + rectD(750, 560, 110, 210, 50), stroke: "Q", sw: 9, tone: 0 });
+    initialsAt(it, c, 500, 680, 330, 170, "I", 1);
+    return it;
+  },
+};
+/** the industry mark's layout: the mark over the name and the small line */
+const markLayout = (name, cats, key) => ({ name, group: "mark", shape: "circle", kinds: ["condensed", "wide", "grotesk", "display", "serif"], cats, mark: c => MARKS[key](c), draw(c) {
+  const it = [], { D, Lb, N } = c, W = 1400, ms = 620;
+  it.push({ g: MARKS[key](c), tf: `translate(${(W - ms) / 2} 20) scale(${ms / 1000})` });
+  let y = 20 + ms + 80;
+  const lead = N.trail ? N.lead : N.full, B = fitBlock(D, lead, 1300, 300, { maxLines: 2, lead: 1.08, capMax: 190 });
+  const bx = drawBlock(it, D, B, W / 2, y + capOf(D, B.size) * (1 + (B.n - 1) * 1.08) / 2, { lead: 1.08, fill: "I", tone: 1 });
+  y = bx.bot0 + 58;
+  const sub = N.trail || c.small, ss = fitSize(Lb, sub, 1000, 52, .3), st = textLine(Lb, sub, ss, W / 2, y + capOf(Lb, ss), { track: .3, fill: "A", tone: 1 });
+  it.push(st.item);
+  if (N.trail) { const s2 = fitSize(Lb, c.small, 760, 30, .3); it.push(textLine(Lb, c.small, s2, W / 2, y + capOf(Lb, ss) + 44 + capOf(Lb, s2), { track: .3, fill: "I", tone: 1 }).item); y += 44 + capOf(Lb, s2); }
+  return { w: W, h: y + capOf(Lb, ss) + 50, it, ok: bx.cap >= MIN_CAP, word: true };
+} });
+
 /* ---------- the layouts ---------- */
 /* Each layout draws a design into items on its own artboard and says whether every word kept a size a
    logo is read at (ok). The voice kinds it takes: a script face never goes round a ring. */
@@ -225,7 +420,7 @@ function ctxOf(d, faces) {
   const V = LOGO_VOICES[d.voice] || LOGO_VOICES.bold, D = faces[V.display], Lb = faces[V.label] || D;
   if (!D) throw new Error("The face " + V.display + " is not loaded");
   const script = V.kind === "script", N = partsOf(d.name, script);
-  const small = up(tidy(d.small) || "WE BUY " + (LINE_WORDS[d.cat] || "PHONES"));
+  const small = up(tidy(d.small) || smallFor(d.cat));
   const town = up(tidy(d.town));
   return { d, V, D, Lb, N, small, town, P: paletteOf(d.pair), icon: LOGO_ICONS[d.icon] ? d.icon : "", R: rng((d.seed | 0) * 2654435761 >>> 0), script };
 }
@@ -236,7 +431,7 @@ const LAYOUTS = {
      symbol or the initials in the middle. */
   seal: { name: "Seal", group: "badge", shape: "circle", kinds: RING_KINDS, draw(c) {
     const it = [], cx = 500, cy = 500, { D, Lb, N } = c, thick = c.d.seed % 2 === 0;
-    it.push({ d: circleD(cx, cy, 492), fill: "G", tone: 1 });
+    it.push({ d: circleD(cx, cy, 492), fill: "G", tone: 1, body: true, round: true });
     it.push(ring(cx, cy, 472, thick ? 22 : 12));
     if (!thick) it.push(ring(cx, cy, 448, 4));
     it.push(ring(cx, cy, 330, 7));
@@ -265,7 +460,7 @@ const LAYOUTS = {
   /* A coin: a reeded edge, a ring of beads, the name round the top, the initials struck in the middle. */
   coin: { name: "Coin", group: "badge", shape: "circle", kinds: ["serif", "condensed", "display", "grotesk", "wide"], cats: ["gold", "silver", "coins", "pokemon", "sports", "wearables"], draw(c) {
     const it = [], cx = 500, cy = 500, { D, Lb, N } = c;
-    it.push({ d: circleD(cx, cy, 494), fill: "G", tone: 1 });
+    it.push({ d: circleD(cx, cy, 494), fill: "G", tone: 1, body: true, round: true });
     for (let i = 0; i < 150; i++) {
       const a = i / 150 * Math.PI * 2, s = Math.sin(a), co = Math.cos(a);
       it.push({ d: `M${f1(cx + 462 * s)},${f1(cy - 462 * co)}L${f1(cx + 488 * s)},${f1(cy - 488 * co)}`, stroke: "A", sw: 7, tone: 0, round: true });
@@ -293,7 +488,7 @@ const LAYOUTS = {
      symbol above and the small line below. */
   emblem: { name: "Emblem", group: "badge", shape: "circle", kinds: ["condensed", "wide", "display", "grotesk", "serif"], draw(c) {
     const it = [], cx = 620, cy = 500, { D, Lb, N } = c;
-    it.push({ d: circleD(cx, cy, 440), fill: "G", tone: 1 });
+    it.push({ d: circleD(cx, cy, 440), fill: "G", tone: 1, body: true, round: true });
     it.push(ring(cx, cy, 440, 20, "A", 0));
     it.push(ring(cx, cy, 404, 6, "A", 0));
     // the name's lead on the bar, as large as the bar takes; the trail and the small line under it
@@ -319,7 +514,7 @@ const LAYOUTS = {
   /* A crest: a heater shield, the symbol in its head, the name on a ribbon across it with folded tails. */
   crest: { name: "Crest", group: "badge", shape: "shield", kinds: ["condensed", "serif", "display", "wide", "grotesk"], draw(c) {
     const it = [], { D, Lb, N } = c, x = 150, y = 40, w = 700, h = 900;
-    it.push({ d: shieldD(x, y, w, h), fill: "G", tone: 1 });
+    it.push({ d: shieldD(x, y, w, h), fill: "G", tone: 1, body: true });
     it.push({ d: shieldD(x, y, w, h), stroke: "A", sw: 20, tone: 0 });
     it.push({ d: shieldD(x + 34, y + 34, w - 68, h - 80), stroke: "A", sw: 5, tone: 0 });
     const B = fitBlock(D, N.lead, 820, 150, { maxLines: 2, lead: 1.2, capMax: 118 });
@@ -334,9 +529,11 @@ const LAYOUTS = {
     drawBlock(it, D, B, 500, ry + rh / 2, { lead: 1.2, fill: "Q", tone: 0 });
     if (c.icon) it.push(iconItem(c.icon, 500, 270, 260, "A", 0, 7));
     else { const ms = fitSize(D, N.init, 360, 190); it.push(textLine(D, N.init, ms, 500, 270 + capOf(D, ms) / 2, { fill: "A", tone: 0 }).item); }
-    const foot = N.trail || c.small, fs = fitSize(Lb, foot, 460, 44, .12);
-    it.push(textLine(Lb, foot, fs, 500, ry + rh + 80 + capOf(Lb, fs), { track: .12, fill: "I", tone: 0 }).item);
-    if (N.trail) { const s2 = fitSize(Lb, c.small, 300, 26, .14); it.push(textLine(Lb, c.small, s2, 500, ry + rh + 80 + capOf(Lb, fs) + 36 + capOf(Lb, s2), { track: .14, fill: "A", tone: 0 }).item); }
+    // the foot sits where the shield narrows to its point: each line held to the width the shield has there
+    const shieldW = yy => { const t = (yy - y) / h; return t <= .52 ? w - 80 : Math.max(120, (w - 80) * (1 - Math.pow((t - .52) / .48, 1.6))); };
+    const foot = N.trail || c.small, fy = ry + rh + 70, fs = fitSize(Lb, foot, shieldW(fy + 44) * .86, 44, .12);
+    it.push(textLine(Lb, foot, fs, 500, fy + capOf(Lb, fs), { track: .12, fill: "I", tone: 0 }).item);
+    if (N.trail) { const y2 = fy + capOf(Lb, fs) + 30, s2 = fitSize(Lb, c.small, shieldW(y2 + 26) * .82, 26, .14); it.push(textLine(Lb, c.small, s2, 500, y2 + capOf(Lb, s2), { track: .14, fill: "A", tone: 0 }).item); }
     return { w: 1000, h: 1000, it, ok: capH >= MIN_CAP };
   } },
 
@@ -344,7 +541,7 @@ const LAYOUTS = {
      town or what is bought at the foot between stars. */
   stamp: { name: "Stamp", group: "badge", shape: "square", kinds: ["condensed", "wide", "display", "grotesk", "serif"], draw(c) {
     const it = [], { D, Lb, N } = c, W = 1400, H = 860;
-    it.push({ d: rectD(20, 20, W - 40, H - 40, 36), fill: "G", tone: 1 });
+    it.push({ d: rectD(20, 20, W - 40, H - 40, 36), fill: "G", tone: 1, body: true });
     it.push({ d: rectD(20, 20, W - 40, H - 40, 36), stroke: "A", sw: 18, tone: 0 });
     it.push({ d: rectD(58, 58, W - 116, H - 116, 18), stroke: "A", sw: 5, tone: 0 });
     const head = c.small, hs = fitSize(Lb, head, 760, 40, .2);
@@ -362,7 +559,7 @@ const LAYOUTS = {
   tag: { name: "Tag", group: "badge", shape: "square", kinds: ["condensed", "wide", "display", "grotesk", "script"], draw(c) {
     const it = [], { D, Lb, N } = c, W = 1500, H = 760;
     const tag = `M260,60H1400Q1460,60 1460,120V640Q1460,700 1400,700H260Q236,700 218,684L58,412Q40,380 58,348L218,76Q236,60 260,60Z`;
-    it.push({ d: tag + circleD(220, 380, 44), fill: "P", tone: 1, rule: "evenodd" });
+    it.push({ d: tag + circleD(220, 380, 44), fill: "P", tone: 1, rule: "evenodd", body: true });
     it.push({ d: `M266,96H1390Q1424,96 1424,130V630Q1424,664 1390,664H266Q252,664 242,654L94,404Q82,380 94,356L242,106Q252,96 266,96Z`, stroke: "Q", sw: 5, tone: 0, dash: "22 14" });
     it.push({ d: circleD(220, 380, 44), stroke: "Q", sw: 5, tone: 0 });
     const B = fitBlock(D, N.full, 1000, 360, { maxLines: 2, lead: 1.14, capMax: 200 });
@@ -384,7 +581,7 @@ const LAYOUTS = {
     it.push({ d: polyD([[1350, y0 + tail], [1570, y0 + tail], [1490, mid], [1570, y1 + tail], [1350, y1 + tail]]), fill: "S", tone: 1 });
     it.push({ d: polyD([[180, y1], [250, y1 + tail], [250, y1]]), fill: "T", tone: 0 });
     it.push({ d: polyD([[1420, y1], [1350, y1 + tail], [1350, y1]]), fill: "T", tone: 0 });
-    it.push({ d: rectD(180, y0, 1240, bh), fill: "P", tone: 1 });
+    it.push({ d: rectD(180, y0, 1240, bh), fill: "P", tone: 1, body: true });
     it.push({ d: `M180,${y0 + 22}H1420M180,${y1 - 22}H1420`, stroke: "Q", sw: 4, tone: 0 });
     drawBlock(it, D, B, 800, y0 + bh / 2, { lead: 1.16, fill: "Q", tone: 0 });
     const hs = fitSize(Lb, c.small, 820, 42, .2), ht = textLine(Lb, c.small, hs, 800, y0 - 62, { track: .2, fill: "A", tone: 1 }); it.push(ht.item);
@@ -397,7 +594,7 @@ const LAYOUTS = {
   /* A hexagon: a double-ruled hex, the symbol at its head, the name across its waist. */
   hexagon: { name: "Hexagon", group: "badge", shape: "hex", kinds: ["condensed", "wide", "grotesk", "display"], draw(c) {
     const it = [], { D, Lb, N } = c, cx = 500, cy = 500;
-    it.push({ d: polyD(hexPts(cx, cy, 486)), fill: "G", tone: 1 });
+    it.push({ d: polyD(hexPts(cx, cy, 486)), fill: "G", tone: 1, body: true });
     it.push({ d: polyD(hexPts(cx, cy, 470)), stroke: "A", sw: 22, tone: 0 });
     it.push({ d: polyD(hexPts(cx, cy, 430)), stroke: "A", sw: 5, tone: 0 });
     const B = fitBlock(D, N.full, 640, 230, { maxLines: 2, lead: 1.16, capMax: 128 });
@@ -417,7 +614,7 @@ const LAYOUTS = {
     const body = (dx, dy) => { const x = 70 + dx, y = 60 + dy, w = 1340, h = 640, r = 150;
       return `M${x + r},${y}H${x + w - r}A${r},${r} 0 0 1 ${x + w},${y + r}V${y + h - r}A${r},${r} 0 0 1 ${x + w - r},${y + h}H${520 + dx}L${230 + dx},${900 + dy}L${330 + dx},${y + h}H${x + r}A${r},${r} 0 0 1 ${x},${y + h - r}V${y + r}A${r},${r} 0 0 1 ${x + r},${y}Z`; };
     it.push({ d: body(30, 30), fill: "I", tone: 1 });
-    it.push({ d: body(0, 0), fill: "P", tone: 1 });
+    it.push({ d: body(0, 0), fill: "P", tone: 1, body: true });
     it.push({ d: body(0, 0), stroke: "I", sw: 18, tone: 1, join: true });
     const B = fitBlock(D, N.full, 1100, 330, { maxLines: 2, lead: 1.12, capMax: 200 });
     const bx = drawBlock(it, D, B, 740, 330, { lead: 1.12, fill: "Q", tone: 0 });
@@ -429,7 +626,7 @@ const LAYOUTS = {
   /* A starburst sticker: a burst, a ringed disc in it, the small line and the name inside. */
   burst: { name: "Burst", group: "badge", shape: "circle", kinds: ["display", "condensed", "wide", "script"], draw(c) {
     const it = [], cx = 500, cy = 500, { D, Lb, N } = c;
-    it.push({ d: starD(cx, cy, 496, 24, .86, c.d.seed % 2 ? 0 : Math.PI / 24), fill: "P", tone: 1 });
+    it.push({ d: starD(cx, cy, 496, 24, .86, c.d.seed % 2 ? 0 : Math.PI / 24), fill: "P", tone: 1, body: true });
     it.push({ d: circleD(cx, cy, 380), fill: "G", tone: 0 });
     it.push(ring(cx, cy, 352, 8, "P", 1));
     // the words as wide as the inner ring's chord allows within 130 of the middle (2 × √(352² − 130²) ≈ 650)
@@ -443,7 +640,7 @@ const LAYOUTS = {
   /* A licence plate, for cars: the town at its head, the name across it, four bolts. */
   plate: { name: "Plate", group: "badge", shape: "square", kinds: ["condensed", "wide", "grotesk", "display"], cats: ["cars"], draw(c) {
     const it = [], { D, Lb, N } = c, W = 1500, H = 760;
-    it.push({ d: rectD(20, 20, W - 40, H - 40, 70), fill: "G", tone: 1 });
+    it.push({ d: rectD(20, 20, W - 40, H - 40, 70), fill: "G", tone: 1, body: true });
     it.push({ d: rectD(20, 20, W - 40, H - 40, 70), stroke: "I", sw: 16, tone: 0 });
     it.push({ d: rectD(64, 64, W - 128, H - 128, 40), stroke: "A", sw: 6, tone: 0 });
     for (const [x, y] of [[190, 120], [W - 190, 120], [190, H - 120], [W - 190, H - 120]]) { it.push(dot(x, y, 22, "L", 0)); it.push(ring(x, y, 22, 5, "I", 0)); }
@@ -476,7 +673,7 @@ const LAYOUTS = {
   /* The monogram lockup: the initials in a rounded square, the name beside it. Reads at any size. */
   monogram: { name: "Monogram", group: "monogram", shape: "square", kinds: ANY_KIND.filter(k => k !== "script"), draw(c) {
     const it = [], { D, Lb, N } = c, S = 520, round = [60, 130, 260][c.d.seed % 3];
-    it.push({ d: rectD(40, 40, S, S, round), fill: "P", tone: 1 });
+    it.push({ d: rectD(40, 40, S, S, round), fill: "P", tone: 1, body: true });
     if (c.icon && c.d.seed % 4 === 3) it.push(iconItem(c.icon, 40 + S / 2, 40 + S / 2, 380, "Q", 0, 7.5));
     else { const ms = fitSize(D, N.init, S * .7, S * .5, -.01); it.push(textLine(D, N.init, ms, 40 + S / 2, 40 + S / 2 + capOf(D, ms) / 2, { fill: "Q", tone: 0, track: -.01 }).item); }
     const x = 40 + S + 70, lead = N.trail ? N.lead : N.full;
@@ -491,7 +688,7 @@ const LAYOUTS = {
   /* The initials in a disc, the name under it. */
   roundel: { name: "Roundel", group: "monogram", shape: "circle", kinds: ANY_KIND.filter(k => k !== "script"), draw(c) {
     const it = [], { D, Lb, N } = c, W = 1300, R = 230, cx = W / 2, cy = 40 + R;
-    it.push({ d: circleD(cx, cy, R), fill: "A", tone: 1 });
+    it.push({ d: circleD(cx, cy, R), fill: "A", tone: 1, body: true, round: true });
     it.push(ring(cx, cy, R - 26, 6, "G", 0));
     if (c.icon && c.d.seed % 3 === 2) it.push(iconItem(c.icon, cx, cy, 230, "G", 0, 7.5));
     else { const ms = fitSize(D, N.init, R * 1.25, R * .72); it.push(textLine(D, N.init, ms, cx, cy + capOf(D, ms) / 2, { fill: "G", tone: 0 }).item); }
@@ -526,7 +723,7 @@ const LAYOUTS = {
   /* A label: a ruled box, the name in its field, the small line knocked out of a band at its foot. */
   label: { name: "Label", group: "badge", shape: "square", kinds: ["condensed", "wide", "grotesk", "serif", "display"], draw(c) {
     const it = [], { D, Lb, N } = c, W = 1400, H = 820, band = 170;
-    it.push({ d: rectD(30, 30, W - 60, H - 60, 10), fill: "G", tone: 1 });
+    it.push({ d: rectD(30, 30, W - 60, H - 60, 10), fill: "G", tone: 1, body: true });
     it.push({ d: rectD(30, H - 30 - band, W - 60, band), fill: "P", tone: 1 });
     it.push({ d: rectD(30, 30, W - 60, H - 60, 10), stroke: "I", sw: 16, tone: 1 });
     it.push({ d: rectD(64, 64, W - 128, H - 128 - band, 4), stroke: "A", sw: 4, tone: 0 });
@@ -573,6 +770,21 @@ const LAYOUTS = {
     return { w: W, h: y + capOf(Lb, ss) + 70 + shift, it: [{ g: it, tf: `translate(0 ${f1(shift)})` }], ok: capH >= MIN_CAP, word: true };
   } },
 
+  // the industry marks, each for the lines it belongs to (DESIGN-LAW 180)
+  struck: markLayout("Struck coin", ["gold", "coins", "silver"], "coinStruck"),
+  ingot: markLayout("Gold bar", ["gold", "silver", "coins"], "ingot"),
+  slab: markLayout("Graded slab", ["pokemon", "sports"], "slab"),
+  handset: markLayout("Phone", ["phones", "devices", "resale"], "device"),
+  controller: markLayout("Controller", ["gaming"], "pad"),
+  dial: markLayout("Watch dial", ["wearables"], "dial"),
+  gauge: markLayout("Speedometer", ["cars"], "gauge"),
+  chip: markLayout("Chip", ["computers", "devices"], "chip"),
+  aperture: markLayout("Lens", ["cameras"], "aperture"),
+  cycle: markLayout("Trade arrows", ["resale", "wholesale", "phones", "devices"], "cycle"),
+  crate: markLayout("Crate", ["wholesale"], "crate"),
+  drop: markLayout("Drop", ["strips"], "drop"),
+  cans: markLayout("Headphones", ["audio"], "phones2"),
+
   /* A retro wordmark: the name over a hard offset shadow, the small line on a pill under it. */
   retro: { name: "Retro", group: "wordmark", shape: "square", kinds: ["display", "condensed", "wide"], draw(c) {
     const it = [], { D, Lb, N } = c, W = 1500;
@@ -595,15 +807,17 @@ export const LOGO_LAYOUTS = Object.fromEntries(Object.entries(LAYOUTS).map(([k, 
 /** The mark: the initials (or the symbol) in the layout's own shape, for a profile picture, an app
  *  icon or a favicon, where a whole seal would be too small to read. */
 function drawMark(c, shape) {
+  const own = LAYOUTS[c.d.t] && LAYOUTS[c.d.t].mark;
+  if (own) return { w: 1000, h: 1000, it: applyFinish(own(c), c), ok: true };
   const it = [], { D, N } = c, cx = 500, cy = 500;
   const body = shape === "shield" ? shieldD(160, 60, 680, 880) : shape === "hex" ? polyD(hexPts(cx, cy, 480)) : shape === "circle" ? circleD(cx, cy, 480) : rectD(30, 30, 940, 940, 200);
   const inner = shape === "shield" ? shieldD(196, 96, 608, 790) : shape === "hex" ? polyD(hexPts(cx, cy, 432)) : shape === "circle" ? circleD(cx, cy, 436) : rectD(70, 70, 860, 860, 165);
-  it.push({ d: body, fill: "P", tone: 1 });
+  it.push({ d: body, fill: "P", tone: 1, body: true, round: shape === "circle" });
   it.push({ d: inner, stroke: "Q", sw: 8, tone: 0 });
   const box = shape === "shield" ? 420 : 560, my = shape === "shield" ? 440 : cy;
   if (c.icon && !c.d.markInit) it.push(iconItem(c.icon, cx, my, box * .92, "Q", 0, 7.5));
   else { const ms = fitSize(D, N.init, box, box * .62); it.push(textLine(D, N.init, ms, cx, my + capOf(D, ms) / 2, { fill: "Q", tone: 0 }).item); }
-  return { w: 1000, h: 1000, it, ok: true };
+  return { w: 1000, h: 1000, it: applyFinish(it, c), ok: true };
 }
 /** The name beside the mark: the horizontal lockup an ad's badge, a site's header and a cover use. */
 function drawHorizontal(c, shape) {
@@ -617,6 +831,41 @@ function drawHorizontal(c, shape) {
   return { w: Math.max(bx.x1, st.box.x1) + 40, h: H, it, ok: true, word: true };
 }
 
+/* ---------- the finish (DESIGN-LAW 180): flat, a gradient, or a pattern on the logo's body ----------
+   The owner, 2026-11-24: "some people like logos with gradients", "or patterns", "make them clean simple and
+   professional". A gradient is a gentle sheen down the body (its own colour a little lighter to a little
+   darker), a pattern a faint texture inside it in its own colour: never a second colour, never under the
+   words' contrast. The one-colour versions stay flat. */
+export const FINISHES = { flat: "Flat", gradient: "Gradient", pattern: "Pattern" };
+/** the body: the first filled shape a layout marks as its own (body: true), searched through groups */
+function findBody(items) {
+  for (let i = 0; i < items.length; i++) {
+    const x = items[i]; if (!x) continue;
+    if (x.body && x.fill) return { arr: items, i, item: x };
+    if (x.g) { const h = findBody(x.g); if (h) return h; }
+  }
+  return null;
+}
+function patternFor(c, base, kind, w = 1600, h = 1100) {
+  const ink = mixHex(base, lumOf(base) > .45 ? "#000000" : "#ffffff", .13), out = [];
+  if (kind === "rings") { for (let r = 30; r < 900; r += 26) out.push(circleD(500, 500, r)); return [{ d: out.join(""), stroke: ink, sw: 5, tone: 0 }]; }
+  if (kind === "dots") { for (let y = 0; y < h; y += 34) for (let x = (y / 34) % 2 ? 17 : 0; x < w; x += 34) out.push(circleD(x, y, 5.5)); return [{ d: out.join(""), fill: ink, tone: 0 }]; }
+  for (let x = -h; x < w; x += 30) out.push(`M${x},0L${x + h},${h}`);
+  return [{ d: out.join(""), stroke: ink, sw: 6, tone: 0 }];
+}
+function applyFinish(items, c) {
+  const f = c.d.finish; if (!f || f === "flat") return items;
+  const hit = findBody(items); if (!hit) return items;
+  const { arr, i, item } = hit, base = c.P[item.fill] || item.fill;
+  if (typeof base !== "string") return items;
+  if (f === "gradient") item.fill = { grad: [mixHex(base, "#ffffff", .2), mixHex(base, "#000000", .24)], role: item.fill };
+  else if (f === "pattern") {
+    const kind = item.round ? "rings" : ["lines", "dots", "lines"][c.d.seed % 3];
+    arr.splice(i + 1, 0, { clip: item.d, ctf: item.tf || "", deco: true, g: patternFor(c, base, kind) });
+  }
+  return items;
+}
+
 /* ---------- drawing a design to SVG ---------- */
 let UID = 0;
 /** One logo as an SVG document. mode: "colour" (with its ground unless bg is false), "transparent"
@@ -625,29 +874,42 @@ let UID = 0;
 export function logoSvg(design, faces, { form = "primary", mode = "colour", bg = mode === "colour", pad = .08, mark = null } = {}) {
   const d = cleanDesign(design), c = ctxOf(d, faces), L = LAYOUTS[d.t] || LAYOUTS.seal;
   const r = form === "mark" ? drawMark(c, L.shape) : form === "horizontal" ? drawHorizontal(c, L.shape) : L.draw(c);
+  applyFinish(r.it, c);
   return svgOf(r, c.P, { mode, bg, pad, mark, title: c.N.full + " logo" });
 }
 function svgOf(r, P, { mode, bg, pad, mark, title, size }) {
   const p = Math.round(Math.max(r.w, r.h) * pad), W = Math.round(r.w + 2 * p), H = Math.round(r.h + 2 * p);
   const mono = mode === "black" || mode === "white", col = k => P[k] || k, id = "k" + (++UID).toString(36) + Math.random().toString(36).slice(2, 6);
+  const defs = []; let nd = 0;
+  const fillOf = (f, tone) => {
+    if (tone) return tone;
+    if (f && typeof f === "object" && f.grad) { const gid = id + "g" + (nd++); defs.push(`<linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${f.grad[0]}"/><stop offset="1" stop-color="${f.grad[1]}"/></linearGradient>`); return `url(#${gid})`; }
+    return col(f);
+  };
   const paint = (x, inMask, as = null) => {
+    if (x.clip) {
+      if (inMask || mono) return "";   // a pattern is colour's: the one-colour versions stay flat
+      const cid = id + "c" + (nd++);
+      defs.push(`<clipPath id="${cid}"><path d="${x.clip}"${x.ctf ? ` transform="${x.ctf}"` : ""}/></clipPath>`);
+      return `<g clip-path="url(#${cid})">${x.g.map(y => paint(y, inMask, as)).join("")}</g>`;
+    }
     if (x.g) return `<g transform="${x.tf}"${x.op ? ` opacity="${x.op}"` : ""}>${x.g.map(y => paint(y, inMask, x.as ? x : as)).join("")}</g>`;
     if (!x.d) return "";
     const tone = inMask ? (x.tone ? "#fff" : "#000") : as ? col(x.tone ? as.as : as.under) : null;
     const tf = x.tf ? ` transform="${x.tf}"` : "", rule = x.rule ? ` fill-rule="${x.rule}"` : "";
     if (x.stroke) {
       const cap = x.round ? ` stroke-linecap="round" stroke-linejoin="round"` : x.join ? ` stroke-linejoin="round"` : "";
-      const fill = x.fill ? (tone || col(x.fill)) : "none";
+      const fill = x.fill ? fillOf(x.fill, tone) : "none";
       return `<path${tf} d="${x.d}" fill="${fill}" stroke="${tone || col(x.stroke)}" stroke-width="${f1(x.sw)}"${cap}${x.dash ? ` stroke-dasharray="${x.dash}"` : ""}${rule}/>`;
     }
-    return `<path${tf} d="${x.d}" fill="${tone || col(x.fill)}"${rule}/>`;
+    return `<path${tf} d="${x.d}" fill="${fillOf(x.fill, tone)}"${rule}/>`;
   };
   const items = r.it.filter(Boolean);
   let body;
   if (mono) {
     const ink = mode === "black" ? "#111214" : "#ffffff";
     body = `<defs><mask id="${id}" maskUnits="userSpaceOnUse" x="${-p}" y="${-p}" width="${W}" height="${H}"><rect x="${-p}" y="${-p}" width="${W}" height="${H}" fill="#000"/>${items.map(x => paint(x, true)).join("")}</mask></defs><rect x="${-p}" y="${-p}" width="${W}" height="${H}" fill="${ink}" mask="url(#${id})"/>`;
-  } else body = (bg ? `<rect x="${-p}" y="${-p}" width="${W}" height="${H}" fill="${typeof bg === "string" ? bg : P.G}"/>` : "") + items.map(x => paint(x, false)).join("");
+  } else { body = (bg ? `<rect x="${-p}" y="${-p}" width="${W}" height="${H}" fill="${typeof bg === "string" ? bg : P.G}"/>` : "") + items.map(x => paint(x, false)).join(""); if (defs.length) body = `<defs>${defs.join("")}</defs>` + body; }
   const sz = size ? ` width="${size[0]}" height="${size[1]}"` : ` width="${W}" height="${H}"`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-p} ${-p} ${W} ${H}"${sz}><title>${esc(title)}</title>${body}${mark || ""}</svg>`;
   return { svg, w: W, h: H, ok: r.ok !== false, word: !!r.word, ground: P.G, art: { w: r.w, h: r.h } };
@@ -747,6 +1009,7 @@ export function cleanDesign(x) {
     icon: LOGO_ICONS[d.icon] ? d.icon : "",
     seed: Math.abs(d.seed | 0) % 100000,
     markInit: !!d.markInit,
+    finish: FINISHES[d.finish] ? d.finish : "flat",
   };
 }
 /** the faces a design is set in (the modules to load first) */
@@ -769,6 +1032,9 @@ const LINE_PAIRS = {
   pokemon: ["black_on_yellow", "lemon_blue", "white_on_red", "navy_gold", "hot_pink_black_cobalt", "yellow_black_magenta"],
   gaming: ["black_violet", "black_lime", "white_on_violet", "black_cyan", "teal_pink", "mint_black_violet"],
   strips: ["white_on_teal", "arctic_teal", "mint_green", "white_on_blue", "sky_cobalt", "blue_green"],
+  wholesale: ["navy_orange", "black_white_orange", "black_on_orange", "navy_gold", "sand_teal", "black_on_yellow", "orange_black_cobalt"],
+  devices: ["midnight_cyan", "black_cyan", "white_on_blue", "sky_cobalt", "electric_blue_white_orange", "black_lime", "white_on_violet"],
+  resale: ["teal_orange", "white_on_green", "black_on_lime", "hot_pink_black_cobalt", "navy_white_red", "white_on_pink", "black_on_aqua"],
 };
 /** Layouts for a line: those drawn for it (a plate for cars, a coin for gold) lead, then the rest. */
 function layoutsFor(cat) {
@@ -794,7 +1060,8 @@ export function gallery(input, { seed = 1, n = 24, group = "" } = {}) {
     const voices = shuffle(Object.keys(LOGO_VOICES).filter(v => L.kinds.includes(LOGO_VOICES[v].kind)), R).sort((a, b) => (usedV[a] || 0) - (usedV[b] || 0));
     const voice = voices[0] || "bold"; usedV[voice] = (usedV[voice] || 0) + 1;
     const icon = R() < .6 ? icons[Math.floor(R() * Math.min(2, icons.length))] : "";
-    const d = cleanDesign({ ...base, t, voice, pair, icon, seed: Math.floor(R() * 99999) });
+    const fr = R(), finish = fr < .18 ? "gradient" : fr < .28 ? "pattern" : "flat";
+    const d = cleanDesign({ ...base, t, voice, pair, icon, finish, seed: Math.floor(R() * 99999) });
     const key = t + d.voice + d.pair;
     if (seen.has(key)) continue; seen.add(key);
     out.push(d);
@@ -811,6 +1078,10 @@ export function variants(design, axis, n = 8) {
     return picked.map(pair => ({ ...d, pair }));
   }
   if (axis === "voice") return [d.voice, ...shuffle(Object.keys(LOGO_VOICES).filter(v => v !== d.voice && L.kinds.includes(LOGO_VOICES[v].kind)), R)].slice(0, n).map(voice => ({ ...d, voice }));
+  if (axis === "finish") {
+    const c = (o) => ({ ...d, finish: o });
+    return Object.keys(FINISHES).map(c);
+  }
   if (axis === "icon") return ["", ...(ICONS_FOR[d.cat] || []), "cashTag", "sparkle", "shieldTick", "boltFast"].filter((k, i, a) => a.indexOf(k) === i).slice(0, n).map(icon => ({ ...d, icon }));
   if (axis === "layout") return [d.t, ...shuffle(layoutsFor(d.cat).filter(k => k !== d.t), R)].slice(0, n).map(t => {
     const kinds = LAYOUTS[t].kinds, voice = kinds.includes((LOGO_VOICES[d.voice] || {}).kind) ? d.voice : Object.keys(LOGO_VOICES).find(v => kinds.includes(LOGO_VOICES[v].kind));
@@ -823,3 +1094,8 @@ function nearTwin(a, b) {
   const A = paletteOf(a), B = paletteOf(b);
   return contrast(A.G, B.G) < 1.25 && contrast(A.A, B.A) < 1.25;
 }
+
+/* ---------- for the brand kit (logo/kit.js): the engine's own tools, so a kit file is drawn the way a
+   logo is (the same outlines, palette roles and lockups), never a second way ---------- */
+export const K = { ctxOf, partsOf, drawMark, drawHorizontal, svgOf, textLine, fitSize, fitBlock, drawBlock, capOf, shapeRun, arcText, arcFit,
+  rectD, circleD, starD, polyD, hexPts, shieldD, iconItem, ring, dot, tidy, up, f1, esc, LAYOUTS };

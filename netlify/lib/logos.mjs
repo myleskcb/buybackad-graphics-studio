@@ -61,3 +61,28 @@ export async function logoFiles(design, phone = "") {
   }
   return kitFiles(d, faces, { phone: String(phone || "").replace(/[^0-9()+\-. ]/g, "").slice(0, 24) });
 }
+
+/* THE BRAND KIT'S FILES (logo/kit.js, DESIGN-LAW 180): every file of a saved kit's tier as SVG, drawn by
+   the same engine the page previews with, after api.mjs has found the kit on the account. The page makes
+   the PNGs, the card's print PDF and the zip from these. */
+const kitModule = () => import("../../logo/kit.js");
+/** a kit as the engine draws it (the server stores only this) */
+export async function cleanKitSpec(spec) {
+  const { cleanSpec } = await kitModule();
+  if (!spec || typeof spec !== "object") throw new Error("no kit");
+  return cleanSpec(spec);
+}
+/** { files: { id: "<svg…" }, readme, tier } for a kit and its tier */
+export async function brandKitFiles(spec, tier) {
+  const { kitFor, kitSvg, cleanSpec, readme } = await kitModule();
+  const { facesOf } = await engine();
+  const s = cleanSpec(spec), faces = {};
+  for (const k of facesOf(s.design)) {
+    const load = FACE_MODULES[k];
+    if (!load) throw new Error("no face " + k);
+    faces[k] = (await load()).default;
+  }
+  const t = tier === "complete" ? "complete" : "essentials", files = {};
+  for (const F of kitFor(t)) files[F.id] = kitSvg(F.id, s, faces).svg;
+  return { files, readme: readme(s, t, faces), tier: t };
+}

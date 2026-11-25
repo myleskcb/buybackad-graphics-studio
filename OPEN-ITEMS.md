@@ -4979,23 +4979,6 @@ Open:
    26) was merged in; full_ad, quick_ad, buylist, typing_pause, look_preflight and clip_grounds checks pass.
 2. The moving-scenes session (its own worktree) edits motion/app.js too: merge with care.
 
-## CI. 2026-11-24 — the ads sell: TOP DOLLAR beside the local and fair lines (DESIGN-LAW 181)
-
-(claude/bold-sales-pitches, on `main` after pull request 26. The owner: "all I see is honest or local buyer not top
-buyer or highest paying"; asked how hard, "bold, no proof needed"; asked when, "right after PR 26".)
-
-Done: see DESIGN-LAW 181.
-
-Open:
-1. **The mix is a first guess.** About half the badges and stickers are bold, and the points draw `top` at .7. The
-   gallery's Tune the mix panel could carry each pitch line (More, Less, Same, Never) as it carries the grounds.
-2. **HIGHEST, BEST PRICE, #1 and WE BEAT ANY OFFER as a shop's own pick.** Today a shop types them. A switch in the
-   maker ("I can back this up") would offer them, with the pre-flight's note. Not built.
-3. **The photo templates and classic cards** (`app.js` TEMPLATES: LOCAL BUYER kickers on the phone and silver decks)
-   are unchanged. Only the full ad, the video maker's looks and its catalogue were changed.
-4. **The hero wall** keeps its 18 approved stills. It shows the new words once they are drawn again (`--redraw`) and
-   approved.
-
 ## CH. 2026-11-25 — a moving scene is one ad: its moment, its light, its sound and the ad's beats (DESIGN-LAW 179)
 
 (claude/modest-maxwell-ce019b, from `main` e28ef95b.)
@@ -5028,3 +5011,64 @@ Open:
 3. **The golden-hour city and the phone barely move** on their own (the city's light 0.3 of a level, the phone's
    2): the ad's light and sound carry their beat. Redrawn clips with more motion would serve them better.
 4. **Any look** (the plain engine) still has no moving ground (§CB 2), and so no scene kit.
+
+## CG. 2026-11-24 — the brand kit, step by step, bought once; industry marks; name ideas (DESIGN-LAW 180)
+
+(claude/brand-kit-flow, from `main` at e28ef95b, which had just taken pull request 25 at the owner's word.
+CD, CE and CF, and rules 178 and 179, were taken on other branches.)
+
+Done:
+- **Industry marks**: thirteen marks with the shop's initials in the thing it buys, leading each line's
+  gallery; a Symbols tab. The crest's small lines fit the shield where it narrows. "MK Electronics" is MK.
+- **Three more lines** in the logo maker: device stores, wholesale and bulk lots, resale and trade-ins, with
+  their own words, symbols (trade arrows, boxes, a store front, a tablet) and colours.
+- **The kit, 20 or 50 files** (logo/kit.js), drawn by the engine on the page and the function alike: a
+  Complete kit is 50 SVGs in about 30 ms on the server, a 7 MB folder of 62 files once made into pictures.
+- **The flow**: the steps, Looks good and Try another look, the rail, the review's grid, the details for the
+  card's back, the posts and the signature, and Print it today under the card.
+- **Paid**: `/api/kits`, `/api/kits/save`, `/api/kits/file`; the checkout sells `kit` (essentials, complete,
+  upgrade) and Starter's `addKit`; a kit comes back to /logo/ and downloads; refunds handled. The plans
+  page, the comparison row and the checkout dialog say so (`build_pricing.mjs`); Starter's checkout offers
+  the kit at $5 off.
+- **Name ideas**: the free mixer, and Ask AI (`/api/names`, 2 AI credits a batch, refunded if it fails).
+- `@anthropic-ai/sdk` joins package.json for the AI names; it loads only when a batch is asked for.
+- The owner, on seeing it: "some people like logos with gradients", "or patterns", "clean simple and
+  professional": a Finish row (Flat, Gradient, Pattern) and a few in the gallery. "does it allow you to pick
+  a type or redownload in another format?": PNG, JPG, SVG, PDF or All, any time. And a script's descender
+  touching the small line under it ("where minor overlap"): a block's foot now counts its ink.
+
+Open, the owner's:
+1. **The prices.** $14.99 and $19.99 are one line each in plans.mjs KITS (the owner weighed $11.99 and
+   $15.99 too). Stripe promotion codes are allowed on the kits, so a lower price can be tried with a code.
+2. **The terms**: a one-time purchase's line (what a kit is, that it stays downloadable, refunds), and who
+   owns a logo made here (§CC asked the same). TERMS_VERSION moves with it.
+3. **AI name ideas need `ANTHROPIC_API_KEY`** in Netlify (Production), then a deploy; the button shows itself
+   when it is set. The privacy page should name Anthropic beside fal and Google when it is switched on.
+   Never run against the real API here: the request's shape follows the SDK's documentation, and the first
+   live batch should be read by eye.
+4. **A first live kit purchase** with a real card (then refunded) proves the loop end to end: Stripe makes the
+   five kit prices on first use (`/admin/billing` lists 13 prices now).
+5. Whether Starter's add-on should show on the plans page itself, not only in its checkout.
+
+Open, next:
+- The marks are on the logo maker's layouts; the card maker's own gallery and the video maker's end card
+  still wear the logo as before.
+- A 9:16 Instagram story post per line (the stories are generic: buying, quote, open, what we buy, follow).
+- Highlight covers in more subjects (prices per item, trade-ins, repairs when that segment comes).
+
+## CI. 2026-11-24 — the ads sell: TOP DOLLAR beside the local and fair lines (DESIGN-LAW 181)
+
+(claude/bold-sales-pitches, on `main` after pull request 26. The owner: "all I see is honest or local buyer not top
+buyer or highest paying"; asked how hard, "bold, no proof needed"; asked when, "right after PR 26".)
+
+Done: see DESIGN-LAW 181.
+
+Open:
+1. **The mix is a first guess.** About half the badges and stickers are bold, and the points draw `top` at .7. The
+   gallery's Tune the mix panel could carry each pitch line (More, Less, Same, Never) as it carries the grounds.
+2. **HIGHEST, BEST PRICE, #1 and WE BEAT ANY OFFER as a shop's own pick.** Today a shop types them. A switch in the
+   maker ("I can back this up") would offer them, with the pre-flight's note. Not built.
+3. **The photo templates and classic cards** (`app.js` TEMPLATES: LOCAL BUYER kickers on the phone and silver decks)
+   are unchanged. Only the full ad, the video maker's looks and its catalogue were changed.
+4. **The hero wall** keeps its 18 approved stills. It shows the new words once they are drawn again (`--redraw`) and
+   approved.

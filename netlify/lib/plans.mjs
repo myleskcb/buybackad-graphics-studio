@@ -39,6 +39,9 @@ export const MODEL_COST_USD = {
   'gemini-3-pro-image-preview': 0.134,
   'fal-seedream-v4': 0.03,               // fal Seedream v4 text-to-image, 2048 square
   'fal-seedream-v4-edit': 0.03,          // fal Seedream v4 edit: the generator's products as reference photos (bggen.mjs)
+  // AI name ideas (netlify/lib/names.mjs): Claude Opus 5.5 at low effort, capped at 3,000 tokens out. Priced at
+  // the dearer of it and its refusal fallback ($5/$25 a million): about 600 in and 3,000 out at worst
+  'claude-names': 0.078,
 };
 
 /** Prices in cents. `weekly`/`monthly` are PHOTO downloads (null and null on
@@ -95,6 +98,7 @@ export const PLANS = {
    list are written from these, by scripts/build_pricing.mjs, so a number is
    typed once: in PLANS above. */
 const num = (v) => Number(v).toLocaleString('en-US');
+const usdOf = (c) => '$' + (c % 100 ? (c / 100).toFixed(2) : String(c / 100));
 const designs = (p) => (p.allDesigns ? 'Every design in all 13 categories' : 'Every Phones design, plus the top 3 in every other category');
 /** what a plan's video allowance is called, everywhere */
 export const videosText = (p) => (!p.video ? 'No' : p.videos === null ? 'Unlimited' : num(p.videos) + ' a month');
@@ -111,7 +115,8 @@ export function featureRows() {
     row('library', 'Ads kept in your library', (p) => num(p.library)),
     row('qr', 'A QR code on your ad', (p) => (p.qr ? 'Yes' : 'No')),
     row('cards', 'Business cards to print', (p) => (p.cards ? 'Yes' : 'No'), 'Anyone can design a business card. Downloading the print-ready file comes with Pro and Business.'),
-    row('logos', 'Logo files and brand kit', (p) => (p.logos ? 'Yes' : 'No'), 'Anyone can make and try a logo. The full-size files, the profile picture and the cover come with Pro and Business.'),
+    row('logos', 'Brand kit: your logo and its files', (p, id) => (p.logos ? 'Complete, included' : id === 'basic' ? '$5 off a kit' : 'From ' + usdOf(KITS.essentials.price) + ' once'),
+      'Anyone can make a logo and see the whole kit. Essentials (' + KITS.essentials.files + ' files) is ' + usdOf(KITS.essentials.price) + ' and Complete (' + KITS.complete.files + ' files) is ' + usdOf(KITS.complete.price) + ', once, and yours to download again any time; ' + usdOf(KIT_ADDON_OFF) + ' less with Starter. Pro and Business include Complete.'),
   ];
 }
 /** the short list on each plan's card (and the checkout dialog), most telling first */
@@ -119,8 +124,8 @@ export function planBullets(id) {
   const p = PLANS[id];
   const credits = num(p.credits) + ' AI credits a month', lib = 'Keep ' + num(p.library) + ' ads in your library';
   if (id === 'free') return [num(p.weekly) + ' photo downloads a week', designs(p), 'Standard size (' + p.maxPx + ' pixels) with a light WeBuy.AD watermark', credits];
-  if (id === 'basic') return [num(p.monthly) + ' photo downloads a month', designs(p), 'No watermark, up to double size (' + p.maxPx + ' pixels)', credits, lib];
-  if (id === 'pro') return [num(p.monthly) + ' photo downloads a month', num(p.videos) + ' video ads a month, with sound', 'Everything in Starter', 'Add a QR code people can scan', 'Print-ready business cards', 'Logo files and brand kit', credits, lib];
+  if (id === 'basic') return [num(p.monthly) + ' photo downloads a month', designs(p), 'No watermark, up to double size (' + p.maxPx + ' pixels)', credits, lib, usdOf(KIT_ADDON_OFF) + ' off a brand kit'];
+  if (id === 'pro') return [num(p.monthly) + ' photo downloads a month', num(p.videos) + ' video ads a month, with sound', 'Everything in Starter', 'Add a QR code people can scan', 'Print-ready business cards', 'The Complete brand kit (' + KITS.complete.files + ' files)', credits, lib];
   return ['Unlimited photo downloads', 'Unlimited video ads, with sound', 'Everything in Pro', credits, lib];
 }
 /** who each plan is for, in one line under its name */
@@ -143,6 +148,23 @@ export const PACKS = {
   credits100: { label: '100 AI credits', credits: 100, price: 900 },
   credits300: { label: '300 AI credits', credits: 300, price: 2500 },
 };
+
+/** The brand kits (logo/kit.js, DESIGN-LAW 180): one business's logo and its files, bought once, kept on
+ *  the account and downloaded again any time. The owner, 2026-11-24: "a logo brand kit fee ... one time you
+ *  can save these and re-download them at any time", a bigger pack that "gives you 50 images and covers
+ *  more platforms", "How about 1499 and 1999", and "five dollars off if you buy a month subscription as
+ *  well" (the add-on, at a plan's own checkout). Pro and Business include Complete (`logos`). The files are
+ *  drawn by our own engine, no model: a kit costs us a function call, so its margin is Stripe's cut.
+ *  `upgrade` takes a saved Essentials kit to Complete for the difference. */
+export const KITS = {
+  essentials: { label: 'Brand kit: Essentials', price: 1499, files: 20 },
+  complete: { label: 'Brand kit: Complete', price: 1999, files: 50 },
+};
+export const KIT_UPGRADE = { label: 'Brand kit: Essentials to Complete', price: KITS.complete.price - KITS.essentials.price };
+/** off a kit bought at a Starter plan's own checkout */
+export const KIT_ADDON_OFF = 500;
+/** the kit a plan includes (Pro and Business: Complete), or null */
+export const kitIncluded = (plan) => (PLANS[planId(plan)].logos ? 'complete' : null);
 
 /** Stripe, US cards: 2.9% + 30c a charge, Billing 0.7% on recurring. */
 export const STRIPE_FEES = { pct: 0.029, fixed: 0.30, billingPct: 0.007 };
@@ -239,6 +261,14 @@ export function economics() {
   for (const [id, k] of Object.entries(PACKS)) {
     const net = netUsd(k.price, false), cost = k.credits * CREDIT_USD;
     rows.push({ kind: 'pack', id, interval: 'once', priceUsd: k.price / 100, netUsd: net, worstCostUsd: cost, margin: (net - cost) / net });
+  }
+  /* a kit: drawn by the engine (no model), kept in Blobs; what it costs us is the hosting of a year of
+     downloads, generously a few cents. The add-on is the kit less KIT_ADDON_OFF, charged with a plan's
+     first invoice (one Stripe fee for both, so the fixed 30c is not charged twice; counted here as if it were). */
+  const KIT_HOSTING_USD = 0.05;
+  for (const [id, k] of [...Object.entries(KITS), ['upgrade', KIT_UPGRADE], ...Object.entries(KITS).map(([i, k]) => [i + '_addon', { price: k.price - KIT_ADDON_OFF }])]) {
+    const net = netUsd(k.price, false);
+    rows.push({ kind: 'kit', id, interval: 'once', priceUsd: k.price / 100, netUsd: net, worstCostUsd: KIT_HOSTING_USD, margin: (net - KIT_HOSTING_USD) / net });
   }
   return rows;
 }
