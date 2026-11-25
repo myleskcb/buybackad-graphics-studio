@@ -28,7 +28,7 @@ export const PROMISES = {
   meet:  [.45, ["WE MEET YOU", "LOCAL BUYER", "MEET NEARBY"]],
   easy:  [.3, ["NO HASSLE", "NO PRESSURE", "EASY SALE"]],
   fair:  [.3, ["FAIR OFFER", "UPFRONT PRICE"]],
-  // a buyer selling (DESIGN-LAW 178): money, said boldly, with nothing to prove (no HIGHEST, BEST or #1)
+  // a buyer selling (DESIGN-LAW 180): money, said boldly, with nothing to prove (no HIGHEST, BEST or #1)
   top:   [.7, ["TOP DOLLAR PAID", "TOP CASH PAID", "WE PAY TOP DOLLAR", "TOP PRICES PAID"]],
 };
 /* Dropped 2026-11-23 (the owner: card ads "screaming scalper"; the copy audit against rule 80): FREE OFFER (spam),

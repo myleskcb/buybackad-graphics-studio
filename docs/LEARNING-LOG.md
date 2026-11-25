@@ -7004,7 +7004,7 @@ a check that reads "the still" must draw the still, not whatever a live source s
 RESUME HERE: the owner looks at a moving scene in the maker (§CB 1); then more clips
 (§CB 4), Any look (§CB 2), stories and wide frames (§CB 3).
 
-## 2026-11-24 — the ads sell (DESIGN-LAW 178; OPEN-ITEMS CF; claude/bold-sales-pitches)
+## 2026-11-24 — the ads sell (DESIGN-LAW 180; OPEN-ITEMS CG; claude/bold-sales-pitches)
 
 Asked: the owner, of the ads: "all I see is honest or local buyer not top buyer or highest paying. We need more sales
 ways to pitch yourself."
@@ -7019,4 +7019,4 @@ Found:
     say so. A change of words is not on the site until the stills are drawn again.
   - A ban narrowed to some lines keeps one list for every generation: scope the row (`only`), never fork the list.
 
-RESUME HERE: OPEN-ITEMS §CF 1.
+RESUME HERE: OPEN-ITEMS §CG 1.

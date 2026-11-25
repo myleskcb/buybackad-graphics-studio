@@ -7434,7 +7434,7 @@ something you would probably be paying for". OPEN-ITEMS §BU had planned it. The
 
 Not done here: OPEN-ITEMS §CC.
 
-## 178. The ads sell: a buyer says TOP DOLLAR, with nothing a shop can be asked to prove
+## 180. The ads sell: a buyer says TOP DOLLAR, with nothing a shop can be asked to prove
 
 Added 2026-11-24. The owner, looking across the ads: "all I see is honest or local buyer not top buyer
 or highest paying. We need more sales ways to pitch yourself." Asked how hard a default ad should sell,
@@ -7472,4 +7472,4 @@ of the picks too.
   comma), the census's one list, and the full ad's checks drawing every line in every size with the
   new words. The library's renders and the landing's stills are drawn again in these words.
 
-Not done here: OPEN-ITEMS §CF.
+Not done here: OPEN-ITEMS §CG.

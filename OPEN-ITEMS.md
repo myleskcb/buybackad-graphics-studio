@@ -4966,12 +4966,12 @@ Open, next steps:
 - `full_ad_studio_check` still fails its one case on `main` ("earbuds landscape: Something on the ad runs to the
   edge", §BY 5); this branch's change is inert without a logo kit, which that check never sets.
 
-## CF. 2026-11-24 — the ads sell: TOP DOLLAR beside the local and fair lines (DESIGN-LAW 178)
+## CG. 2026-11-24 — the ads sell: TOP DOLLAR beside the local and fair lines (DESIGN-LAW 180)
 
 (claude/bold-sales-pitches, on `main` after pull request 26. The owner: "all I see is honest or local buyer not top
 buyer or highest paying"; asked how hard, "bold, no proof needed"; asked when, "right after PR 26".)
 
-Done: see DESIGN-LAW 178.
+Done: see DESIGN-LAW 180.
 
 Open:
 1. **The mix is a first guess.** About half the badges and stickers are bold, and the points draw `top` at .7. The

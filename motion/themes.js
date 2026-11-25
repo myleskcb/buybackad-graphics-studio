@@ -10,7 +10,7 @@
 // person answers every message, urgency is only ever true (phones lose value; "text
 // now" is an invitation), never a deadline, a countdown, a price about to move, a
 // ranking or a promise about condition or speed the shop has not made. A buyer selling is not a
-// ranking (DESIGN-LAW 178, the owner, 2026-11-24): TOP DOLLAR PAID and WE PAY TOP DOLLAR stand where
+// ranking (DESIGN-LAW 180, the owner, 2026-11-24): TOP DOLLAR PAID and WE PAY TOP DOLLAR stand where
 // LOCAL BUYER stood on two looks in three; HIGHEST, BEST and #1 stay out.
 
 const P = (ground, light, ink, accent, plate, plate_ink, more = {}) => ({ ground, light, ink, accent, plate, plate_ink, ...more });
