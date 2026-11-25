@@ -478,9 +478,9 @@ async function applyRecipe(id) {
   if (!R) { delete s.recipe; save(); syncMode(); rebuild(); renderGallery(true); return; }
   s.recipe = R.id;
   if (R.subject === "iphone") { delete s.subject; delete s.subject_set; } else { s.subject = R.subject; s.subject_set = 0; }
-  const w = R.words || {}, S = subjects.list.find(x => x.key === R.subject), other = R.subject !== "iphone";
-  s.headline = w.headline || (S ? S.heads[0].toUpperCase() : s.headline);
-  s.tag = w.tag || (S && other ? S.models.toUpperCase() : "");
+  const w = R.words || {}, S = subjects.list.find(x => x.key === R.subject), other = R.subject !== "iphone", L = S && lineWords(S, s.lang);
+  s.headline = w.headline || (S ? L.heads[0].toUpperCase() : s.headline);
+  s.tag = w.tag || (S && other ? L.models.toUpperCase() : "");
   s.points = w.points || null;   // a design's own points, else the ad draws the line's (rule 164)
   delete s.feed_claim;                               // the design's claim is drawn unless a business name or a claim is typed (fullOf)
   for (const [k, v] of [["feed_burst", w.burst], ["number_label", w.label]]) { if (v) s[k] = v; else delete s[k]; }
@@ -631,7 +631,8 @@ function buildPanel() {
     } else {
       state.style.subject = key; state.style.subject_set = 0;
       // the points are left to the ad, which draws two to four of the line's own by its seed (rule 164); typed ones stay as typed
-      state.style.headline = S.heads[0].toUpperCase(); state.style.tag = S.models.toUpperCase(); state.style.points = null;
+      const L = lineWords(S, state.style.lang);
+      state.style.headline = L.heads[0].toUpperCase(); state.style.tag = L.models.toUpperCase(); state.style.points = null;
       ["headline", "tag"].forEach(k => state.locked.add(k));
     }
     save(); syncWords(); syncMode(); rebuild(); renderGallery(true);
@@ -765,7 +766,7 @@ function buildPanel() {
     pushHistory();
     state.style.lang_mode = b.dataset.lang;
     const lk = new Set(state.locked); WORD_KEYS.forEach(k => lk.delete(k));   // a new language means new words
-    state.style = applyCopy(state.style, (Math.random() * 1e9) | 0, lk, true);
+    state.style = relang(applyCopy(state.style, (Math.random() * 1e9) | 0, lk, true));
     save(); syncWords(); rebuild();
   });
   // your area: a ZIP code becomes its town (the ad names the town); a ZIP or a town brings the towns nearby,
@@ -1153,6 +1154,17 @@ const SET_ANGLES = [
   { id: "value", label: "Its value", hook: "crash_zoom", en: { headline: "SELL IT WHILE IT'S WORTH MORE", tag: "IT LOSES VALUE EVERY MONTH" }, es: { headline: "VÉNDELO MIENTRAS VALE MÁS", tag: "PIERDE VALOR CADA MES" } },
   { id: "flash", label: "Flash cut", hook: "flash_cut", en: { headline: "CASH FOR YOUR IPHONE" }, es: { headline: "DINERO EN EFECTIVO POR TU IPHONE" } },
 ];
+/** A line's own headlines and line under it in the ad's language (2026-11-23: a Spanish card ad read SELL YOUR SPORTS
+ *  CARDS over Spanish points; motion/subjects.json heads_es, models_es). */
+function lineWords(S, lang) { return { heads: (lang === "es" && S.heads_es) || S.heads, models: (lang === "es" && S.models_es) || S.models }; }
+/** After a language change, a product line's ad says its own words in that language (applyCopy draws the iPhone's). */
+function relang(st) {
+  const S = st.subject && st.subject !== "iphone" && subjects.list.find(x => x.key === st.subject);
+  if (!S) return st;
+  const L = lineWords(S, st.lang);
+  return { ...st, headline: L.heads[0].toUpperCase(), tag: L.models.toUpperCase() };
+}
+
 const SET_HELD = ["phones", "number", "aspect", "duration", "area", "headline", "tag", "number_label", "hook_text", "hook", "lang", "lang_mode", "points", "strike_text"];
 
 function angleStyle(angle, lang, seed) {

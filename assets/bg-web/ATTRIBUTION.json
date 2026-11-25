@@ -403,32 +403,6 @@
   "height": 3331
  },
  {
-  "file": "pokemon-charizard-card-1.jpg",
-  "cat": "pokemon",
-  "query": "Charizard card",
-  "title": "File:2021 New York Comic Con (Batch Edits - 031) (51573823689).jpg",
-  "artist": "Romer Jed Medina from Newark, NJ, United States",
-  "license": "CC BY-SA 2.0",
-  "usage": "Creative Commons Attribution-Share Alike 2.0",
-  "credit": "2021-10-8 to 2021-10-9 - NYCC (Batch Edits - 031)",
-  "page": "https://commons.wikimedia.org/wiki/File%3A2021%20New%20York%20Comic%20Con%20(Batch%20Edits%20-%20031)%20(51573823689).jpg",
-  "width": 5184,
-  "height": 3456
- },
- {
-  "file": "pokemon-charizard-card-2.jpg",
-  "cat": "pokemon",
-  "query": "Charizard card",
-  "title": "File:2021-10-8 to 2021-10-9 - NYCC (Touch Edits - 009) (51573445803).jpg",
-  "artist": "Romer Jed Medina from Newark, NJ, United States",
-  "license": "CC BY-SA 2.0",
-  "usage": "Creative Commons Attribution-Share Alike 2.0",
-  "credit": "2021-10-8 to 2021-10-9 - NYCC (Touch Edits - 009)",
-  "page": "https://commons.wikimedia.org/wiki/File%3A2021-10-8%20to%202021-10-9%20-%20NYCC%20(Touch%20Edits%20-%20009)%20(51573445803).jpg",
-  "width": 5184,
-  "height": 3456
- },
- {
   "file": "silver-silverware-set-1.jpg",
   "cat": "silver",
   "query": "silverware set",
@@ -7885,7 +7859,7 @@
   "file": "silver-silver-tea-set-5.jpg",
   "cat": "silver",
   "query": "silver tea set",
-  "title": "File:Martel\u00e9 silver tea service - cup top view - HLABG.png",
+  "title": "File:Martelé silver tea service - cup top view - HLABG.png",
   "artist": "Eric Polk",
   "license": "CC BY-SA 4.0",
   "usage": "Creative Commons Attribution-Share Alike 4.0",
@@ -8159,7 +8133,7 @@
   "cat": "sports",
   "query": "baseball stadium night",
   "title": "File:Chiba Marine Stadium at Night 20101104.JPG",
-  "artist": "\u63ac\u8336",
+  "artist": "掬茶",
   "license": "CC BY-SA 3.0",
   "usage": "Creative Commons Attribution-Share Alike 3.0",
   "credit": "Own work",
@@ -8387,5 +8361,19 @@
   "page": "https://commons.wikimedia.org/wiki/File%3AHome%20Office%20(2020)%20(49517006647).jpg",
   "width": 4032,
   "height": 3024
+ },
+ {
+  "file": "pokemon-slabs-display-1.jpg",
+  "cat": "pokemon",
+  "source": "painted",
+  "license": "own work",
+  "note": "painted by the studio (scripts/card-painter.js): cards and slabs of no game or grader on a shop's display, standing in for the CC BY-SA photographs of real graded Charizards (DESIGN-LAW 161); no credit needed"
+ },
+ {
+  "file": "pokemon-slabs-display-2.jpg",
+  "cat": "pokemon",
+  "source": "painted",
+  "license": "own work",
+  "note": "painted by the studio (scripts/card-painter.js): cards and slabs of no game or grader on a shop's display, standing in for the CC BY-SA photographs of real graded Charizards (DESIGN-LAW 161); no credit needed"
  }
 ]
