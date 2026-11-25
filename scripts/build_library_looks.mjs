@@ -23,15 +23,29 @@
    Each still is 400px webp, the recipe stills' size. A still is drawn again when what it was drawn from
    moves (stamp); --all draws every one again (after the engine or the looks change).
 
+   As the recipe stills (2026-11-24): each stamp carries the engine that drew the look (engine_stamp.mjs
+   engineStamp), so a change to the engine makes every look stale and --check says so; until then these
+   were stamped by their recipe alone and stood as drawn on 2026-11-19. And each look prints a sample number
+   (engine_stamp.mjs sampleNumber), never the business's own line (the owner: "Why do we have to put the
+   999?"): the same id, the same number, as the recipe stills; the video maker's gallery types one for all.
+
    usage:  GFX_BASE=http://127.0.0.1:8932/ node scripts/build_library_looks.mjs [--all] [--only looks,full,any]
            node scripts/build_library_looks.mjs --check   exit 1 if a rebuilt design lacks its looks or a still its file */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { engineStamp, sampleNumber } from './engine_stamp.mjs';
 
 const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + 'assets/library-looks/', INDEX = DIR + 'index.json';
 const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8931/').replace(/\/?$/, '/');
-const SHOP = { number: '(562) 999-4994', zip: '90802', town: 'Long Beach' };   // the library's own number and Long Beach
-const SIZE = 400, LOOKS = 3, FULL_SEEDS = 6, TRIES = 24, WORKERS = Math.max(1, +(process.env.WORKERS || 4));
+const SHOP = { zip: '90802', town: 'Long Beach' };   // Long Beach; the number a sample one per look (sampleNumber), never the business's line
+const ENGINE = engineStamp();   // a change to the engine that draws them makes every look stale (engine_stamp.mjs)
+const ANY_NUMBER = sampleNumber('any');   // the video maker's gallery types one number for all its looks
+/* one page by default (2026-11-24): four pages drawing at once lost the area line and the city photograph on about
+   a quarter of the designs, one page's worth, and drew some with a phone fewer; one page draws the same looks the
+   same way, in the same order, every run, as build_recipe_stills.mjs does, so a run after an engine change that
+   moves no drawing writes the same files (60 designs drawn twice so: byte for byte; the same 40 forwards and then
+   backwards: under 2 levels in 255 apart on average, nothing to see) */
+const SIZE = 400, LOOKS = 3, FULL_SEEDS = 6, TRIES = 24, WORKERS = Math.max(1, +(process.env.WORKERS || 1));
 const arg = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 const ONLY = (arg('--only') || 'looks,full,any').split(',');
 const ALL = process.argv.includes('--all');
@@ -42,8 +56,9 @@ const firsts = existsSync(ROOT + 'assets/recipe-stills/index.json') ? JSON.parse
 const lines = JSON.parse(readFileSync(ROOT + 'motion/subjects.json', 'utf8')).subjects;
 const index = existsSync(INDEX) ? JSON.parse(readFileSync(INDEX, 'utf8')) : { items: {} };
 const items = index.items || {};
-const lookStamp = r => JSON.stringify([r.seed, r.subject, r.words, r.pictures, r.words_only || false, r.label, LOOKS]);
-const fullStamp = s => JSON.stringify([s.key, s.cat, s.label, FULL_SEEDS]);
+const lookStamp = r => JSON.stringify([r.seed, r.subject, r.words, r.pictures, r.words_only || false, r.label, LOOKS, ENGINE]);
+const fullStamp = s => JSON.stringify([s.key, s.cat, s.label, FULL_SEEDS, ENGINE]);
+const anyStamp = seed => JSON.stringify([seed, ENGINE]);
 const has = id => items[id] && existsSync(DIR + id + '.webp');
 
 if (process.argv.includes('--check')) {
@@ -55,6 +70,7 @@ if (process.argv.includes('--check')) {
   for (const s of lines) if (!Object.values(items).some(x => x.kind === 'full' && x.line === s.key && x.stamp === fullStamp(s))) bad.push(s.key + ': no full ad');
   for (const [id, x] of Object.entries(items)) if (!existsSync(DIR + id + '.webp')) bad.push(id + ': no file');
   if (!Object.values(items).some(x => x.kind === 'any')) bad.push('no Any look from the video maker');
+  for (const x of Object.values(items)) if (x.kind === 'any' && x.stamp !== anyStamp(x.seed)) bad.push(x.id + ': drawn by an older engine');
   if (bad.length) { console.error(`library looks: ${bad.length} wrong (${bad.slice(0, 6).join('; ')}); run node scripts/build_library_looks.mjs`); process.exit(1); }
   const n = k => Object.values(items).filter(x => x.kind === k).length;
   console.log(`library looks: ${n('recipe')} more looks of the rebuilt designs, ${n('full')} line full ads, ${n('any')} Any looks`);
@@ -80,12 +96,19 @@ async function studioPage() {
     account = { email: 'stills@local', role: 'admin', plan: 'pro' }; loadAccount = async () => account; recordExport = async () => true;
     const a = await resolveArea(S.zip); if (a) setArea(a);
     try { jset('pgfx_area_asked', true); } catch (e) { }
-    $('ez-phone').value = S.number; $('ez-website').value = '';
+    $('ez-website').value = '';
   }, SHOP);
+  // the area every look is drawn for (its line of towns, its city's photographs): a page without it draws none of them
+  if (!(await page.evaluate(() => !!getArea()))) throw new Error('the studio page has no area for ' + SHOP.zip);
+  // a fresh page's first ad can be drawn before its fonts are in (a wide fallback face): one drawn and thrown away first
+  const warm = recipes.find(r => firsts[r.id]);
+  if (warm) await page.evaluate(DRAW, { how: 'recipe', id: warm.id, seed: warm.seed, number: sampleNumber(warm.id), SIZE });
   return page;
 }
-// one ad drawn and read: a recipe on a seed, or a line's own full ad on a seed; null pre-flight fails are reported
-const DRAW = async ({ how, id, key, seed, SIZE }) => {
+// one ad drawn and read: a recipe on a seed, or a line's own full ad on a seed, on its sample number; null pre-flight fails are reported
+const DRAW = async ({ how, id, key, seed, number, SIZE }) => {
+  if (!getArea()) return { error: 'the page lost its area' };
+  $('ez-phone').value = number;
   const M = await import('/motion/fullad.js'), H = await import('/motion/house-colours.js'), FS = window.FullAdStudio, FA = FS.state;
   if (how === 'recipe') { const r = await FS.useRecipe(id); if (!r) return { error: 'no recipe ' + id }; }
   else {
@@ -129,13 +152,14 @@ if (jobs.length) {
         const r = job.r, want = LOOKS - 1, used = new Set([firsts[r.id].pair]), got = [];
         for (const id of Object.keys(items)) if (items[id].kind === 'recipe' && items[id].base === r.id) delete items[id];
         for (let k = 1; k <= TRIES && got.length < want; k++) {
-          const res = await page.evaluate(DRAW, { how: 'recipe', id: r.id, seed: r.seed + k, SIZE });
+          // on the number of the id it takes if it passes
+          const res = await page.evaluate(DRAW, { how: 'recipe', id: r.id, seed: r.seed + k, number: sampleNumber(`${r.id}~${got.length + 2}`), SIZE });
           if (res.error) { console.log(`  ${r.id}: ${res.error}`); break; }
           if (res.fail || used.has(res.pair)) continue;
           used.add(res.pair); got.push(k);
           const id = `${r.id}~${got.length + 1}`, { webp, ...meta } = res;
           put(id, webp, { kind: 'recipe', id, base: r.id, look: got.length + 1, seed: r.seed + k, cat: r.cat, line: r.subject,
-            name: firsts[r.id].name, family: firsts[r.id].family || '', from: r.from, gen: r.gen, ...meta, stamp: lookStamp(r) });
+            name: firsts[r.id].name, family: firsts[r.id].family || '', from: r.from, gen: r.gen, ...meta, stamp: lookStamp(r), number: sampleNumber(id), engine: ENGINE });
           drawn++;
         }
         if (got.length < want) short.push(r.id + ` (${got.length + 1} looks)`);
@@ -144,12 +168,12 @@ if (jobs.length) {
         for (const id of Object.keys(items)) if (items[id].kind === 'full' && items[id].line === s.key) delete items[id];
         let n = 0;
         for (let seed = 1; seed <= TRIES && n < FULL_SEEDS; seed++) {
-          const res = await page.evaluate(DRAW, { how: 'full', key: s.key, seed, SIZE });
+          const res = await page.evaluate(DRAW, { how: 'full', key: s.key, seed, number: sampleNumber('full-' + s.key + (n > 0 ? '-v' + (n + 1) : '')), SIZE });
           if (res.error) { console.log(`  ${s.key}: ${res.error}`); break; }
           if (res.fail || used.has(res.pair)) continue;
           used.add(res.pair); n++;
           const id = 'full-' + s.key + (n > 1 ? '-v' + n : ''), { webp, ...meta } = res;
-          put(id, webp, { kind: 'full', id, seed, cat: s.cat, line: s.key, name: s.label + ' full ad', ...meta, stamp: fullStamp(s) });
+          put(id, webp, { kind: 'full', id, seed, cat: s.cat, line: s.key, name: s.label + ' full ad', ...meta, stamp: fullStamp(s), number: sampleNumber(id), engine: ENGINE });
           drawn++;
         }
         if (n < FULL_SEEDS) short.push(s.key + ` (${n} full ads)`);
@@ -161,7 +185,7 @@ if (jobs.length) {
 }
 
 /* ---- the video maker's Any look gallery ---- */
-if (ONLY.includes('any') && (ALL || !Object.values(items).some(x => x.kind === 'any'))) {
+if (ONLY.includes('any') && (ALL || !Object.values(items).some(x => x.kind === 'any') || Object.values(items).some(x => x.kind === 'any' && x.stamp !== anyStamp(x.seed)))) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   page.on('pageerror', e => console.error('video maker page error:', e.message));
   await page.goto(BASE + 'motion/', { waitUntil: 'load', timeout: 120000 });
@@ -174,8 +198,8 @@ if (ONLY.includes('any') && (ALL || !Object.values(items).some(x => x.kind === '
     if (!orig.__lib) { eng.Ad.prototype.stillAt = function (ctx, ...a) { const r = orig.call(this, ctx, ...a); try { if (this.st && !this.st.full && ctx.canvas) window.__looks.push({ ad: this, c: ctx.canvas }); } catch (e) { } return r; }; eng.Ad.prototype.stillAt.__lib = true; }
   });
   // one field at a time, each saved before the next (OPEN-ITEMS BI: typed together, the number is lost)
-  await page.fill('#f-number', SHOP.number);
-  await page.waitForFunction(n => { try { return (JSON.parse(localStorage.getItem('pgfx_motion_v1') || '{}').style || {}).number === n; } catch (e) { return false; } }, SHOP.number, { timeout: 20000 }).catch(() => console.log('  the video maker did not save the number'));
+  await page.fill('#f-number', ANY_NUMBER);
+  await page.waitForFunction(n => { try { return (JSON.parse(localStorage.getItem('pgfx_motion_v1') || '{}').style || {}).number === n; } catch (e) { return false; } }, ANY_NUMBER, { timeout: 20000 }).catch(() => console.log('  the video maker did not save the number'));
   await page.fill('#f-area', SHOP.town);
   await page.waitForTimeout(900);
   await page.click('#mode [data-full="0"]');
@@ -206,7 +230,7 @@ if (ONLY.includes('any') && (ALL || !Object.values(items).some(x => x.kind === '
   for (const id of Object.keys(items)) if (items[id].kind === 'any') delete items[id];
   for (const l of got) {
     const id = 'any-' + l.seed, { webp, ...meta } = l;
-    put(id, webp, { kind: 'any', id, seed: l.seed, cat: 'phones', line: 'video', name: meta.name || 'Video look', shelf: meta.shelfId, shelfName: meta.shelf, w: meta.w, h: meta.h, stamp: String(l.seed) });
+    put(id, webp, { kind: 'any', id, seed: l.seed, cat: 'phones', line: 'video', name: meta.name || 'Video look', shelf: meta.shelfId, shelfName: meta.shelf, w: meta.w, h: meta.h, stamp: anyStamp(l.seed), number: ANY_NUMBER, engine: ENGINE });
   }
   console.log(`Any look: ${got.length} looks from the gallery`);
   await page.close();
