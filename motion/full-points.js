@@ -28,6 +28,8 @@ export const PROMISES = {
   meet:  [.45, ["WE MEET YOU", "LOCAL BUYER", "MEET NEARBY"]],
   easy:  [.3, ["NO HASSLE", "NO PRESSURE", "EASY SALE"]],
   fair:  [.3, ["FAIR OFFER", "UPFRONT PRICE"]],
+  // a buyer selling (DESIGN-LAW 178): money, said boldly, with nothing to prove (no HIGHEST, BEST or #1)
+  top:   [.7, ["TOP DOLLAR PAID", "TOP CASH PAID", "WE PAY TOP DOLLAR", "TOP PRICES PAID"]],
 };
 /* Dropped 2026-11-23 (the owner: card ads "screaming scalper"; the copy audit against rule 80): FREE OFFER (spam),
    OFFER IN MINUTES (a clock claim), PICKUP OR DROP-OFF and NO APPOINTMENT (services a shop may not offer), HONEST PRICE
@@ -126,6 +128,7 @@ const KIND_SAYS = {
     easy:  [.4, ["NO PRESSURE", "NO HASSLE"]],
     fair:  [.35, ["FAIR OFFER", "UPFRONT PRICE"]],
     fees:  null,
+    top:   null,   // a collector hears TOP DOLLAR as a flipper's sign (rule 171)
   },
 };
 /* EN ESPAÑOL (2026-11-23). A Spanish ad drew the catalogue's one Spanish list until now (COTIZACIÓN GRATIS, PAGO EN
@@ -138,6 +141,7 @@ const PROMISES_ES = {
   meet:  ["CERCA DE TI", "COMPRADOR LOCAL"],
   easy:  ["SIN COMPLICACIONES", "SIN PRESIÓN", "VENTA FÁCIL"],
   fair:  ["OFERTA JUSTA", "PRECIO CLARO"],
+  top:   ["PAGAMOS BIEN", "BUEN PAGO", "BUEN PRECIO"],
 };
 const MODELS_ES = ["TODOS LOS MODELOS", "MODELOS ANTERIORES", "NUEVOS O USADOS"];
 const KINDS_ES = {

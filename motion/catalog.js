@@ -364,13 +364,14 @@ export const COPY = {
     labels: ["", "", "CALL OR TEXT", "TEXT US", "GET A QUOTE", "TEXT FOR A QUOTE"],
     cta: ["TEXT NOW", "CALL NOW", "TEXT US NOW", "GET AN OFFER", "GET YOUR QUOTE"],
     urgent: ["IT LOSES VALUE EVERY MONTH", "SELL IT WHILE IT'S WORTH MORE", "NEW IPHONES ARE OUT. OLD ONES DROP."],
-    ticker: ["TEXT YOUR IMEI", "GET A PRICE", "CASH", "LOCAL TO {AREA}", "ALL MODELS", "CALL OR TEXT", "SE HABLA ESPAÑOL", "IT LOSES VALUE EVERY MONTH"],
+    ticker: ["TEXT YOUR IMEI", "GET A PRICE", "CASH", "TOP DOLLAR PAID", "LOCAL TO {AREA}", "ALL MODELS", "CALL OR TEXT", "SE HABLA ESPAÑOL", "IT LOSES VALUE EVERY MONTH"],
     // never a selling point's own words on the sticker or stamp beside it (sense audit 2026-11-23: FREE QUOTE twice, CASH PAID twice)
     stamp: ["CASH", "LOCAL"],
-    burst: ["CASH!", "LOCAL!", "{CODE}"],
+    burst: ["CASH!", "LOCAL!", "TOP $$$", "{CODE}"],
     // the selling points under the words (the photo ads' stack, DESIGN-LAW 83): only what every
-    // shop on the site can say, so no speed, no condition and no price promise
-    points: ["FREE QUOTE", "CASH PAID", "ALL MODELS", "LOCAL BUYER", "QUOTE BY TEXT", "MEET LOCALLY"],
+    // shop on the site can say, so no speed, no condition and no price promise; a buyer selling
+    // (TOP DOLLAR PAID, DESIGN-LAW 178) says the money boldly and promises no figure
+    points: ["FREE QUOTE", "CASH PAID", "TOP DOLLAR PAID", "ALL MODELS", "LOCAL BUYER", "QUOTE BY TEXT", "TOP CASH PAID", "MEET LOCALLY"],
     // the strike-out opening (owner, 2026-11-03): "NO MORE" over what sellers are tired of, crossed out
     strike_lead: "NO MORE", strikes: ["LOWBALLS", "FAKE OFFERS", "SHADY BUYERS", "SKETCHY MEETUPS", "WASTING TIME", "TIME WASTERS",
       "NO-SHOWS", "FLAKES", "SCAMMERS", "BAIT AND SWITCH", "THE RUNAROUND", "ENDLESS TEXTING", "GAMES", "SLOW BUYERS"],
@@ -416,7 +417,7 @@ export const VIBES = {
       es: { headlines: ["¡COMPRAMOS IPHONES!", "¡SE COMPRAN IPHONES!", "¡EFECTIVO POR TU IPHONE!"], tags: ["¡TODOS LOS MODELOS!", "¡MÁNDANOS TEXTO!"], burst: ["¡EFECTIVO!", "¡LOCAL!"] } } },
   bandit_sign: { label: "Yellow street sign", palettes: ["stucco_peach", "stucco_white", "concrete_grey"], backgrounds: ["stucco", "concrete"],
     fonts: ["marker", "luckiest", "oswald", "franklin", "sedgwick", "kalam"], boards: ["bandit_yellow", "bandit_yellow", "bandit_white"], boardChance: 1, numbers: ["plain", "box"],
-    copy: { en: { headlines: ["WE BUY IPHONES", "I BUY IPHONES", "IPHONES WANTED", "CASH FOR IPHONES"], tags: ["CALL OR TEXT", "ALL MODELS", "LOCAL BUYER"] },
+    copy: { en: { headlines: ["WE BUY IPHONES", "I BUY IPHONES", "IPHONES WANTED", "CASH FOR IPHONES"], tags: ["CALL OR TEXT", "ALL MODELS", "TOP DOLLAR PAID"] },
       es: { headlines: ["COMPRO IPHONES", "COMPRAMOS IPHONES", "SE COMPRAN IPHONES"], tags: ["LLAMA O MANDA TEXTO"] } } },
   tear_off: { label: "Tear-off flyer", palettes: ["cork_board"], backgrounds: ["cork"], fonts: ["special-elite", "marker", "oswald", "franklin", "kalam"],
     boards: ["flyer"], boardChance: 1, numbers: ["underline", "plain", "box"],
@@ -482,7 +483,7 @@ export const BOARDS = {
 
 export const TAGS = ["", "", "", "TEXT FOR A QUOTE", "CALL OR TEXT", "LOCAL CASH OFFERS", "FAST, FAIR, LOCAL",
   "FREE QUOTE", "QUICK QUOTES", "LOCAL BUYER", "IPHONE, IPAD, MACBOOK", "MEET LOCALLY", "ALL MODELS WANTED",
-  "TEXT YOUR IMEI FOR A QUOTE"];
+  "TEXT YOUR IMEI FOR A QUOTE", "TOP DOLLAR PAID", "WE PAY TOP DOLLAR", "TOP CASH, PAID TODAY"];
 export const NUMBER_LABELS = ["", "", "CALL OR TEXT", "TEXT US", "GET A QUOTE", "TEXT FOR A QUOTE", "CALL NOW", "TEXT ME"];
 
 export const OPTIONS = {

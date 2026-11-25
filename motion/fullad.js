@@ -670,17 +670,25 @@ export const ICONS = ["cash"];
  *  list's banned phrases (spec/banned-words.json, rule 143; scripts/words_check.mjs fails a commit
  *  that puts one back). The claim is read first and, with no business name typed, is the badge:
  *  the research's verdict on TOP DOLLAR there was "replace with identity or place" (2026-11-12),
- *  and until 2026-11-18 it still stood on 33 of the 35 first full ads (OPEN-ITEMS §BI). */
+ *  and until 2026-11-18 it still stood on 33 of the 35 first full ads (OPEN-ITEMS §BI).
+ *  THE ADS SELL (DESIGN-LAW 178; the owner, 2026-11-24: "all I see is honest or local buyer not top buyer
+ *  or highest paying. We need more sales ways to pitch yourself"): about half the badges and stickers are a
+ *  buyer selling, the money first and nothing a shop can be asked to prove (TOP DOLLAR PAID, WE PAY TOP
+ *  DOLLAR, REAL CASH, NO LOWBALL OFFERS). HIGHEST, BEST PRICE, #1 and WE BEAT ANY OFFER stay out of every
+ *  default: a shop types them if they are true of it, and the pre-flight says it may be asked to prove them.
+ *  The card lines keep their collector's voice (claim_cards, burst_cards). */
 export const FULL_WORDS = {
-  claim: ["LOCAL BUYER • FAIR OFFERS", "QUICK REPLIES • CASH TODAY", "FAIR OFFER • NO PRESSURE", "LOCAL BUYER • PAID TODAY", "AN OFFER • YOU DECIDE"],
+  claim: ["LOCAL BUYER • FAIR OFFERS", "QUICK REPLIES • CASH TODAY", "FAIR OFFER • NO PRESSURE", "LOCAL BUYER • PAID TODAY", "AN OFFER • YOU DECIDE",
+    "TOP DOLLAR PAID", "WE PAY TOP DOLLAR", "TOP CASH • PAID TODAY", "TOP PRICES • NO FEES", "REAL CASH • NOT CREDIT", "NO LOWBALL OFFERS"],
   line: ["ALL MODELS WANTED", "NEW, USED OR CRACKED", "ANY CARRIER • CRACKED OK"],
   points: ["FREE QUOTE, CASH SAME DAY, NO FEES", "QUOTE BY TEXT, PAID TODAY, WE MEET YOU", "TEXT US NOW, FAIR OFFER, NO HASSLE"],
   label: ["CALL OR TEXT", "TEXT US NOW", "GET YOUR OFFER"],
   // no PAID TODAY or SAME DAY: beside a point that says the day the same promise stood twice, and SAME DAY alone is a fragment
-  burst: ["CASH!", "NO FEES", "EASY SALE", "CASH PAID"],
-  burst_es: ["PAGO HOY", "SIN PRISA", "TRATO JUSTO"],
+  burst: ["CASH!", "NO FEES", "EASY SALE", "CASH PAID", "TOP CASH", "TOP $$$", "TOP DOLLAR"],
+  burst_es: ["PAGO HOY", "SIN PRISA", "TRATO JUSTO", "BUEN PAGO", "PAGAMOS BIEN"],
   // a Spanish ad's badge and small line in Spanish too (2026-11-23: they were drawn from the English lists)
-  claim_es: ["SOMOS DE AQUÍ", "RESPUESTA RÁPIDA • PAGO HOY", "COMPRADOR LOCAL • OFERTA JUSTA", "OFERTA JUSTA • SIN PRESIÓN", "SIN COMPROMISO • PAGO HOY"],
+  claim_es: ["SOMOS DE AQUÍ", "RESPUESTA RÁPIDA • PAGO HOY", "COMPRADOR LOCAL • OFERTA JUSTA", "OFERTA JUSTA • SIN PRESIÓN", "SIN COMPROMISO • PAGO HOY",
+    "PAGAMOS BIEN", "BUEN PAGO • HOY MISMO", "EFECTIVO REAL • NO CRÉDITO", "SIN OFERTAS BAJAS", "PAGAMOS BIEN • SIN COMISIONES"],
   line_es: ["TODOS LOS MODELOS", "NUEVO, USADO O ROTO", "CUALQUIER COMPAÑÍA • ROTOS OK"],
   /* a card ad's badge and sticker (2026-11-23, the owner: card ads were "screaming scalper"): a collector hears speed and
      "cash" as a low offer, so the card lines say who buys and that the seller decides. No HONEST anywhere (rule 80: a
