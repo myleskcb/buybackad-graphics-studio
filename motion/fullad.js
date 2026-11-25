@@ -2527,7 +2527,20 @@ export function fullPreflight(ad, frame) {
   const Lat = (d, q) => .2126 * lin(d[q]) + .7152 * lin(d[q + 1]) + .0722 * lin(d[q + 2]);
   const Lhex = h => { const [r, g, b] = [1, 3, 5].map(i => lin(parseInt(h.slice(i, i + 2), 16))); return .2126 * r + .7152 * g + .0722 * b; };
   const cr = (a, b) => (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
-  const drawn = q => Math.abs(px[q] - bg[q]) + Math.abs(px[q + 1] - bg[q + 1]) + Math.abs(px[q + 2] - bg[q + 2]) > 96;   // a letter, a plate, a product: not a glow
+  /* what is drawn is read against the ground at rest under the headline's shade, as the engine reads the ground for
+     its own guards (engine.js _contrastGuard, _labelGuard): the shade (scrimC, drawn every frame, at rest in full) is
+     the ground's shading, as a video look's is once laid into its ground (FullAd's constructor), not a mark on it.
+     Read against the bare ground, its soft edge crossing a frosted-glass ground's bright outline counted as
+     something at the top edge (the earbuds full ad at 16:9, look 1, since the four ground families of 2026-11-23;
+     full_ad_studio_check, 2026-11-24). The small lines' layers (groundEven) are not added: on a photograph they are
+     not drawn as kept, and the ground under them read lighter than the delivered picture (the camera ad at 16:9). */
+  const under = (() => {
+    if (!ad.scrimC) return bg;
+    const c = canvas(W, H), x = c.getContext("2d", { willReadFrequently: true });
+    x.drawImage(ad.bg, 0, 0, W, H); x.drawImage(ad.scrimC, 0, 0, W, H);
+    return x.getImageData(0, 0, W, H).data;
+  })();
+  const drawn = q => Math.abs(px[q] - under[q]) + Math.abs(px[q + 1] - under[q + 1]) + Math.abs(px[q + 2] - under[q + 2]) > 96;   // a letter, a plate, a product: not a glow, not a shade
 
   // edge: the box of everything drawn, against the frame
   let x0 = W, y0 = H, x1 = -1, y1 = -1;

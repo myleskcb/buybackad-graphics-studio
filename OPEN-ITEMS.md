@@ -4759,6 +4759,11 @@ Open:
 5. `full_ad_studio_check` fails one case on `main` (7ead02be), with or without this change: "earbuds
    landscape: Something on the ad runs to the edge of the picture". It is the full ad's, not the
    wall's; passed to the session that owns the full ad's looks.
+   DONE 2026-11-24 (claude/site-newest-designs): nothing ran to the edge. The pre-flight read the
+   headline's soft shade, where it crosses the frosted-glass ground's bright outline at the top, as a
+   mark; it reads what is drawn against the ground under the headline's shade now (motion/fullad.js
+   fullPreflight), as the engine's own guards do. The ad's pixels are unchanged; full_ad_check passes
+   before and after.
 4. When a preview server is stopped, its tab in the browser pane should be closed with it: the
    owner reads that pane as the product.
 
