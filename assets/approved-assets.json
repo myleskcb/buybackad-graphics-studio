@@ -508,7 +508,6 @@
    "watch-screen-on",
    "watch-single-angle",
    "watch-stack-four",
-   "poke-psa-charizard",
    "ph-sports-card-basketball",
    "ph-sports-card-baseball",
    "ph-sports-card-football",
@@ -537,7 +536,24 @@
    "ph-sports-hobby-box",
    "ph-sports-collection",
    "qs-watch-ultra4",
-   "qs-watch-s12"
+   "qs-watch-s12",
+   "sam-s26-ultra-back-violet",
+   "sam-s26-ultra-back-titanium",
+   "sam-s26-ultra-front",
+   "sam-s26-back-skyblue",
+   "sam-s26-back-pink",
+   "sam-s26-back-navy",
+   "sam-fold8-closed-back",
+   "sam-fold8-open",
+   "sam-flip8-closed-ice",
+   "sam-flip8-open-violet",
+   "pix-11-pro-back-moonstone",
+   "pix-11-pro-back-porcelain",
+   "pix-11-pro-back-obsidian",
+   "pix-11-back-indigo",
+   "pix-11-back-lime",
+   "pix-11-pro-front",
+   "pix-fold-pro-open"
   ],
   "rejected": [
    "apple-watch-pair",
@@ -655,7 +671,8 @@
    "strip-kit-meter",
    "strip-meter-hand",
    "strip-vials-pile",
-   "tablet-android-back"
+   "tablet-android-back",
+   "poke-psa-charizard"
   ],
   "reasons": {
    "damage-heavy": {
@@ -827,6 +844,12 @@
      "macbook-open",
      "mac-air-open-angle"
     ]
+   },
+   "real-card-art": {
+    "why": "a real card's art is its maker's, and this photograph is CC BY-SA, which asks for a credit on every ad: a paid ad may carry neither (DESIGN-LAW 161, 2026-11-23); the painted card pictures (ph-poke-*) stand in",
+    "ids": [
+     "poke-psa-charizard"
+    ]
    }
   },
   "reasonById": {
@@ -945,7 +968,8 @@
    "own-stock-macbook-open": "verified-bad",
    "ipad-front": "verified-bad",
    "macbook-open": "verified-bad",
-   "mac-air-open-angle": "verified-bad"
+   "mac-air-open-angle": "verified-bad",
+   "poke-psa-charizard": "real-card-art"
   },
   "verifiedBad": {
    "own-apple-deep-blue-09": "mislabelled: an ORANGE phone inside 3D debris, not a deep blue phone",
@@ -992,11 +1016,26 @@
    "ph-sports-refractor-fan",
    "ph-sports-slab",
    "ph-sports-slabs-autos",
-   "ph-sports-slabs-fan"
+   "ph-sports-slabs-fan",
+   "pix-11-back-indigo",
+   "pix-11-back-lime",
+   "pix-11-pro-back-moonstone",
+   "pix-11-pro-back-obsidian",
+   "pix-11-pro-back-porcelain",
+   "pix-11-pro-front",
+   "pix-fold-pro-open",
+   "sam-flip8-closed-ice",
+   "sam-flip8-open-violet",
+   "sam-fold8-closed-back",
+   "sam-fold8-open",
+   "sam-s26-back-navy",
+   "sam-s26-back-pink",
+   "sam-s26-back-skyblue",
+   "sam-s26-ultra-back-titanium",
+   "sam-s26-ultra-back-violet",
+   "sam-s26-ultra-front"
   ],
-  "sourced": [
-   "poke-psa-charizard"
-  ],
+  "sourced": [],
   "placeholdersNote": "2026-09-27, the owner: \"give us a bare minimum of base images that we can start using as placeholders until we do a deep dive\". ph-* are drawn by scripts/make_card_assets.py; \"sourced\" are cut from freely licensed photographs (credit in assets/cutouts/ATTRIBUTION.json). Replace a ph-* when a real photograph lands."
  }
 }

@@ -6756,6 +6756,48 @@ a dark page); `billing_check` 176 of 177, the same fabric.js failure as before.
 RESUME HERE: the owner presses "Continue with Google" once on webuy.ad (§BV 4; automation can't open
 the popup), then Apple's Services ID (§BV 1).
 
+## 2026-11-23 — the four left open (DESIGN-LAW 170; OPEN-ITEMS BZ)
+
+The owner: "CAN WE FIX ALL 4" (2026 Samsung and Pixel pictures, Spanish points, the first-guess
+weights, the credited Charizard).
+  - The real Charizard retired everywhere: the cut-out, and the two ground photographs it came from,
+    which 66 site designs stood on. Painted display scenes took the photographs' place under new
+    names; 94 site designs re-rendered.
+  - Seventeen 2026 Galaxy and Pixel pictures painted in code and weighed first in their pools.
+  - Spanish selling points, badges and small lines in Spanish.
+  - The gallery's Tune the mix panel keeps the owner's More / Less / Same / Never for every share.
+
+Found:
+  - A licence problem is never one picture: the Charizard cut-out was cut from a photograph that two
+    grounds, 66 site designs, the offer cards and the AI picker all used. Grep for the source too.
+  - Port 8899 belonged to another session's server, serving another worktree: a re-render through it
+    drew the old code. Check which folder a port serves (lsof on its cwd) before trusting it.
+  - puppeteer-core is not installed in worktrees; a small stand-in over Playwright (scratchpad, linked
+    into the ignored node_modules) ran rethumb_showcase.mjs unchanged.
+  - Almost 400 other cut-outs (nearly every car) are CC BY or CC BY-SA: the same credit question, open.
+
+RESUME HERE: OPEN-ITEMS §BZ 1 (read the owner's choices from the gallery and set the shares), then 2.
+
+## 2026-11-23 — card copy, Spanish headlines, the goods, the grounds (DESIGN-LAW 171; OPEN-ITEMS CA)
+
+Asked: push to PR 18 (already merged: `main` merged in here instead, 24 commits, three documents by hand); then the
+owner's review of the gallery: card ads "screaming scalper", the painted cards, road and tread, the product looks, the
+turned phones; "audit extensively".
+  - Five read-only audits in parallel (collectible pictures, other pictures, grounds and looks, words, image rights)
+    before changing anything; each found something the eye on one ad would not.
+
+Found:
+  - The bar on pictures had a side door: pools were filtered, the offer family's sets were not, and an empty pool falls
+    back to the first set. Filter every path a picture takes, not the one you are looking at.
+  - The word-overlap filter (first five letters) hid the good card points under a CARDS headline and left the worst.
+    Run the real draw over thousands of seeds before judging a list by reading it.
+  - A tone-on-tone ground of thin lines disappears once thinned behind the product and shaded behind the words; solid
+    shapes with cut details survive. A wider tone step does little: the tone helper clamps it for contrast.
+  - A new ban on the one list catches every list it reads, the owner's own shop's included: scope it, ask, do not
+    rewrite someone's live ads to pass a check.
+  - A sticker breaks on spaces: its longest word, not its length, sets its size.
+
+RESUME HERE: OPEN-ITEMS §CA 1 (the owner's decision on real card pictures), 5 (motion), then §BZ 1.
 ## 2026-11-23 (late night) — a picture that does not arrive is never shown broken (DESIGN-LAW 169; claude/wall-tiles-never-broken)
 
 Asked, with a screenshot of the wall: "Can you fix this so our final product doesn't have this
@@ -6961,3 +7003,22 @@ a check that reads "the still" must draw the still, not whatever a live source s
 
 RESUME HERE: the owner looks at a moving scene in the maker (§CB 1); then more clips
 (§CB 4), Any look (§CB 2), stories and wide frames (§CB 3).
+
+## 2026-11-25 — the maker's toolbar trimmed to three (DESIGN-LAW 178; claude/video-music-sfx-audit-3691d1)
+
+The owner found the bar busy and its colours mixed. Seven controls became three; the
+kind of ad and the templates moved into step 1, and the feed view stayed only in Check.
+
+Learned:
+  - Read a toolbar by what each button is: an action on the ad, a place you are, or a
+    setting. Only the first belongs in the bar; the steps already say where you are.
+  - One colour, two meanings reads as noise: filled now means "do this", an outline
+    "you are here".
+  - A button that repeats one in a step (the feed view) is the cheapest to cut: grep
+    for a second way in before keeping one.
+
+Put on `main` at the owner's word, after pull request 26 was merged in.
+
+RESUME HERE: the moving-scenes session reports on its own (§CB); merge it with care,
+as it edits motion/app.js too.
+

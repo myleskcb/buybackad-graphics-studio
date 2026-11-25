@@ -805,15 +805,15 @@ const TEMPLATES = [
                scene:'molten-look gold chains and rings piled on dark velvet, warm rim lighting, macro bokeh' },
     silver:  { k:'LOCAL BUYER', h1:'WE BUY', h2:'SILVER', alt2:'SILVER', items:'Coins • Bars • Silverware • Jewelry', sub:'WEIGHED IN FRONT OF YOU\nCOINS, BARS, SILVERWARE AND JEWELRY\nPAID BY WEIGHT AT CURRENT RATES', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'CASH', badges:['NO FEES','FREE QUOTE','LOCAL'],
                scene:'stacked silver bars and coins with cool studio reflections, dark slate background, shallow focus' },
-    coins:   { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'COINS', alt2:'COLLECTIONS', items:'Old coins • Silver dollars • Full collections', sub:'SINGLE PIECES OR ENTIRE COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nNO FEES, NO OBLIGATION', cta:'REQUEST AN APPRAISAL', price:'PAID ON THE SPOT', big:'CASH', badges:['NO FEES','FREE QUOTE','DISCREET'],
+    coins:   { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'COINS', alt2:'COLLECTIONS', items:'Old coins • Silver dollars • Full collections', sub:'SINGLE PIECES OR ENTIRE COLLECTIONS\nAN OFFER BEFORE YOU DECIDE\nNO FEES, NO OBLIGATION', cta:'GET AN OFFER', price:'PAID ON THE SPOT', big:'CASH', badges:['NO FEES','FREE QUOTE','DISCREET'],
                scene:'antique silver dollars and gold coins scattered on aged leather, warm candle-like light, macro' },
-    cars:    { k:'LOCAL CAR BUYER', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • High miles • Any make', sub:'CASH IN HAND WHEN WE MEET\nBRING THE TITLE AND THE KEYS\nAN OFFER BEFORE YOU DECIDE', cta:'GET A CASH OFFER', price:'CASH ON THE SPOT', big:'CASH', badges:['AS-IS','SAME DAY','NO FEES'],
+    cars:    { k:'LOCAL CAR BUYER', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • High miles • Any make', sub:'WE MEET YOU LOCALLY\nBRING THE TITLE AND THE KEYS\nAN OFFER BEFORE YOU DECIDE', cta:'GET A CASH OFFER', price:'CASH ON THE SPOT', big:'CASH', badges:['AS-IS','SAME DAY','NO FEES'],
                scene:'dramatic low-angle of a car silhouette at dusk, city bokeh lights, moody cinematic haze' },
     strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Sealed boxes • Any brand', sub:'SEALED, IN-DATE BOXES ONLY\nWE MEET YOU LOCALLY\nPAID THE SAME DAY WE MEET', cta:'GET YOUR OFFER', price:'PAID SAME DAY', big:'CASH', badges:['DISCREET','FAST','FAIR'],
                scene:'clean pharmacy-style flat lay of sealed medical boxes, soft teal gradient light, gentle blur' },
-    pokemon: { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Single cards • Full binders • Sealed boxes', sub:'SINGLE CARDS OR FULL COLLECTIONS\nWE SORT AND VALUE EVERYTHING FOR YOU\nFREE APPRAISAL, NO OBLIGATION', cta:'REQUEST AN APPRAISAL', price:'PAID PER CARD', big:'CASH', badges:['CASH','NO FEES','LOCAL'],
+    pokemon: { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'POKÉMON', alt2:'COLLECTIONS', items:'Single cards • Binders • Graded cards', sub:'SINGLE CARDS OR FULL COLLECTIONS\nWE GO THROUGH THEM WITH YOU\nAN OFFER, NO OBLIGATION', cta:'GET AN OFFER', price:'PAID WHEN WE AGREE', big:'CASH', badges:['LOCAL','NO PRESSURE','ANY ERA'],
                scene:'holographic trading card close-up with prismatic light refractions on dark felt, dreamy bokeh' },
-    sports:  { k:'COLLECTIONS WANTED', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Single cards • Full boxes • Collections', sub:'SINGLE CARDS OR FULL COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nWE BUY ENTIRE COLLECTIONS OUTRIGHT', cta:'REQUEST AN APPRAISAL', price:'PAID PER CARD', big:'CASH', badges:['CASH','NO FEES','LOCAL'],
+    sports:  { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'SPORTS CARDS', alt2:'COLLECTIONS', items:'Baseball • Football • Basketball • Hockey', sub:'SINGLE CARDS OR FULL COLLECTIONS\nWE GO THROUGH THEM WITH YOU\nAN OFFER, THEN YOU DECIDE', cta:'GET AN OFFER', price:'PAID WHEN WE AGREE', big:'CASH', badges:['LOCAL','NO PRESSURE','ANY ERA'],
                scene:'vintage baseball cards fanned on worn wood with stadium light bokeh, nostalgic warm grade' },
   };
 
@@ -1207,7 +1207,7 @@ const TEMPLATES = [
         t('Headline 2', 'headline', 'upper', '3 STEPS', { left:84, top:274, fontFamily:'Clash Display', fontSize:142, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 24) }),
         ...row(1, 452, '1', 'TEXT INFO', 'Details or pics, either works.'),
         ...row(2, 606, '2', 'GET OFFER', 'A firm quote by text. Zero obligation.'),
-        ...row(3, 760, '3', 'GET PAID', 'Cash or instant transfer, same day.'),
+        ...row(3, 760, '3', 'GET PAID', 'Paid when we meet.'),   // no payment app or deadline a shop may not keep
         ...phoneBar(P, T, 924),
       ];
     },
@@ -1258,8 +1258,7 @@ const TEMPLATES = [
       ...phoneBar(P, T, 838),
       t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:990, originX:'center', fontFamily:'Satoshi', fontSize:22, fill:P.sub, opacity:0.7 }),
     ],
-    bandKnockout: (P, T, C) => [
-      ...trust(P, T, C.badges),
+    bandKnockout: (P, T, C) => [   // its three chips carry the badges (the check row above them said the same three again)
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:158, originX:'center', fontFamily:T.d, fontSize:132, fill:P.ink, shadow:sh('rgba(0,0,0,0.4)', 14, 0, 5) }),
       r('Knockout Band', { left:34, top:334, width:W-68, height:252, rx:30, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 30, 0, 10) }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:366, originX:'center', fontFamily:T.d, fontSize:188, fill:onAccent(P) }),
@@ -1271,7 +1270,7 @@ const TEMPLATES = [
     ticketStub: (P, T, C) => [
       r('Ticket', { left:CX-390, top:150, width:780, height:560, rx:32, fill:P.deep, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 14) }),
       rg('Ticket Perf', { left:CX-362, top:178, width:724, height:504, rx:24, fill:'rgba(0,0,0,0)', stroke:P.a1, strokeWidth:2.5, strokeDashArray:[16,11], opacity:0.9 }),
-      t('Admit', 'sub', 'upper', 'ADMIT: CASH OFFER', { left:CX, top:224, originX:'center', fontFamily:T.s, fontSize:30, fill:P.a2, charSpacing:260, fontWeight:'700' }),
+      t('Admit', 'sub', 'upper', 'ADMIT ONE', { left:CX, top:224, originX:'center', fontFamily:T.s, fontSize:30, fill:P.a2, charSpacing:260, fontWeight:'700' }),
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:290, originX:'center', fontFamily:T.d, fontSize:92, fill:'#ffffff' }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:388, originX:'center', fontFamily:T.d, fontSize:150, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 24) }),
       t('Price Line', 'info', 'upper', C.price, { left:CX, top:576, originX:'center', fontFamily:T.s, fontSize:42, fill:'#ffffff', fontWeight:'800', charSpacing:40 }),
@@ -1339,10 +1338,11 @@ const TEMPLATES = [
       rg('Frame Outer', { left:64, top:64, width:W-128, height:W-128, rx:18, fill:'rgba(0,0,0,0)', stroke:P.ink, strokeWidth:5 }),
       rg('Frame Inner', { left:88, top:88, width:W-176, height:W-176, rx:14, fill:'rgba(0,0,0,0)', stroke:P.ink, strokeWidth:1.5, opacity:0.7 }),
       t('Wanted', 'headline', 'upper', 'WANTED', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:140, fill:P.ink, charSpacing:120 }),
-      t('Sub Kicker', 'sub', 'upper', C.k, { left:CX, top:318, originX:'center', fontFamily:T.s, fontSize:34, fill:P.sub, charSpacing:280 }),
+      // WANTED / BY A LOCAL BUYER / GOLD (the deck's kicker read WANTED / LOCAL CAR BUYER, a job ad, or WANTED twice: sense audit 2026-11-23)
+      t('Sub Kicker', 'sub', 'upper', 'BY A LOCAL BUYER', { left:CX, top:318, originX:'center', fontFamily:T.s, fontSize:34, fill:P.sub, charSpacing:280 }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:392, originX:'center', fontFamily:T.d, fontSize:164, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
       t('Items', 'info', 'upper', C.items, { left:CX, top:600, originX:'center', fontFamily:T.s, fontSize:38, fill:P.ink, opacity:0.85 }),
-      t('Reward', 'info', 'upper', ', REWARD, ', { left:CX, top:678, originX:'center', fontFamily:T.s, fontSize:30, fill:P.sub, charSpacing:340 }),
+      t('Reward', 'info', 'upper', '• REWARD •', { left:CX, top:678, originX:'center', fontFamily:T.s, fontSize:30, fill:P.sub, charSpacing:340 }),
       t('Price Line', 'info', 'upper', C.price, { left:CX, top:734, originX:'center', fontFamily:T.d, fontSize:44, fill:P.a2 }),
       t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:838, originX:'center', fontFamily:T.d, fontSize:66, fill:P.ink }),
       t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:944, originX:'center', fontFamily:T.s, fontSize:24, fill:P.sub }),
@@ -1366,7 +1366,9 @@ const TEMPLATES = [
       r('Side Panel', { left:-60, top:-60, width:560, height:W+120, rx:44, fill:P.deep, shadow:sh('rgba(0,0,0,0.5)', 40, 14, 0) }),
       t('Headline 1', 'headline', 'upper', C.h1, { left:64, top:130, fontFamily:T.d, fontSize:96, fill:'#ffffff' }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:60, top:236, fontFamily:T.d, fontSize:132, grad:{ c1:P.a1, c2:P.a2, a:115 }, shadow:sh(P.glow, 24) }),
-      tb('Info Text', 'info', 'upper', C.sub, { left:64, top:462, width:372, fontFamily:T.s, fontSize:28, fill:'rgba(255,255,255,0.85)', fontWeight:'700', lineHeight:1.48 }),
+      // a check a point: in the narrow panel three wrapped lines read as one broken sentence (a check, not a bullet: a line
+      // with bullets reads as a list, and applyBrandVocab swaps a list for the line's brand words)
+      tb('Info Text', 'info', 'upper', String(C.sub || '').split('\n').map(l => '✓ ' + l).join('\n'), { left:64, top:462, width:372, fontFamily:T.s, fontSize:28, fill:'rgba(255,255,255,0.85)', fontWeight:'700', lineHeight:1.48 }),
       /* a box the panel's width, so a long line wraps inside the panel:
          "PAID AT CURRENT MARKET RATES" ran 289px past it onto the photograph */
       tb('Price Line', 'info', 'upper', C.price, { left:64, top:764, width:400, fontFamily:T.d, fontSize:40, fill:P.a1, lineHeight:1.12, shadow:sh(P.glow, 16) }),
@@ -1405,7 +1407,9 @@ const TEMPLATES = [
   LAYOUTS.priceAnchor = (P, T, C) => [
     t('Kicker', 'sub', 'upper', C.h1 + ' ' + C.h2, { left:CX, top:118, originX:'center', fontFamily:T.s, fontSize:34, fill:P.ink, charSpacing:260, fontWeight:'700', opacity:0.92 }),
     r('Anchor Rule', { left:CX-60, top:196, width:120, height:5, rx:3, fill:P.a1 }),
-    t('Price Label', 'info', 'upper', 'WE PAY UP TO', { left:CX, top:296, originX:'center', fontFamily:T.s, fontSize:29, fill:P.sub, charSpacing:420, fontWeight:'600' }),
+    // the label reads into the big word under it (2026-11-23, the owner: "we pay up to cash doesn't really make sense"; a figure
+    // after UP TO is banned, rule 55): WE PAY IN / CASH
+    t('Price Label', 'info', 'upper', 'WE PAY IN', { left:CX, top:296, originX:'center', fontFamily:T.s, fontSize:29, fill:P.sub, charSpacing:420, fontWeight:'600' }),
     t('Price Line', 'headline', 'upper', C.big, { left:CX, top:372, originX:'center', fontFamily:T.d, fontSize:246, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 34) }),
     t('Offer Line', 'info', 'upper', C.items, { left:CX, top:678, originX:'center', fontFamily:T.s, fontSize:35, fill:P.sub, charSpacing:60 }),
     ...phoneBar(P, T, 786),
@@ -1677,7 +1681,7 @@ const TEMPLATES = [
     "coins": ["assets/bg-web/coins-american-gold-eagle-coin-3.jpg", "assets/bg-web/coins-coin-collection-album-1.jpg", "assets/bg-web/coins-coin-hoard-1.jpg", "assets/bg-web/coins-half-dollar-1.jpg", "assets/bg-web/coins-morgan-silver-dollar-1.jpg", "assets/bg-web/coins-morgan-silver-dollar-2.jpg", "assets/bg-web/coins-morgan-silver-dollar-3.jpg"],
     "cars": ["assets/bg-web/cars-bmw-key-1.jpg", "assets/bg-web/cars-bmw-key-2.jpg", "assets/bg-web/cars-bmw-key-3.jpg", "assets/bg-web/cars-car-interior-steering-wheel-dashboard-1.jpg", "assets/bg-web/cars-car-interior-steering-wheel-dashboard-2.jpg", "assets/bg-web/cars-car-key-fob-1.jpg", "assets/bg-web/cars-classic-car-chrome-grille-1.jpg", "assets/bg-web/cars-classic-car-chrome-grille-2.jpg", "assets/bg-web/cars-classic-car-chrome-grille-3.jpg", "assets/bg-web/cars-sports-car-front-night-1.jpg", "assets/bg-web/cars-sports-car-front-night-2.jpg", "assets/bg-web/cars-used-car-dealership-lot-1.jpg", "assets/bg-web/trucks-chevrolet-silverado-pickup-1.jpg", "assets/bg-web/trucks-chevrolet-silverado-pickup-3.jpg", "assets/bg-web/trucks-ford-f-150-1.jpg", "assets/bg-web/trucks-ford-f-150-2.jpg", "assets/bg-web/trucks-ford-f-150-3.jpg", "assets/bg-web/trucks-pickup-truck-1.jpg", "assets/bg-web/trucks-pickup-truck-3.jpg", "assets/bg-web/trucks-pickup-truck-bed-1.jpg", "assets/bg-web/trucks-pickup-truck-bed-3.jpg"],
     "strips": ["assets/bg-web/strips-blood-glucose-meter-1.jpg", "assets/bg-web/strips-blood-glucose-meter-4.jpg", "assets/bg-web/strips-blood-glucose-test-strips-2.jpg", "assets/bg-web/strips-blood-glucose-test-strips-3.jpg", "assets/bg-web/strips-contour-next-test-strips-1.jpg", "assets/bg-web/strips-contour-next-test-strips-2.jpg", "assets/bg-web/strips-contour-next-test-strips-3.jpg", "assets/bg-web/strips-freestyle-libre-3.jpg", "assets/bg-web/strips-freestyle-libre-4.jpg", "assets/bg-web/strips-glucose-meter-test-strip-2.jpg"],
-    "pokemon": ["assets/bg-web/pokemon-charizard-card-1.jpg", "assets/bg-web/pokemon-charizard-card-2.jpg"]};
+    "pokemon": ["assets/bg-web/pokemon-slabs-display-1.jpg", "assets/bg-web/pokemon-slabs-display-2.jpg"]};
   const bgRealN = {};
   window.BG_MANIFEST = [];
   Object.keys(BOOK).forEach(cat => {
@@ -1904,9 +1908,9 @@ const TEMPLATES = [
     strips:  [['streetIconGrid','emerald','Strip Grid','strip-boxes'], ['streetRibbon','arctic','Strip Ribbon','strip-boxes'],
               ['streetSpecCheck','ocean','Strip Checklist','strip-boxes'], ['streetSplitCol','volt','Strip Split','strip-boxes'],
               ['streetPriceTag','volt','Strip Payout','cash-stack-banded']],
-    pokemon: [['streetRibbon','royal','Poke Ribbon','poke-psa-charizard'], ['streetTwoCol','volt','Poke Checklist','poke-psa-charizard'],
-              ['streetIconGrid','crimson','Poke Grid','poke-psa-charizard'], ['streetPriceBadge','ocean','Poke Payout','poke-psa-charizard'],
-              ['streetCutoutHero','sunset','Poke Lineup','poke-psa-charizard']],
+    pokemon: [['streetRibbon','royal','Poke Ribbon','ph-poke-slab'], ['streetTwoCol','volt','Poke Checklist','ph-poke-cards-fan'],
+              ['streetIconGrid','crimson','Poke Grid','ph-poke-collection'], ['streetPriceBadge','ocean','Poke Payout','ph-poke-slabs-trio'],
+              ['streetCutoutHero','sunset','Poke Lineup','ph-poke-slabs-trio']],
     sports:  [['streetSplitCol','crimson','Card Split','ph-sports-cards-fan'], ['streetCutoutHero','emerald','Card Lineup','ph-sports-slabs-fan'],
               ['streetTwoCol','crimson','Card Checklist','ph-sports-cards-fan'], ['streetTopStrip','royal','Card Strip','ph-sports-slab'],
               ['streetPriceTag','royal','Card Payout','cash-stack-banded']],
@@ -8533,14 +8537,16 @@ function enforcePlateSolidity(t){
    original line COUNT so nothing reflows, and follows the line's own casing. */
 const BRAND_WORDS = {
   phones:  ['iPHONE 17 PRO MAX','GALAXY S26 ULTRA','PIXEL 11','iPAD','MACBOOK','APPLE WATCH'],
-  pokemon: ['POKEMON CARDS','CHARIZARD','VINTAGE SETS','BOOSTER BOXES','SEALED PRODUCT','FULL BINDERS'],
-  sports:  ['SPORTS CARDS','ROOKIE CARDS','AUTOGRAPHS','UNOPENED BOXES','VINTAGE CARDS','FULL SETS'],
+  // the card lines name what a collector sells, not what a flipper buys (DESIGN-LAW 171: no chase cards, no sealed product)
+  pokemon: ['POKÉMON CARDS','BASE SET','1ST EDITIONS','GRADED CARDS','FULL BINDERS','WHOLE COLLECTIONS'],
+  sports:  ['SPORTS CARDS','ROOKIE CARDS','AUTOGRAPHS','GRADED CARDS','VINTAGE CARDS','FULL SETS'],
   gold:    ['GOLD JEWELRY','ROLEX','CLASS RINGS','GOLD CHAINS','ESTATE PIECES','BROKEN OR WORN'],
   silver:  ['SILVER COINS','SILVER BARS','SILVERWARE','SILVER JEWELRY','SILVER DOLLARS','TEA SETS'],
   coins:   ['OLD COINS','SILVER DOLLARS','GOLD COINS','COIN COLLECTIONS','ESTATE COLLECTIONS','PROOF SETS'],
   cars:    ['TOYOTA','HONDA','FORD','CHEVY','BMW','RUNNING OR NOT'],
-  strips:  ['DIABETIC TEST STRIPS','SEALED BOXES','ALL MAJOR BRANDS','IN-DATE ONLY','LOCAL PICKUP','SAME-DAY PAYMENT'],
+  strips:  ['DIABETIC TEST STRIPS','ALL MAJOR BRANDS','IN-DATE BOXES','ONE BOX OR MANY'],
 };
+const KEEP_CAPS = new Set(['BMW', 'GT-R', 'AMG', 'JDM', 'SUV', 'SUVS', 'PS5', 'DJI', 'CGM', 'NGC', 'PCGS', 'PSA', 'GR86', 'S2000']);
 const LIST_LAYER = /^(Items|Info|Info Text|Devices|Sub|Subline|Who|Reward|Data Line|Offer Line|Line|Body|Detail|Kicker)$/;
 /* Proper nouns only — a name a shopper would recognise, never a material or a
    condition. 'sterling', 'dental' and 'broken' describe goods; 'Rolex',
@@ -8572,7 +8578,10 @@ function applyBrandVocab(t){
     // match the line's own voice rather than shouting in a sentence-case block;
     // in capitals as every upper line is set (cleanText): iPHONE and iPAD keep their small i
     if (txt === txt.toUpperCase()) out = cleanText(out, 'upper');
-    else out = out.replace(/\b([A-Z])([A-Z']+)\b/g, (m, a, b) => a + b.toLowerCase());
+    // title case word by word: an acronym keeps its capitals (BMW, not Bmw), an accented word stays whole (Pokémon, not
+    // PokÉMon), an ordinal takes small letters (1st)
+    else out = out.split(/(\s+|•)/).map((w, i) => KEEP_CAPS.has(w) ? w : i && /^(OR|AND|OF|TO|THE)$/.test(w) ? w.toLowerCase() : /^\d+(ST|ND|RD|TH)$/.test(w) ? w.toLowerCase()
+      : /^[A-Z][A-Z'\u00C0-\u00DD0-9-]+$/.test(w) ? w[0] + w.slice(1).toLowerCase() : w).join('');
     l.text = out;
     done++;
   });
@@ -9538,7 +9547,7 @@ const CAT_CUTOUTS = {
   coins:   ['coin-loose-pile','coin-graded-fan-three'],
   cars:    ['car-sedan-rear','car-title-docs'],
   strips:  ['strip-boxes'],
-  pokemon: ['poke-psa-charizard'],
+  pokemon: ['ph-poke-slabs-trio','ph-poke-cards-fan','ph-poke-slab'],
   sports:  ['ph-sports-slabs-fan','ph-sports-cards-fan','ph-sports-slab'],
 };
 /* Width of a text layer, estimated from its own metrics. Build time has no
