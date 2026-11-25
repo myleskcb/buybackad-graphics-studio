@@ -1035,8 +1035,10 @@ export class FullAd extends Ad {
   _drawPhoto(ctx, t, tile = null) {
     const W = this.W, H = this.H, still = this.groundImg, iw = still.naturalWidth || still.width, ih = still.naturalHeight || still.height;
     // a moving ground: the player's frame where one is given and can draw, else its first frame; tile: one
-    // moment of its sheet ({ img, x, y, k }: k from the clip's pixels to the sheet's), framed the same way
-    const live = this.groundClip && this.clipSrc && this.clipSrc.ready ? this.clipSrc.v : null;
+    // moment of its sheet ({ img, x, y, k }: k from the clip's pixels to the sheet's), framed the same way. The still
+    // (fullStill, _still) is the first frame even under the preview's playing clip: the pre-flight reads it against
+    // this.bg, and a frame of the clip read against its first frame differed wherever the clip had moved
+    const live = !this._still && this.groundClip && this.clipSrc && this.clipSrc.ready ? this.clipSrc.v : null;
     const img = tile ? tile.img : live || still;
     const u = clamp(t / Math.max(.5, this.tHold), 0, 1), e = 1 - (1 - u) ** 3;   // eases to rest
     const k = Math.max(W / iw, H / ih);
