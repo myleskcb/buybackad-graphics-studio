@@ -93,11 +93,19 @@ async function pbkdf2(pass, salt) {
   const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: enc.encode(salt), iterations: 100000 }, key, 256);
   return hex(bits);
 }
+/* A sign-in token says whose it is, when it ends and when it was made (iat).
+   A password reset signs the account out everywhere else (rule 182): a token
+   made before the account's passwordAt, or one from before tokens carried an
+   iat, no longer works; the reset's own token is made after it. Accounts that
+   never reset have no passwordAt, and their tokens work as before. */
 async function makeToken(email, env) {
-  const exp = Date.now() + 30 * 86400000;
-  const body = b64u(enc.encode(JSON.stringify({ email, exp })));
+  const iat = Date.now(), exp = iat + 30 * 86400000;
+  const body = b64u(enc.encode(JSON.stringify({ email, exp, iat })));
   return body + '.' + b64u(await hmac(env.JWT_SECRET, body));
 }
+/* the account read while checking a token, kept for the rest of that request
+   so the route that follows does not read it a second time */
+const TOKEN_USER = new WeakMap();
 async function readToken(req, env) {
   const h = req.headers.get('Authorization') || '';
   const t = h.startsWith('Bearer ') ? h.slice(7) : null;
@@ -105,7 +113,16 @@ async function readToken(req, env) {
   const [body, sig] = t.split('.');
   if (b64u(await hmac(env.JWT_SECRET, body)) !== sig) return null;
   const data = JSON.parse(atob(body.replace(/-/g, '+').replace(/_/g, '/')));
-  return data.exp > Date.now() ? data.email : null;
+  if (!(data.exp > Date.now())) return null;
+  const user = await getUser(data.email);
+  if (user && user.passwordAt && !(data.iat >= user.passwordAt)) return null;
+  if (user) TOKEN_USER.set(req, user);
+  return data.email;
+}
+/* the signed-in account: the one readToken just read for this request, or a fresh read */
+async function seenUser(req, em) {
+  const u = TOKEN_USER.get(req);
+  return u && u.email === em ? u : getUser(em);
 }
 const isoWeek = () => { const d = new Date(); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
@@ -417,7 +434,7 @@ export default async (req, context) => {
     if (p === '/auth/confirm/send' && req.method === 'POST') {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Sign in first' }, 401);
-      const user = await getUser(em);
+      const user = await seenUser(req, em);
       if (!user) return json({ error: 'Account not found' }, 404);
       if (confirmedOf(user)) return json({ ok: true, already: true, user: publicUser(user, env) });
       if (!mailOn(env)) return json({ error: MAIL_OFF }, 503);
@@ -492,7 +509,7 @@ export default async (req, context) => {
     if (p === '/me') {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Not signed in' }, 401);
-      const user = await getUser(em);
+      const user = await seenUser(req, em);
       if (!user) return json({ error: 'Account not found' }, 404);
       return json({ user: publicUser(await freshUser(user, env), env) });
     }
@@ -509,7 +526,7 @@ export default async (req, context) => {
     if (p === '/account/delete' && req.method === 'POST') {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Sign in first' }, 401);
-      const user = await getUser(em);
+      const user = await seenUser(req, em);
       if (!user) return json({ error: 'Account not found' }, 404);
       const { confirm } = await req.json().catch(() => ({}));
       if (confirm !== 'delete') return json({ error: 'Type delete to confirm' }, 400);
@@ -550,7 +567,7 @@ export default async (req, context) => {
     if ((p === '/export' || p === '/export/check') && req.method === 'POST') {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Not signed in' }, 401);
-      const user = await getUser(em);
+      const user = await seenUser(req, em);
       if (!user) return json({ error: 'Account not found' }, 404);
       // Operators export without caps, watermark or resolution limits.
       if (roleFor(em, env) === 'admin') return json({ user: publicUser(user, env), maxPx: 2160, watermark: false, remaining: null });
@@ -593,7 +610,7 @@ export default async (req, context) => {
     if (p === '/logo/file' && req.method === 'POST') {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Not signed in' }, 401);
-      const user = await getUser(em);
+      const user = await seenUser(req, em);
       if (!user) return json({ error: 'Account not found' }, 404);
       const admin = roleFor(em, env) === 'admin';
       if (!admin) await freshUser(user, env);
@@ -618,7 +635,7 @@ export default async (req, context) => {
     if (p === '/kits' || p === '/kits/save' || p === '/kits/file') {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Not signed in' }, 401);
-      const user = await getUser(em);
+      const user = await seenUser(req, em);
       if (!user) return json({ error: 'Account not found' }, 404);
       const admin = roleFor(em, env) === 'admin';
       if (!admin) await freshUser(user, env);
@@ -668,7 +685,7 @@ export default async (req, context) => {
     if (p === '/names' && req.method === 'POST') {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Sign in to ask the AI for names' }, 401);
-      const user = await getUser(em);
+      const user = await seenUser(req, em);
       if (!user) return json({ error: 'Account not found' }, 404);
       if (!namesOn(env)) return json({ error: 'AI name ideas are not switched on yet' }, 503);
       const cost = creditsFor(NAMES_COST_KEY, env);
@@ -781,7 +798,7 @@ export default async (req, context) => {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Sign in first' }, 401);
       if (!billingOn(env)) return json({ error: 'Billing is not enabled yet' }, 503);
-      const user = await getUser(em);
+      const user = await seenUser(req, em);
       const customer = user && customerOf(user, env);
       if (!customer) return json({ error: 'No billing account on file yet' }, 400);
       /* a new Stripe account has no portal configuration until one is saved in
@@ -813,7 +830,7 @@ export default async (req, context) => {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Sign in first' }, 401);
       if (!billingOn(env)) return json({ error: 'Billing is not enabled yet' }, 503);
-      const user = await getUser(em);
+      const user = await seenUser(req, em);
       if (!user) return json({ error: 'Account not found' }, 404);
       const body = await req.json().catch(() => ({}));
       const pack = PACKS[body.pack] ? body.pack : null;
@@ -960,7 +977,7 @@ export default async (req, context) => {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Sign in first' }, 401);
       if (!billingOn(env)) return json({ error: 'Billing is not enabled yet' }, 503);
-      const user = await getUser(em);
+      const user = await seenUser(req, em);
       if (!user || !user.sub || !user.sub.id || planId(user.plan) === 'free') return json({ error: 'No paid plan to change. Choose one instead.' }, 400);
       const body = await req.json().catch(() => ({}));
       const plan = planId(body.plan), interval = body.interval === 'year' ? 'year' : 'month';

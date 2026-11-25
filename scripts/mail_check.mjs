@@ -239,9 +239,17 @@ let kimToken, kimConfirm;
   const [r1, r2] = mailsTo('kim@shop.example', n0).map(linkIn);
   ok(r1 && r2 && (await hit('POST', '/auth/reset/check', { token: r1.token })).json.link === 'used' && (await hit('POST', '/auth/reset/check', { token: r2.token })).status === 200, 'reset: a newer link retires the older');
   ok((await me(kimToken)).confirmed === false, 'reset: asking for a link confirms nothing yet');
-  await hit('POST', '/auth/reset', { token: r2.token, password: 'kim-new-pass-1' });
-  const u = await me(kimToken);
-  ok(u.confirmed === true && u.askConfirm === false && (await hit('POST', '/auth/confirm', { token: kimConfirm.token })).json.link === 'used', 'reset: using it confirms the address, and the pending confirmation link is spent');
+  const done = await hit('POST', '/auth/reset', { token: r2.token, password: 'kim-new-pass-1' });
+  const u = await me(done.json.token);
+  ok(u && u.confirmed === true && u.askConfirm === false && (await hit('POST', '/auth/confirm', { token: kimConfirm.token })).json.link === 'used', 'reset: using it confirms the address, and the pending confirmation link is spent');
+  /* a reset signs the account out everywhere else (rule 182) */
+  ok((await hit('GET', '/me', undefined, { token: kimToken })).status === 401, 'reset: the sign-in from before the reset is signed out (/me 401)');
+  ok((await hit('POST', '/auth/confirm/send', {}, { token: kimToken })).status === 401, 'reset: and it cannot act for the account either');
+  ok((await hit('GET', '/me', undefined, { token: tokenFor('kim@shop.example') })).status === 401, 'reset: a token from before tokens carried a time is signed out too');
+  ok((await hit('GET', '/me', undefined, { token: done.json.token })).status === 200, "reset: the reset's own sign-in works");
+  const li = await hit('POST', '/auth/login', { email: 'kim@shop.example', password: 'kim-new-pass-1' });
+  ok(li.status === 200 && (await hit('GET', '/me', undefined, { token: li.json.token })).status === 200, 'reset: a new sign-in with the new password works');
+  ok((await hit('GET', '/me', undefined, { token: tokenFor('gia@gmail.example') })).status === 200, 'reset: an account that never reset keeps its older sign-ins');
 }
 {
   setUser({ email: 'ray@shop.example', salt: 's', hash: 'h', plan: 'free', exports: { period: '', count: 0 }, created: Date.now() });

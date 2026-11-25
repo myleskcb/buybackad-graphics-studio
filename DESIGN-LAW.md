@@ -7629,7 +7629,9 @@ of the picks too.
   every sticker and the TOP DOLLAR points, each with its share and real ads (keys `badge:`, `sticker:`,
   `point:top` in `tuning/choices`). `WORD_WEIGHTS` in `motion/fullad.js` takes the choices for the badges
   and stickers (More 1.5, Less 0.5, Never 0, a line's Spanish twin set with it) and `PROMISES.top`'s .7
-  for the points. With every weight 1 the pick is the even one below, draw for draw.
+  for the points. With every weight 1 the pick is the even one below, draw for draw. The weights tune the lines
+  the panel shows: a card ad's own badge and sticker lists are drawn evenly, whatever they share with the others.
+  The owner's first round (2026-11-25) is set: OPEN-ITEMS §CI 1 and §BZ 1 say what.
 - **Each line that fits is as likely** (`fresh` in `fullStyle`). The badge, sticker and small line skip a
   line that repeats a word already on the ad. They used to walk from a random start to the next that
   fit, which gave a line every draw of the lines before it that rarely fit: WE PAY TOP DOLLAR took 21% of
@@ -7689,6 +7691,12 @@ back in. Asked for by another session for the owner.
   analytics and no Referer on them, `noindex`. A good reset link names the account and asks for the new
   password; saving it signs the visitor in. A used or expired link says so and offers a new one on the
   same page.
+- **A reset signs the account out everywhere else** (added 2026-11-25, the owner: "Yes, add it"). Every
+  sign-in token carries the time it was made (`iat`); `readToken` refuses one made before the account's
+  `passwordAt`, and one with no `iat` once the account has a `passwordAt`. The reset's own token is made
+  after it, and accounts that never reset keep their older sign-ins. The account `readToken` reads is kept
+  for that request (`seenUser`), so a route does not read it twice. The mail and the saved page say so in
+  one line: other phones and computers are signed out.
 - **Limits count every request, account or not**, in windows kept by hashes, never an address or an IP:
   reset links 3 an hour for an address and 10 from an IP; confirmation links 3 an hour for an account and
   10 from an IP, sign-ups included (the 11th account is still made, without mail); tries at a link 30 an
