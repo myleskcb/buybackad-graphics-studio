@@ -6954,5 +6954,10 @@ Checked: `clip_grounds_check` (all clear), `full_ad_check`, `quick_ad_check`,
 `buylist_check`, `motion_music_check` (seven of seven); in the browser pane, the
 preview on the neon street under a template's ad, and a frame of the exported MP4.
 
-RESUME HERE: the owner looks at a moving scene in the maker (§CB 1) and says whether
-it goes on `main` (§CB 6); then more clips (§CB 4), Any look (§CB 2).
+Then, at the owner's word ("Yes, put it live"), `main` merged in again and put on
+`main`. The merge's pre-flight change showed a gap: the maker's pre-flight panel reads
+the preview's own ad, whose clip is playing by then, against its first frame. Lesson:
+a check that reads "the still" must draw the still, not whatever a live source shows.
+
+RESUME HERE: the owner looks at a moving scene in the maker (§CB 1); then more clips
+(§CB 4), Any look (§CB 2), stories and wide frames (§CB 3).

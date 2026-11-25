@@ -9,7 +9,7 @@
       the ground at 24 moments of the clip itself, through the export's own player: the worst moment counts.
    3. The export: a 6 s MP4 of a clip ad moves under its words in the file (read back), and puts its player away.
    4. The maker: Background offers the scenes; one picked stands the ad on it, its colours have light words,
-      and the preview's clip plays.
+      the preview's clip plays, and the pre-flight panel (which reads the preview's own ad) finds nothing to fix.
 
    usage:  node .motion-test/serve.mjs 8971 (or any server that answers byte ranges, which a video's seek
            needs), then  [GFX_BASE=http://127.0.0.1:8971/] [PLAYWRIGHT_MODULE=…] node scripts/clip_grounds_check.mjs
@@ -135,6 +135,9 @@ ok(exp.put, 'the export puts its own player away');
 console.log('4. the maker');
 const opts = await page.evaluate(() => [...(document.querySelector('#design select[data-key="full_clip"]') || { options: [] }).options].map(o => o.value));
 ok(opts.length === 7 && opts[0] === '', `Background > Moving scene offers Any and the six scenes (${opts.length})`);
+// a number typed, as a customer would (without one the panel rightly asks for it), then a scene picked
+await page.evaluate(() => { const n = document.getElementById('f-number'); n.value = '(562) 999-4994'; n.dispatchEvent(new Event('input', { bubbles: true })); });
+await page.waitForTimeout(800);
 await page.evaluate(() => { const s = document.querySelector('#design select[data-key="full_clip"]'); s.value = 'clip_city_gold'; s.dispatchEvent(new Event('change', { bubbles: true })); });
 await page.waitForTimeout(4000);
 const maker = await page.evaluate(async () => {
@@ -144,11 +147,16 @@ const maker = await page.evaluate(async () => {
   const b = x.getImageData(0, (c.height * .6) | 0, (c.width * .25) | 0, (c.height * .1) | 0).data;
   let d = 0; for (let i = 0; i < a.length; i += 4) d += Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2]);
   const s = JSON.parse(localStorage.getItem('pgfx_motion_v1') || '{}');
-  return { ground: document.querySelector('#design select[data-key="full_ground"]').value, playing: !!v && !v.paused && v.readyState >= 2, change: d / (a.length / 4), palette: (s.style || {}).full_palette || '' };
+  // the pre-flight panel reads the preview's own ad, its clip playing: its still is the clip's first frame (_still)
+  for (let i = 0; i < 20 && /checking/.test(document.getElementById('full-checks-sum').textContent); i++) await new Promise(r => setTimeout(r, 250));
+  const sum = document.getElementById('full-checks-sum'), note = document.getElementById('full-note').textContent;
+  return { ground: document.querySelector('#design select[data-key="full_ground"]').value, playing: !!v && !v.paused && v.readyState >= 2, change: d / (a.length / 4), palette: (s.style || {}).full_palette || '',
+    pre: sum.textContent.trim(), preFix: sum.classList.contains('bad') || /runs to the edge/.test(note), note };
 });
 ok(maker.ground === 'moving', `a scene picked stands the ad on a moving scene (${maker.ground})`);
 ok(maker.playing, 'the preview plays the clip');
 ok(maker.change > 1, `the preview's ground moves (${maker.change.toFixed(1)} a pixel in half a second)`);
+ok(!maker.preFix, `the pre-flight panel finds nothing to fix on the playing clip (${maker.pre}${maker.preFix ? ': ' + maker.note : ''})`);
 ok(!errors.length, 'no page errors' + (errors.length ? ': ' + errors.slice(0, 3).join(' | ') : ''));
 
 await browser.close();

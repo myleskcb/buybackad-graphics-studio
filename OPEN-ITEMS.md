@@ -4804,9 +4804,8 @@ Open:
    would need a beat tracker that follows the recording, not one tempo.
 4. **The explainer videos** (`tools/explainers`) still play Small Note
    Boogaloo: they explain, they do not sell, and were left.
-5. **Merged with `main` and pushed** (2026-11-24, 8529b419; its rule became 174:
-   `main` and other branches had taken 154, then 170 to 173). Not on `main`
-   yet: it goes with §CB.
+5. **On `main`** with §CB (2026-11-24; its rule became 174: `main` and other
+   branches had taken 154, then 170 to 173).
 
 ## CB. 2026-11-24 — a moving scene under the full ad's words (DESIGN-LAW 175)
 
@@ -4850,4 +4849,8 @@ Open:
    terminal tab, never kept.
 5. **How often New look draws a clip** (`CLIP_SHARE`, .3 of the seeds a clip
    fits, 6%) is the owner's call.
-6. **Not on `main`** until the owner says so.
+6. **On `main`, at the owner's word** (2026-11-24: "Yes, put it live"), after
+   `main` was merged in again (the pre-flight's headline shade). That merge
+   showed the maker's pre-flight panel reading the preview's playing clip against
+   its first frame: four of six clips were stopped with "runs to the edge". The
+   still now draws the first frame, and `clip_grounds_check` part 4 holds it.
