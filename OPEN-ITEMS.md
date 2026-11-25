@@ -4822,9 +4822,11 @@ Done:
 - The gallery (claude.ai artifact, private) has a Tune the mix panel that stores the owner's choices.
 
 Open:
-1. **The owner's shares.** When the panel has choices (`tuning/choices` in the gallery's store), set
-   `spec/full-grounds.json` shares, `PHOTO_TREAT_SHARES` and `POINT_COUNTS` from them (More x1.5,
-   Less x0.5, Never 0, then normalise) and rebuild.
+1. ~~**The owner's shares.**~~ Done 2026-11-25 from `tuning/choices` version 13 (the owner: "updated selections in
+   ad background library"): abstract, colour and shape, painted scene and the house ground Less, the rest Same, so
+   `spec/full-grounds.json` shares are photo .355, pattern .142, gradient .142, product .118, abstract .077,
+   shape .059, type .059, scene .024, house .024. `PHOTO_TREAT_SHARES` and `POINT_COUNTS` were left at Same.
+   A later round reads the choices against these, not the first guesses.
 2. **Nearly 400 other cut-outs are CC BY or CC BY-SA** (`assets/cutouts/ATTRIBUTION.json`): almost every
    car, and Commons photographs of consoles, cameras, AirPods, coins and gold. Those licences ask for a
    credit wherever the picture is shown, the Charizard's problem without the card art. Ways out: a
@@ -5099,10 +5101,11 @@ buyer or highest paying"; asked how hard, "bold, no proof needed"; asked when, "
 Done: see DESIGN-LAW 181.
 
 Open:
-1. **The mix is a first guess.** About half the badges and stickers are bold, and the points draw `top` at .7. Since
-   2026-11-25 the gallery's Tune the mix carries each line (More, Less, Same, Never). When the owner says done, set
-   `WORD_WEIGHTS` (and each line's Spanish twin) and `PROMISES.top` from `tuning/choices`, then redraw the library
-   renders and the landing stills.
+1. ~~**The mix is a first guess.**~~ Done 2026-11-25 from `tuning/choices` version 13: AN OFFER • YOU DECIDE Never,
+   MONEY IN YOUR POCKET Less, the TOP CASH and TOP $$$ stickers Less, the rest Same (`WORD_WEIGHTS`; none has a
+   Spanish twin; `PROMISES.top` stays .7). Over 4,680 drawn ads: 67% of badges and 40% of stickers bold, WE PAY TOP
+   DOLLAR 15%, TOP $$$ 12% (from 29%). The weights tune the other lines only: a card ad's own lists are drawn evenly
+   (AN OFFER • YOU DECIDE is still a fifth of card badges). The library renders and landing stills are drawn again.
 2. **HIGHEST, BEST PRICE, #1 and WE BEAT ANY OFFER as a shop's own pick.** Today a shop types them. A switch in the
    maker ("I can back this up") would offer them, with the pre-flight's note. Not built.
 3. **The photo templates and classic cards** (`app.js` TEMPLATES: LOCAL BUYER kickers on the phone and silver decks)

@@ -7629,7 +7629,9 @@ of the picks too.
   every sticker and the TOP DOLLAR points, each with its share and real ads (keys `badge:`, `sticker:`,
   `point:top` in `tuning/choices`). `WORD_WEIGHTS` in `motion/fullad.js` takes the choices for the badges
   and stickers (More 1.5, Less 0.5, Never 0, a line's Spanish twin set with it) and `PROMISES.top`'s .7
-  for the points. With every weight 1 the pick is the even one below, draw for draw.
+  for the points. With every weight 1 the pick is the even one below, draw for draw. The weights tune the lines
+  the panel shows: a card ad's own badge and sticker lists are drawn evenly, whatever they share with the others.
+  The owner's first round (2026-11-25) is set: OPEN-ITEMS §CI 1 and §BZ 1 say what.
 - **Each line that fits is as likely** (`fresh` in `fullStyle`). The badge, sticker and small line skip a
   line that repeats a word already on the ad. They used to walk from a random start to the next that
   fit, which gave a line every draw of the lines before it that rarely fit: WE PAY TOP DOLLAR took 21% of
