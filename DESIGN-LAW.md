@@ -7700,7 +7700,8 @@ back in. Asked for by another session for the owner.
   A Google or Apple account can use Forgot password? to add a password; its button keeps working.
 - **Off until the key is in.** Without `POSTMARK_TOKEN` Forgot password? says to write to support@webuy.ad
   (the same for every address) and no account is asked to confirm. `/api/health` and `/api/auth/config`
-  say `mail`.
+  say `mail`. The windows show the function's own words for its own 502-504; "the account server is not
+  answering" is only for a reply that carries none (a gateway's).
 - **Held by** `scripts/mail_check.mjs`: the real function with a stand-in Postmark (the mail's sender,
   words, link and tracking; the same reply for every address; once, 60 minutes, the newest; the limits and
   their windows; the confirm flow; Google and Apple accounts; Postmark failing), both windows and both

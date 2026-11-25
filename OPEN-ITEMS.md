@@ -5112,7 +5112,7 @@ Open:
 
 ## CJ. 2026-11-24 — mail out: Forgot password?, the reset page and the address check (DESIGN-LAW 182)
 
-(claude/funny-darwin-2b0c40, from `main` at 2bcf032c4, `main` merged in at d2465c806. Main's highest
+(claude/funny-darwin-2b0c40, from `main` at 2bcf032c4, `main` merged in at d2465c806 and 6101ca668. Main's highest
 were rule 181 and §CI, with §CD taken by the print-it-today branch, so this is 182 and CJ; renumber at
 the merge if another branch took them first.)
 
@@ -5123,8 +5123,12 @@ Done: see DESIGN-LAW 182. The provider is **Postmark**: Namecheap's free Email F
 domain's MX records and cannot share the domain with another mail service, and Resend needs an MX on
 `send.webuy.ad` (Custom MX, which switches the forwarding off); Postmark needs a DKIM TXT and a
 Return-Path CNAME only. Free Developer plan: 100 emails a month, no expiry; Basic $15 for 10,000.
-`scripts/mail_check.mjs` passes 107 checks, including `scripts/social_signin_check.mjs` against this
-worktree. `billing_check.mjs` (141 without the browser), `appleid_check`, `googleid_check`,
+`scripts/mail_check.mjs` passes 109 checks, including `scripts/social_signin_check.mjs` against this
+worktree. With no token the server's own words ("Email from WeBuy.AD isn't switched on yet. Write to
+support@webuy.ad") reach both windows: they used to turn every 502-504 into "The account server is not
+answering", and now do that only for a reply without words of its own (a gateway's).
+`social_signin_check`'s "44px or taller" caught the studio window mid-`pop` (scale .96 to 1 in .18s) on
+a busy Mac and read 358 x 43; it now waits for the window's animation to finish before measuring. `billing_check.mjs` (141 without the browser), `appleid_check`, `googleid_check`,
 `library_api_check` and `sync_css_fallback --check` pass. In a browser, `billing_check` and
 `ad_library_check` each fail one check (`fabric is not defined` with cdnjs blocked; `TYPE_VOICES`
 before initialization) on a clean copy of `main` as well, so not from this work.
@@ -5142,9 +5146,9 @@ before initialization) on a clean copy of `main` as well, so not from this work.
    SPF, DKIM and DMARC pass.
 
 Open:
-1. **Not on `main`, not live.** The branch waits for the owner's word; the mail waits for the steps
-   above. Merged without the token, Forgot password? says to write to support@webuy.ad and nothing asks
-   anyone to confirm.
+1. **On `main` and live 2026-11-25, without the token** (the owner: "Yes, put it live"). Until the steps
+   above are done, Forgot password? says to write to support@webuy.ad and nothing asks anyone to confirm;
+   `/api/health` says `"mail":false`.
 2. **A reset does not sign other devices out.** Sign-in tokens last 30 days and carry no password
    version. The account records `passwordAt`; a next step is to stamp tokens with their time and refuse
    ones older than the last reset.

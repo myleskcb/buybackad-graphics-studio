@@ -95,6 +95,9 @@ console.log("the studio's dialog: Apple");
   ok(await visible(page, '#auth-google .social-apple') && await visible(page, '#auth-google .social-google'), 'both buttons show above the form, Apple first',
     await page.evaluate(() => [...document.querySelectorAll('#auth-google .social-btn')].map((b) => b.textContent.trim()).join(' / ')));
   ok(await visible(page, '#auth-or'), 'with the "or" line under them');
+  /* the window opens with styles.css's pop (scale .96 to 1 in .18s): measure once it has, or a busy
+     machine reads the buttons at 358 x 43 (2026-11-25) */
+  await page.waitForFunction(() => document.querySelector('#auth-overlay .modal').getAnimations().every((a) => a.playState === 'finished'), null, { timeout: 5000 }).catch(() => {});
   const blend = await looks(page, '#auth-google', '#auth-forms input[type=password]');
   ok(blend.every((b) => Math.abs(b.w - b.field.w) <= 1 && b.h >= 44), "blend: each is the form's full width, and 44px or taller", JSON.stringify(blend.map((b) => [b.w, b.field.w, b.h])));
   ok(blend.every((b) => b.bg === b.field.bg && b.borderColor === b.field.borderColor && b.borderWidth === b.field.borderWidth && b.font === b.field.font),
