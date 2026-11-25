@@ -83,47 +83,57 @@ export function familyGround(kind, x, st, p, W, H, sc, r, prods = []) {
   x.save();
   switch (kind) {
     /* ── the ad's own product ─────────────────────────────────────────────────────────────────── */
+    /* the three product grounds redrawn 2026-11-23 (the owner: "getting a bit lost in translation"; the grounds audit: a
+       wall of flat rotated silhouettes read as grey tiles, the close-up as a ghost of a featureless slab, the echo as one
+       faint blob cut by the edge). Each now keeps what makes the goods the goods: the real picture, its top, its outline. */
     case "prod_wall": {
-      // a wall of the product, tone on tone, cleared round the real one
-      const [iw, ih] = sizeOf(img), cell = U * .2, k = cell * .78 / Math.max(iw, ih), w = iw * k, h = ih * k, sil = silhouette(img, w, h, P.mark(.14));
-      const tilt = (R() - .5) * .3;
-      x.translate(W / 2, H / 2); x.rotate(tilt); x.translate(-W / 2, -H / 2);
-      for (let row = -1, y = -cell; y < H + cell; row++, y += cell) for (let xx = -cell + (row % 2 ? cell / 2 : 0); xx < W + cell; xx += cell) {
-        const d = Math.hypot(xx - cx, y - cy), a = clamp((d - U * .24) / (U * .16), 0, 1); if (a <= 0) continue;
-        x.save(); x.globalAlpha = a; x.translate(xx, y); x.rotate((R() - .5) * .35); x.drawImage(sil, -w / 2, -h / 2); x.restore();
+      // a shop's wall of the product: the real picture, tinted toward the ground, in a straight grid on shelves, cleared round the real one
+      const [iw, ih] = sizeOf(img), cell = U * .16, k = cell * .8 / Math.max(iw, ih), w = iw * k, h = ih * k;
+      const tc = canvas(Math.max(1, Math.round(w)), Math.max(1, Math.round(h))), tx = tc.getContext("2d");
+      tx.drawImage(img, 0, 0, tc.width, tc.height); tx.globalCompositeOperation = "source-atop"; tx.globalAlpha = .5; tx.fillStyle = p.ground; tx.fillRect(0, 0, tc.width, tc.height);
+      const shelf = Math.max(2, U * .006);
+      for (let y = cell * .55; y < H + cell; y += cell) {
+        const row = [];
+        for (let xx = cell * .5; xx < W + cell / 2; xx += cell) {
+          const a = clamp((Math.hypot(xx - cx, y - cy) - U * .26) / (U * .14), 0, 1); if (a > 0) row.push([xx, a]);
+        }
+        for (const [xx, a] of row) { x.globalAlpha = .42 * a; x.drawImage(tc, xx - w / 2, y - h / 2); }
+        x.globalAlpha = .5; x.fillStyle = P.mark(.2);
+        for (const [xx, a] of row) { x.globalAlpha = .5 * a; x.fillRect(xx - cell / 2, y + h / 2 + shelf, cell, shelf); }
       }
+      x.globalAlpha = 1;
       break;
     }
     case "prod_macro": {
-      /* the product far too close to fit, out of focus, off to one side: its light and shade kept, its colour the
-         ground's own a step lighter or deeper, and faded out before the frame's edges. (Drawn grey at half strength
-         first, a laptop on a white ground was a mid-grey mass: the shade behind each block of words stood on it as
-         white boxes, and the headline's reached the edge, which the pre-flight stops: full_style_check, laptop 2241.) */
-      const [iw, ih] = sizeOf(img), k = U * 2.1 / Math.max(iw, ih), w = iw * k, h = ih * k;
-      const tc = canvas(Math.round(w / 3), Math.round(h / 3)), tx = tc.getContext("2d");
+      /* the product too close to fit, its top (a phone's cameras, a controller's sticks, a watch's crown) in one upper
+         corner of the frame, a little out of focus, its colour the ground's own a step off: a close-up, not a ghost. (Drawn
+         grey at half strength first, a laptop on a white ground was a mid-grey mass: the shade behind each block of words
+         stood on it as white boxes, and the headline's reached the edge, which the pre-flight stops: full_style_check, laptop 2241.) */
+      const [iw, ih] = sizeOf(img), k = U * 1.3 / Math.max(iw, ih), w = iw * k, h = ih * k;
+      const tc = canvas(Math.round(w / 2), Math.round(h / 2)), tx = tc.getContext("2d");
       tx.drawImage(img, 0, 0, tc.width, tc.height);
-      tx.globalCompositeOperation = "saturation"; tx.fillStyle = "#808080"; tx.fillRect(0, 0, tc.width, tc.height);
+      tx.globalCompositeOperation = "saturation"; tx.fillStyle = "#808080"; tx.globalAlpha = .6; tx.fillRect(0, 0, tc.width, tc.height); tx.globalAlpha = 1;
       tx.globalCompositeOperation = "destination-in"; tx.drawImage(img, 0, 0, tc.width, tc.height);
-      tx.globalCompositeOperation = "source-atop"; tx.globalAlpha = .7; tx.fillStyle = P.lit(.14); tx.fillRect(0, 0, tc.width, tc.height);
-      const m = canvas(W, H), mx = m.getContext("2d"), side = R() < .5 ? -1 : 1, px = cx + side * W * .42, py = cy - H * .12, e = U * .12;
-      mx.filter = `blur(${Math.round(U * .012)}px)`; mx.translate(px, py); mx.rotate(side * .35); mx.drawImage(tc, -w / 2, -h / 2, w, h);
+      tx.globalCompositeOperation = "source-atop"; tx.globalAlpha = .3; tx.fillStyle = P.lit(.14); tx.fillRect(0, 0, tc.width, tc.height);
+      const m = canvas(W, H), mx = m.getContext("2d"), side = cx < W / 2 ? 1 : -1, px = W / 2 + side * W * .3, py = H * .3, e = U * .1;
+      mx.filter = `blur(${Math.round(U * .007)}px)`; mx.translate(px, py); mx.rotate(side * .22); mx.drawImage(tc, -w / 2, -h * .22, w, h);
       mx.filter = "none"; mx.setTransform(1, 0, 0, 1, 0, 0); mx.globalCompositeOperation = "destination-out";
-      for (const [x0, y0, x1, y1] of [[0, 0, e, 0], [W, 0, W - e, 0], [0, 0, 0, e], [0, H, 0, H - e]]) { mx.fillStyle = lin(mx, x0, y0, x1, y1, ["rgba(0,0,0,1)", "rgba(0,0,0,0)"]); mx.fillRect(0, 0, W, H); }
-      x.globalAlpha = P.dark ? .5 : .42; x.drawImage(m, 0, 0); x.globalAlpha = 1;
+      for (const [x0, y0, x1, y1] of [[0, 0, e, 0], [W, 0, W - e, 0], [0, H, 0, H - e * 2.5]]) { mx.fillStyle = lin(mx, x0, y0, x1, y1, ["rgba(0,0,0,1)", "rgba(0,0,0,0)"]); mx.fillRect(0, 0, W, H); }
+      x.globalAlpha = P.dark ? .6 : .55; x.drawImage(m, 0, 0); x.globalAlpha = 1;
       break;
     }
     case "prod_echo": {
-      /* the product's echo: its own shape far larger than the frame, on the side away from the real one and cut by
-         the edge, solid in one tone with its outline stepped off it. (A trail of small echoes beside the product, the
-         first try, lay under the product and its sticker in a square ad, where nothing of it showed.) */
-      const [iw, ih] = sizeOf(img), k = U * 1.25 / Math.max(iw, ih), w = iw * k, h = ih * k, sil = silhouette(img, w, h, P.mark(.1));
-      const t = Math.max(2, Math.round(U * .006)), ring = canvas(w + t * 4, h + t * 4), rx = ring.getContext("2d"), edge = silhouette(img, w, h, P.mark(.2));
-      for (const [ox, oy] of [[-t, 0], [t, 0], [0, -t], [0, t], [-t, -t], [t, t], [-t, t], [t, -t]]) rx.drawImage(edge, t * 2 + ox, t * 2 + oy);
-      rx.globalCompositeOperation = "destination-out"; rx.drawImage(edge, t * 2, t * 2);
-      const side = cx < W / 2 ? 1 : -1, px = W / 2 + side * W * .36, py = H * (.42 + R() * .16), tilt = side * (.12 + R() * .14);
-      x.translate(px, py); x.rotate(tilt);
-      x.drawImage(sil, -w / 2, -h / 2);
-      x.drawImage(ring, -w / 2 - t * 2 - side * U * .035, -h / 2 - t * 2 - U * .03);
+      /* the product's echo: its outline rippling out from where it stands, four times, each larger and fainter, like a
+         sound wave round it. Ripples need no free side of the frame, which a square ad full of words seldom has. */
+      const [iw, ih] = sizeOf(img), base = U * .32 / Math.max(iw, ih), t = Math.max(2, Math.round(U * .011));
+      [[1.25, .5], [1.55, .36], [1.9, .24], [2.3, .14]].forEach(([sz, a]) => {
+        const w = iw * base * sz, h = ih * base * sz, edge = silhouette(img, w, h, P.mark(.26));
+        const ring = canvas(Math.round(w + t * 4), Math.round(h + t * 4)), rx = ring.getContext("2d");
+        for (let k2 = 0; k2 < 8; k2++) { const an = k2 / 8 * Math.PI * 2; rx.drawImage(edge, t * 2 + Math.cos(an) * t, t * 2 + Math.sin(an) * t); }
+        rx.globalCompositeOperation = "destination-out"; rx.drawImage(edge, t * 2, t * 2);
+        x.globalAlpha = a; x.drawImage(ring, cx - w / 2 - t * 2, cy - h / 2 - t * 2);
+      });
+      x.globalAlpha = 1;
       break;
     }
     /* ── abstract ─────────────────────────────────────────────────────────────────────────────── */

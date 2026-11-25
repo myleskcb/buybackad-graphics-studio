@@ -15,22 +15,6 @@
   "note": "the studio's own card scene (assets/bg), used by the classic templates"
  },
  {
-  "file": "pokemon-charizard-card-1.jpg",
-  "from": "assets/bg-web/pokemon-charizard-card-1.jpg",
-  "title": "File:2021 New York Comic Con (Batch Edits - 031) (51573823689).jpg",
-  "artist": "Romer Jed Medina from Newark, NJ, United States",
-  "license": "CC BY-SA 2.0",
-  "page": "https://commons.wikimedia.org/wiki/File%3A2021%20New%20York%20Comic%20Con%20(Batch%20Edits%20-%20031)%20(51573823689).jpg"
- },
- {
-  "file": "pokemon-charizard-card-2.jpg",
-  "from": "assets/bg-web/pokemon-charizard-card-2.jpg",
-  "title": "File:2021-10-8 to 2021-10-9 - NYCC (Touch Edits - 009) (51573445803).jpg",
-  "artist": "Romer Jed Medina from Newark, NJ, United States",
-  "license": "CC BY-SA 2.0",
-  "page": "https://commons.wikimedia.org/wiki/File%3A2021-10-8%20to%202021-10-9%20-%20NYCC%20(Touch%20Edits%20-%20009)%20(51573445803).jpg"
- },
- {
   "file": "strips-contour-next-test-strips-2.jpg",
   "from": "assets/bg-web/strips-contour-next-test-strips-2.jpg",
   "title": "File:Contour Next test strips box.jpg",
@@ -394,5 +378,15 @@
   "file": "dl_cars_stepsFlow_sunset.jpg",
   "from": "assets/bg/dl_cars_stepsFlow_sunset.jpg",
   "note": "the studio's own card scene (assets/bg), used by the classic templates"
+ },
+ {
+  "file": "pokemon-slabs-display-1.jpg",
+  "from": "assets/bg-web/pokemon-slabs-display-1.jpg",
+  "note": "painted by the studio (scripts/card-painter.js): cards and slabs of no game or grader on a shop's display, standing in for the CC BY-SA photographs of real graded Charizards (DESIGN-LAW 161); no credit needed"
+ },
+ {
+  "file": "pokemon-slabs-display-2.jpg",
+  "from": "assets/bg-web/pokemon-slabs-display-2.jpg",
+  "note": "painted by the studio (scripts/card-painter.js): cards and slabs of no game or grader on a shop's display, standing in for the CC BY-SA photographs of real graded Charizards (DESIGN-LAW 161); no credit needed"
  }
 ]

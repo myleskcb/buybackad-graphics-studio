@@ -1,6 +1,6 @@
 {
  "_doc": "Full-size renders of the rebuilt library ads (motion/recipes.json, the recipes made from library cards), for the library API (rule 111, 149). Made by scripts/render_rebuilt_ads.mjs through Easy Mode's full ad at 1080, as iPhones LA's copy. stamp is the recipe it was drawn from: a recipe changed since makes the render stale (library_api_check.mjs). Dates, ISO 8601 UTC: created and updated, the rebuild (the last commit of motion/recipes.json); rendered, when the file was drawn.",
- "built": "2026-11-23T08:27:22.305Z",
+ "built": "2026-11-25T04:09:54.814Z",
  "size": 1080,
  "quality": 0.88,
  "items": {
@@ -91,26 +91,26 @@
   "r-arcCrown-ck04-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 222486,
-   "sha1": "abb0235c4f2ec3958e74ed622f8c4ac1d3de7b24",
-   "stamp": "fd7e8e36b9fb86c6744086bf60b38c1ea5df7a56",
+   "bytes": 222393,
+   "sha1": "5c78f42bc17a7e673dfbe071158bfc89b76ab085",
+   "stamp": "8981d559c4cf28b3ac81820751e2864ebc8b4909",
    "from": "arcCrown-ck04-35",
    "title": "Arc Crown 1",
-   "rendered": "2026-11-23T08:27:08Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:15Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-arcCrown-ck05-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 253560,
-   "sha1": "a244ba87cafb62534d8fd4f5d3ce6f6fe4096cbb",
-   "stamp": "08cc97853fb507dc7838a8433e8e5ac5b801fdcf",
+   "bytes": 241258,
+   "sha1": "b1b01a1852d78ff3f1601106cf1c6dcb0e9627cf",
+   "stamp": "7d2e82a8b4ff7dc45fb9eacaadb7b3feafc447e0",
    "from": "arcCrown-ck05-35",
    "title": "Arc Crown 2",
-   "rendered": "2026-11-23T08:27:09Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:16Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-arcCrown-du02-20": {
    "w": 1080,
@@ -139,14 +139,14 @@
   "r-arcCrown-du05-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 231353,
-   "sha1": "305a2b3660bd81082568944e1c13b99c670e8060",
-   "stamp": "26e9e9e457e6ddae9fc936a280e0be619d2ebb13",
+   "bytes": 243560,
+   "sha1": "0163cf0b91011e997a0b10dcf299a78b2b4954a0",
+   "stamp": "a0e89da66375db6aff2be374a6af8d099306b8bc",
    "from": "arcCrown-du05-20",
    "title": "Arc Crown 1",
-   "rendered": "2026-11-23T08:27:15Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:22Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-arcCrown-du05-30": {
    "w": 1080,
@@ -235,14 +235,14 @@
   "r-arcCrown-nn03-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 245464,
-   "sha1": "8742aed2c10d5dfff017139d6786253e8f4b25f0",
-   "stamp": "8e8a9de20955c73bf355a5cf0ee24277af6fd50a",
+   "bytes": 242735,
+   "sha1": "87f796a43b58dabb1f49bb2f921cfbcce6f098ea",
+   "stamp": "d4fe58056844c0dff4feb6b0028673534343bd21",
    "from": "arcCrown-nn03-30",
    "title": "Arc Crown 2",
-   "rendered": "2026-11-23T08:27:15Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:22Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-arcCrown-nn05-20": {
    "w": 1080,
@@ -355,14 +355,14 @@
   "r-bandKnockout-ck03-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 195560,
-   "sha1": "8f7c860deed2c5aa80723fef9760065f738f0138",
-   "stamp": "3e7124b4f31e309ddefa84d90e86edb7e4b0d784",
+   "bytes": 203184,
+   "sha1": "4ae05685cfce1f4416712aef2dd447911d3f7c5c",
+   "stamp": "47fe25d4cc17121936248b77294461fb1c83ead1",
    "from": "bandKnockout-ck03-20",
    "title": "Band Knockout 1",
-   "rendered": "2026-11-23T08:27:15Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:23Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-bandKnockout-ck04-35": {
    "w": 1080,
@@ -403,38 +403,38 @@
   "r-bandKnockout-gl04-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 195839,
-   "sha1": "b7a421258aefbbf80ade568b9e8ad41c143a79d7",
-   "stamp": "90f37c14f5367a5f6a8c192d70c016527e57fb5a",
+   "bytes": 198296,
+   "sha1": "2399df25b2f4fb03f225203c91b635e983e0865b",
+   "stamp": "86573ab792289f53b903c3c548020aa51cd58f28",
    "from": "bandKnockout-gl04-30",
    "title": "Band Knockout 1",
-   "rendered": "2026-11-23T08:27:09Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:16Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-bandKnockout-ik05-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 219847,
-   "sha1": "acf96f95ca5533b0b2fdc0349a27f19dba70eed8",
-   "stamp": "83a200f122f65f537d47e8be65f36faf5c81433c",
+   "bytes": 222910,
+   "sha1": "6569d111d10c3aff43aef64bb630af32ca488980",
+   "stamp": "1b004780e53879f356ab020cde807b474ce5612f",
    "from": "bandKnockout-ik05-30",
    "title": "Band Knockout 2",
-   "rendered": "2026-11-23T08:27:09Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:16Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-bandKnockout-jw05-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 222320,
-   "sha1": "126f8e9ec7ba85e6f0a7478fd2f663c28cc2fbaa",
-   "stamp": "3a278737748d7688f5b9cb7b8c2275c03966d24d",
+   "bytes": 340672,
+   "sha1": "2ab81077d8b046155553f3037be1aa1f041ca8ab",
+   "stamp": "29eaf24572d55ff10bcb61f948f8108c24ec7d4e",
    "from": "bandKnockout-jw05-15",
    "title": "Band Knockout 2",
-   "rendered": "2026-11-23T08:27:15Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:23Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-bandKnockout-jw05-30": {
    "w": 1080,
@@ -547,14 +547,14 @@
   "r-bandKnockout-su01-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 203706,
-   "sha1": "5ad0f2b4488501b55849ade74bb97b45fb316362",
-   "stamp": "80dfebb781db1cf65e310ccc272c3211cc886b8e",
+   "bytes": 203234,
+   "sha1": "f98c5b64af253452f109112d00ad684f078819a7",
+   "stamp": "71558cbfb2eede283706566ea5860bf6eb88f978",
    "from": "bandKnockout-su01-35",
    "title": "Band Knockout 3",
-   "rendered": "2026-11-23T08:27:15Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:23Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-bandKnockout-su02-30": {
    "w": 1080,
@@ -583,14 +583,14 @@
   "r-bubblePop-ca07-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 213141,
-   "sha1": "939f13cddd6293c7ca3430525c18fa7241323410",
-   "stamp": "5fb811b2d35149f7c139fb79182be4605309fccc",
+   "bytes": 193483,
+   "sha1": "c4799cc9490eb5c84ee40660381250436ba361ef",
+   "stamp": "c2bd58c77485e40f8b05cb0c9cfa8aa9fcb95f55",
    "from": "bubblePop-ca07-15",
    "title": "Bubble Pop 1",
-   "rendered": "2026-11-23T08:27:09Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:17Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-bubblePop-cd01-20": {
    "w": 1080,
@@ -655,14 +655,14 @@
   "r-bubblePop-ck01-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 235577,
-   "sha1": "b0e1d041935ad54a13754a94503b107c5c570ef4",
-   "stamp": "a4151da5302d979d686a3fe019a420c1af6c7df1",
+   "bytes": 198033,
+   "sha1": "12c57cd67799995f5984a64c54ebff4c0d3b9580",
+   "stamp": "61a2a87fc4cbf039ebf7d9aaa57e25364cbc2736",
    "from": "bubblePop-ck01-15",
    "title": "Bubble Pop 2",
-   "rendered": "2026-11-23T08:27:09Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:17Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-bubblePop-du02-30": {
    "w": 1080,
@@ -751,14 +751,14 @@
   "r-bubblePop-du08-16": {
    "w": 1080,
    "h": 1080,
-   "bytes": 231152,
-   "sha1": "5a99d60b3235d242cc637bead11273fe62d37efd",
-   "stamp": "0274d138eb464d5a57d598adf6157963c74c57ad",
+   "bytes": 224979,
+   "sha1": "c1a86a7e820d9b58e1c884857d06affe01cebd22",
+   "stamp": "00d82f553391d2cea071148f5c58a45d1616dcfe",
    "from": "bubblePop-du08-16",
    "title": "Bubble Pop 3",
-   "rendered": "2026-11-23T08:27:10Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:17Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-bubblePop-du09-35": {
    "w": 1080,
@@ -775,14 +775,14 @@
   "r-bubblePop-gl02-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 233790,
-   "sha1": "904d71d1061d4f02997744495be68742576729e0",
-   "stamp": "fc240f5793ed064974fe602ff22cf0098d8a84ea",
+   "bytes": 235196,
+   "sha1": "cc0d77f4dbacddd71f8bb4426b2b066252b04ff4",
+   "stamp": "8da4c91e4cf820ee12106a369d88032bffd6d6f4",
    "from": "bubblePop-gl02-15",
    "title": "Bubble Pop 4",
-   "rendered": "2026-11-23T08:27:10Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:17Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-bubblePop-gl02-20": {
    "w": 1080,
@@ -859,14 +859,14 @@
   "r-bubblePop-jw05-16": {
    "w": 1080,
    "h": 1080,
-   "bytes": 224345,
-   "sha1": "d0f6bbf78498a9155aec33394080a79fc57caed0",
-   "stamp": "56f71ef0700a75d25130304dfc28e60029eba7f1",
+   "bytes": 219491,
+   "sha1": "aa9deb0b50e5057f4e5900a576e5af3eb90802e3",
+   "stamp": "7b2e28121b04907f3a7b7dc9028ad152bbe7f31f",
    "from": "bubblePop-jw05-16",
    "title": "Bubble Pop 5",
-   "rendered": "2026-11-23T08:27:10Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:17Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-bubblePop-jw08-35": {
    "w": 1080,
@@ -931,26 +931,26 @@
   "r-bubblePop-pa05-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 199744,
-   "sha1": "0ffb93dd22394e1f3f73098ed5752dc1695df228",
-   "stamp": "59bb4aa5a793d17150443457b0882570040ca7c4",
+   "bytes": 189143,
+   "sha1": "6e12e3a74247a94c8dd192de462721c110643cea",
+   "stamp": "7085c0e56827b3c7a8f2f59c8002689a1533216e",
    "from": "bubblePop-pa05-15",
    "title": "Bubble Pop 6",
-   "rendered": "2026-11-23T08:27:10Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:18Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-bubblePop-pp04-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 203880,
-   "sha1": "d09c82afd5ce6d5e3dc402d4737427b5b48fc88e",
-   "stamp": "fdc0915ac397ca64f0612143041f775d5b92f53f",
+   "bytes": 195985,
+   "sha1": "c840e50d3aafba5e2fd5974c82341f18f8fbc78e",
+   "stamp": "0fc246045e2fae0fef95211427909a36906c3446",
    "from": "bubblePop-pp04-15",
    "title": "Bubble Pop 7",
-   "rendered": "2026-11-23T08:27:10Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:18Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-bubblePop-pp06-35": {
    "w": 1080,
@@ -1111,14 +1111,14 @@
   "r-checklistHero-du07-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 294295,
-   "sha1": "8ccd02af0ffba15238e59e6d68762c8973cbcb57",
-   "stamp": "9c455ed7f7f9560fe4bc0de370f1e9e0d770ca4b",
+   "bytes": 365064,
+   "sha1": "7ad4d0818e1023dc9b924a672c3fcc2bee35ae89",
+   "stamp": "4d0b351bcdf1cead5dc1709fe199caf462d703c5",
    "from": "checklistHero-du07-15",
    "title": "Checklist Hero 1",
-   "rendered": "2026-11-23T08:27:16Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:23Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-checklistHero-du08-16": {
    "w": 1080,
@@ -1159,14 +1159,14 @@
   "r-checklistHero-io03-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 230442,
-   "sha1": "d0e991fb66d215c15d3f3b85013786f162565fde",
-   "stamp": "55f72efd4f805bc5da3d4cc5bcbf8aee61a99ae8",
+   "bytes": 203402,
+   "sha1": "fd1417a37c90dc1b7960ea768a6697fab92371c1",
+   "stamp": "532107742b6e741903d61bca54c56b08e609c81e",
    "from": "checklistHero-io03-20",
    "title": "Checklist Hero 1",
-   "rendered": "2026-11-23T08:27:10Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:18Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-checklistHero-jw05-15": {
    "w": 1080,
@@ -1207,14 +1207,14 @@
   "r-checklistHero-jw10-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 232679,
-   "sha1": "f0468548fc621d068c57da0cdc989dc90881aeb0",
-   "stamp": "099c25f08bd068fbf7a94bac4d57695cb33c8244",
+   "bytes": 236249,
+   "sha1": "98d12c4373e96ef9fdc5b4dc9f12d3ce471e0699",
+   "stamp": "50f5285ed76b9d7095e7e155568d80e1e3549f3f",
    "from": "checklistHero-jw10-15",
    "title": "Checklist Hero 2",
-   "rendered": "2026-11-23T08:27:16Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:23Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-checklistHero-jw10-30": {
    "w": 1080,
@@ -1231,26 +1231,26 @@
   "r-checklistHero-nn05-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 206567,
-   "sha1": "ff394e22f7542574669e2e402caa0d508bade673",
-   "stamp": "ae41b4e9a147ad39e6f462c2379b7e8b51b7a101",
+   "bytes": 171240,
+   "sha1": "8d6b7e2a07296407269fa5464e3abf040deea613",
+   "stamp": "3b033f07f6ff7046f84fbf74b9ca72108254126b",
    "from": "checklistHero-nn05-30",
    "title": "Checklist Hero 2",
-   "rendered": "2026-11-23T08:27:10Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:18Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-checklistHero-pa05-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 203826,
-   "sha1": "4371fec891cc24cbc2baf46ed9bd6f55734033ad",
-   "stamp": "76b33196dc630e6e7975fd1d022301801312e1f1",
+   "bytes": 196394,
+   "sha1": "aa5421cd9695fde3eb09f3109b65b66fbf1e5e25",
+   "stamp": "ab19d230841378eaabf756c36f515898ae6599e9",
    "from": "checklistHero-pa05-15",
    "title": "Checklist Hero 3",
-   "rendered": "2026-11-23T08:27:10Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:18Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-checklistHero-pp02-15": {
    "w": 1080,
@@ -1279,14 +1279,14 @@
   "r-checklistHero-pp09-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 226091,
-   "sha1": "d9f6644573063e235c527381ed8d03b105fe6aa8",
-   "stamp": "4aef416bc066e46e93a5647a713bcc2805b50b54",
+   "bytes": 228319,
+   "sha1": "ef79db523c811033fd3de6fd35586712190c9fbd",
+   "stamp": "65e4f6c29da369d08bd8457abef33635b59f0078",
    "from": "checklistHero-pp09-35",
    "title": "Checklist Hero 3",
-   "rendered": "2026-11-23T08:27:16Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:24Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-glassCard-ca03-35": {
    "w": 1080,
@@ -1303,38 +1303,38 @@
   "r-glassCard-ca05-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 212184,
-   "sha1": "171c4ce94b891b3f4bd402fb3009c22a5eac877b",
-   "stamp": "cfe538ef189f99d8d2e0e3366d5dc6061bc5eca7",
+   "bytes": 205853,
+   "sha1": "82d6f3592e85b4de69de22fa5640c60328f3c3af",
+   "stamp": "30876468c0fbec71ef6299cfc2247d4ad0efde81",
    "from": "glassCard-ca05-35",
    "title": "Glass Card 1",
-   "rendered": "2026-11-23T08:27:11Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:18Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-glassCard-ca07-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 218039,
-   "sha1": "dd7542fcccca1546541a985b012b4555074af538",
-   "stamp": "e7843e6f4e5ea955f8eccbe2f99d72025518b7bc",
+   "bytes": 217055,
+   "sha1": "2fb8e97fe9f03403f24d474a24069a20b2b25ed9",
+   "stamp": "1ca50aeb07d70d32228369a798b2497f14f5d5f9",
    "from": "glassCard-ca07-15",
    "title": "Glass Card 1",
-   "rendered": "2026-11-23T08:27:17Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:24Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-glassCard-ca09-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 274669,
-   "sha1": "e3dfcbc062f302ad4b3f664bf2abc899c7a1eb79",
-   "stamp": "c6bbfde4b2dd40c444e30ed17fcd4ce6b6b9a4ea",
+   "bytes": 326592,
+   "sha1": "1d7aa4ad836d00a81d27331b99499c2b293577a2",
+   "stamp": "4cd4da3656a377daef004fd54849580f30a05f1a",
    "from": "glassCard-ca09-35",
    "title": "Glass Card 2",
-   "rendered": "2026-11-23T08:27:11Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:19Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-glassCard-cd06-15": {
    "w": 1080,
@@ -1351,14 +1351,14 @@
   "r-glassCard-cd08-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 240088,
-   "sha1": "3ca3bd9591218e0c20b24923590fa38bd7f52bf5",
-   "stamp": "4e3d5aaea4985a22b0974dfe3a523fc40f3b83bc",
+   "bytes": 338309,
+   "sha1": "79ca0fc7252063c516761069728866caca9e3d4f",
+   "stamp": "9dfe7657c87a7d0f629c6cd3062f38020a35c15c",
    "from": "glassCard-cd08-35",
    "title": "Glass Card 2",
-   "rendered": "2026-11-23T08:27:17Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:24Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-glassCard-cd10-30": {
    "w": 1080,
@@ -1531,14 +1531,14 @@
   "r-glassCard-jw10-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 235859,
-   "sha1": "85c07866dcdc2673b4cee3345bc0a250c2d5af5a",
-   "stamp": "97512e0d52d10d41a53efa5845f3c76c345392b0",
+   "bytes": 248162,
+   "sha1": "a27989da0ecad8139e06cda80000749f20f94eef",
+   "stamp": "94b26c582660dd71040a920df2d3eb83b79eb686",
    "from": "glassCard-jw10-30",
    "title": "Glass Card 3",
-   "rendered": "2026-11-23T08:26:33Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:11Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-glassCard-nn01-20": {
    "w": 1080,
@@ -1579,26 +1579,26 @@
   "r-glassCard-pp04-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 222497,
-   "sha1": "d68823820730535533d475b2aadb1d7079c4b2ec",
-   "stamp": "340c0a4441cf76ea8f91beb7b15fdc28c0f4730c",
+   "bytes": 318625,
+   "sha1": "31d751f615a3d5a983caf7c6a21c6ff03120d5b7",
+   "stamp": "ac7d671ef679b43d343af89ee0e5b951b81ba5fb",
    "from": "glassCard-pp04-15",
    "title": "Glass Card 3",
-   "rendered": "2026-11-23T08:27:11Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:19Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-glassCard-su02-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 220532,
-   "sha1": "27f483b5850fdf0636473a3299c37bde6435e61a",
-   "stamp": "5bfa46ba4ed083dbdb2f49e7525d4c5fadc660e9",
+   "bytes": 225510,
+   "sha1": "80e74e1c4ccb86da17394f6b7c6febd859a069a3",
+   "stamp": "82fda802c1d99f1f0af6b8a9e3a903c9afde3c73",
    "from": "glassCard-su02-30",
    "title": "Glass Card 4",
-   "rendered": "2026-11-23T08:26:49Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:14Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-glassCard-su03-35": {
    "w": 1080,
@@ -1687,14 +1687,14 @@
   "r-gradientWave-du07-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 236940,
-   "sha1": "7db4ee7245ab38cb3ed3a0bada79ff5be4f8989c",
-   "stamp": "7566217b0c3e1f6f996328e8c1cd6aacc9115bcd",
+   "bytes": 210386,
+   "sha1": "50a00e816a07ac61d9f35bbe3c7c15c5d3b7e45f",
+   "stamp": "1270384012a06719281717dcaef762f35a0ee5f6",
    "from": "gradientWave-du07-15",
    "title": "Gradient Wave 1",
-   "rendered": "2026-11-23T08:27:17Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:24Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-gradientWave-du07-20": {
    "w": 1080,
@@ -1747,14 +1747,14 @@
   "r-gradientWave-gl03-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 233811,
-   "sha1": "fe2a44dedcab3efdc4558463f5bbcd31c64441c3",
-   "stamp": "ee99adb8f40eef0d40f40a21ca8df13d667cac6f",
+   "bytes": 230283,
+   "sha1": "70b5a7d4ab9d8dbfb66cc9fb3944dee472f9c6c0",
+   "stamp": "a8bccf7a841d991559c4cc3d852c44f45802b24c",
    "from": "gradientWave-gl03-35",
    "title": "Gradient Wave",
-   "rendered": "2026-11-23T08:27:11Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:19Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-gradientWave-gl04-20": {
    "w": 1080,
@@ -1771,14 +1771,14 @@
   "r-gradientWave-gl07-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 221541,
-   "sha1": "4c661345e0653e46294e52899e0e5c74257f44ee",
-   "stamp": "07f49ce0fdd90b997f1b3f900b3f869b48e88b16",
+   "bytes": 220139,
+   "sha1": "034665bc34a0f85bafaf4d523a00c91541b57aca",
+   "stamp": "026fbf7a342685bff0fcedbe8fa0193e395f727b",
    "from": "gradientWave-gl07-35",
    "title": "Gradient Wave 2",
-   "rendered": "2026-11-23T08:27:17Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:25Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-gradientWave-ik01-35": {
    "w": 1080,
@@ -1795,14 +1795,14 @@
   "r-gradientWave-ik05-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 215114,
-   "sha1": "c544291e78882ac6bc16cd20010b81980fd64dc5",
-   "stamp": "1a03d68fd1a86fe85f10c4afe0d46911f490f9f6",
+   "bytes": 228378,
+   "sha1": "fd71d52e6ebe106625597acb361a8be06bc6a90c",
+   "stamp": "d2d7ef97f9b90bd4a86e51fca40bb797cc96f508",
    "from": "gradientWave-ik05-30",
    "title": "Gradient Wave 3",
-   "rendered": "2026-11-23T08:27:17Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:25Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-gradientWave-io03-20": {
    "w": 1080,
@@ -1843,14 +1843,14 @@
   "r-gradientWave-jw05-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 235464,
-   "sha1": "ce0c177a6098a980ea4f935c38046ad828cdf2dd",
-   "stamp": "36974303c7f9c34ed3a2647ca9feff6499b8397d",
+   "bytes": 243297,
+   "sha1": "886e6c286d0f59a5c527cbb8fc35a4c423b71efc",
+   "stamp": "62d03f9ce3f48daf2efe6dbc03a7561323334c71",
    "from": "gradientWave-jw05-20",
    "title": "Gradient Wave 4",
-   "rendered": "2026-11-23T08:27:18Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:25Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-gradientWave-jw07-15": {
    "w": 1080,
@@ -1915,26 +1915,26 @@
   "r-hudTech-cd04-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 193706,
-   "sha1": "fcebfbffefeac1fcbf7df24a24d88102e3901de3",
-   "stamp": "9c9c36e1d07dae42c529cfe13558e98b8732f336",
+   "bytes": 200013,
+   "sha1": "a70187d6010ba471aeb97351d91fa0b3df53261c",
+   "stamp": "2ee12ed3344919a4103c90742298075c92c595e9",
    "from": "hudTech-cd04-20",
    "title": "HUD Tech 1",
-   "rendered": "2026-11-23T08:26:56Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:14Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-hudTech-cd06-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 225436,
-   "sha1": "9c1229e7d3e131a881efe2d7f3d1be083c7b7ffd",
-   "stamp": "3bbce30e24975f861daffc5fef651cd25ce9cacd",
+   "bytes": 253345,
+   "sha1": "5465e4200533f3bd8c87d38027b862cc9068ed55",
+   "stamp": "991e2640a240eb07f77bb302e367cf656ff9445b",
    "from": "hudTech-cd06-20",
    "title": "HUD Tech 1",
-   "rendered": "2026-11-23T08:27:18Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:26Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-hudTech-cd10-20": {
    "w": 1080,
@@ -1975,38 +1975,38 @@
   "r-hudTech-du08-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 239162,
-   "sha1": "7dfc4b04f3e1ed9acee136f7a92b226feb0cd775",
-   "stamp": "b37b9ffd422daa6e528582b02a034274dabcb2ca",
+   "bytes": 231543,
+   "sha1": "bf77ab6087394b255f799ce7e7bbc6b2734c5d22",
+   "stamp": "c402d796e03640f0805f80a3aa4d06e68545eaf3",
    "from": "hudTech-du08-20",
    "title": "HUD Tech",
-   "rendered": "2026-11-23T08:27:11Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:19Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-hudTech-io03-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 227160,
-   "sha1": "9c00198f14d166ab9def11b140b3f3fed9e9508b",
-   "stamp": "9c8fd159404889191e335a4532bcaa4e51dc3bab",
+   "bytes": 227041,
+   "sha1": "b90404047e0face2098a0d9dad10240612c4f6d4",
+   "stamp": "851d5c80a1081f49929e2a0beb2d68dc594232cf",
    "from": "hudTech-io03-20",
    "title": "HUD Tech 2",
-   "rendered": "2026-11-23T08:26:56Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:14Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-hudTech-jw03-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 263363,
-   "sha1": "ed792943a794bd301880168e38cfa7e89c01b272",
-   "stamp": "8b897245b6746ed540c900395f3b527be5c8f001",
+   "bytes": 319791,
+   "sha1": "491752cf2d2691e3bd7fcb803fec9733852795fb",
+   "stamp": "d6cf3566a90b00a575c1dd236d3c9137c3189a4c",
    "from": "hudTech-jw03-20",
    "title": "HUD Tech 2",
-   "rendered": "2026-11-23T08:27:18Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:26Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-hudTech-jw05-15": {
    "w": 1080,
@@ -2035,14 +2035,14 @@
   "r-hudTech-nn06-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 219932,
-   "sha1": "ce01bd8ebb88fc4e440f6dc1033435bdf7362ddc",
-   "stamp": "f2aa4236b45e1f9d747f1a2695536f8bec7aa5b9",
+   "bytes": 300011,
+   "sha1": "95f70604ba53dd7fcf40ac59d7bd9b064c91b896",
+   "stamp": "88bd1ccb66dacfcc50833cb57b6d2611e522892d",
    "from": "hudTech-nn06-35",
    "title": "HUD Tech 3",
-   "rendered": "2026-11-23T08:27:19Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:26Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-hudTech-pa05-20": {
    "w": 1080,
@@ -2071,14 +2071,14 @@
   "r-neonNight-cd06-16": {
    "w": 1080,
    "h": 1080,
-   "bytes": 199778,
-   "sha1": "0dd69b27d7b7eab56ddc12c1880c5e52cbb22f78",
-   "stamp": "6f7c145787ddf19c1507e3938c03c6afe81a11fc",
+   "bytes": 276272,
+   "sha1": "ee3260f2ca004639eeb207bf4fc1e31d4540bca9",
+   "stamp": "8760867ac7e9f8520c7167a6269f1ea1318071d4",
    "from": "neonNight-cd06-16",
    "title": "Neon Night 1",
-   "rendered": "2026-11-23T08:27:19Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:27Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-neonNight-cd06-25": {
    "w": 1080,
@@ -2107,26 +2107,26 @@
   "r-neonNight-ck03-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 230274,
-   "sha1": "f2cfab5ccb529c535d28287e8a2c79cb1b27ca58",
-   "stamp": "dbffb7aaf115b35b5712aaf1aa0a220881e8558c",
+   "bytes": 258338,
+   "sha1": "9d95f46da0c1b6a2850014027e1af10aae07eb3f",
+   "stamp": "a55aef9a5fa836883d53a43f0d2629903882092a",
    "from": "neonNight-ck03-20",
    "title": "Neon Night 2",
-   "rendered": "2026-11-23T08:27:19Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:27Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-neonNight-du01-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 227328,
-   "sha1": "8a331cdeff442884593a44ba272776d88a44414c",
-   "stamp": "92ef8bef70887015292d2774d232aaafa9c43de5",
+   "bytes": 252665,
+   "sha1": "359dee4ca880fb1516203e8a26ff44cbed96270b",
+   "stamp": "2259c794979715207cb6475fa602c966b3942117",
    "from": "neonNight-du01-30",
    "title": "Neon Night 3",
-   "rendered": "2026-11-23T08:27:19Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:27Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-neonNight-du02-30": {
    "w": 1080,
@@ -2215,26 +2215,26 @@
   "r-neonNight-du08-16": {
    "w": 1080,
    "h": 1080,
-   "bytes": 225590,
-   "sha1": "018d7d8ee8cb7b87576772d91602e8a78a151414",
-   "stamp": "28a5aadf08a4451a2d05c15133787b55ffd7d03e",
+   "bytes": 219154,
+   "sha1": "07370ce7770601d227176cdf1ad099d5014c1211",
+   "stamp": "0837be82f40322ad18dcc5a50dd0af953b68fffa",
    "from": "neonNight-du08-16",
    "title": "Neon Night 1",
-   "rendered": "2026-11-23T08:27:11Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:19Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-neonNight-gl01-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 208755,
-   "sha1": "fe7a431a48eca81c0d10923bd1b424a9ed654c67",
-   "stamp": "7d4280be3c1ea74eaf65a36e83d2a676a3b34788",
+   "bytes": 214889,
+   "sha1": "b36e9ec69cdc9b89c7ce7e51d5c181ec521c9564",
+   "stamp": "7112eec4704cbf81b6de4d2d3a606958c95250b3",
    "from": "neonNight-gl01-35",
    "title": "Neon Night 1",
-   "rendered": "2026-11-23T08:26:41Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:12Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-neonNight-gl04-20": {
    "w": 1080,
@@ -2251,14 +2251,14 @@
   "r-neonNight-gl04-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 218724,
-   "sha1": "e6d8e29b7df97556c775c6bb1886cfb54318eebe",
-   "stamp": "71cff133f6be0e3ccc9e3f71833afe4299a7cfe3",
+   "bytes": 214215,
+   "sha1": "cae2fde10f73415b64b0c54a0c684283865ba6a1",
+   "stamp": "3063a725c40c5a898cef8c638b2acb81060dfa1d",
    "from": "neonNight-gl04-30",
    "title": "Neon Night 2",
-   "rendered": "2026-11-23T08:27:12Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:19Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-neonNight-ik04-35": {
    "w": 1080,
@@ -2275,26 +2275,26 @@
   "r-neonNight-ik05-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 257617,
-   "sha1": "fb77e6e7a2e0ada6706489ef6f8965cde1ee1190",
-   "stamp": "f4719f079464df06922218e2def73f4d73541854",
+   "bytes": 268284,
+   "sha1": "94f26155fea48cab847c3a620398ca748822da4e",
+   "stamp": "21df2cf5647e355036eb418c97882ecfe0ab9574",
    "from": "neonNight-ik05-20",
    "title": "Neon Night 3",
-   "rendered": "2026-11-23T08:27:12Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:19Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-neonNight-ik06-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 188925,
-   "sha1": "f66c4ddf872026121a1765547ad9de3b1e32b626",
-   "stamp": "e00d11b9910a97c918e2f2dbb78e9f0f61be3acb",
+   "bytes": 211710,
+   "sha1": "7552a26128b737c6cf78a1888b3468e0fb4661a6",
+   "stamp": "3e7f8c895cc44acbbf7a1448b54adac8938b5b9a",
    "from": "neonNight-ik06-20",
    "title": "Neon Night 4",
-   "rendered": "2026-11-23T08:27:12Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:20Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-neonNight-io01-35": {
    "w": 1080,
@@ -2371,14 +2371,14 @@
   "r-neonNight-jw07-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 234922,
-   "sha1": "814b16527dfcedb7421bf19433317c690e1f10c4",
-   "stamp": "1e4cc27a6490866e48cdaa63682ac79b44f341ad",
+   "bytes": 255853,
+   "sha1": "2d73ecb4fa8395ecfc5f79cfaaba2f0736283fad",
+   "stamp": "f8da0911702da70a0d6cd95662cd41ca22ef16cf",
    "from": "neonNight-jw07-15",
    "title": "Neon Night 5",
-   "rendered": "2026-11-23T08:27:12Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:20Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-neonNight-nn02-35": {
    "w": 1080,
@@ -2419,14 +2419,14 @@
   "r-neonNight-nn05-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 185421,
-   "sha1": "cac0aabf3f32a887707d69330312844b57c829b7",
-   "stamp": "75fc45e544daec520ee95fb866be7d301c7cd09c",
+   "bytes": 203467,
+   "sha1": "7bc69b374f8228adb8d3bd6e64a716a5b43315de",
+   "stamp": "d24b8a1501af0bb459eef4270cf345082439c426",
    "from": "neonNight-nn05-15",
    "title": "Neon Night 4",
-   "rendered": "2026-11-23T08:27:19Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:27Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-neonNight-su02-30": {
    "w": 1080,
@@ -2455,26 +2455,26 @@
   "r-reviewProof-cd04-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 233908,
-   "sha1": "6a107868953b2aaa431d9268df3454718a864e9a",
-   "stamp": "dcfc399a8421e7515b9d913fe58bac7db20eea0b",
+   "bytes": 224219,
+   "sha1": "462b742e03c475cf7e0821e20d754c8932f679f0",
+   "stamp": "27bf04bfa1e174c2df352f2894480ca83fb4b57a",
    "from": "reviewProof-cd04-20",
    "title": "Review Proof 1",
-   "rendered": "2026-11-23T08:27:19Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:27Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-reviewProof-cd06-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 227458,
-   "sha1": "178f252200ddf6fa8c653cdf6da495ddc195cc02",
-   "stamp": "02511eca906a3ec5f4be4fb936c5926f5fd88b16",
+   "bytes": 227161,
+   "sha1": "f91e016238d97192e527276c95993ba19486ffe0",
+   "stamp": "dc353f211a8ae0260ae39f6ce8ce7caf3a25812b",
    "from": "reviewProof-cd06-20",
    "title": "Review Proof 1",
-   "rendered": "2026-11-23T08:27:12Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:20Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-reviewProof-cd10-20": {
    "w": 1080,
@@ -2503,14 +2503,14 @@
   "r-reviewProof-du08-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 238879,
-   "sha1": "6e63c6c07c3929b69ed143f8a103fc34ca827f3d",
-   "stamp": "6990d25f28f45b3ad08c55dbceae7b7262cb805e",
+   "bytes": 236620,
+   "sha1": "de7da045ec9c29dda2cd97f5d88b7cf4a7df4e28",
+   "stamp": "72735873ba4ce52dda8bcb29ca8ede4959ee1979",
    "from": "reviewProof-du08-20",
    "title": "Review Proof 2",
-   "rendered": "2026-11-23T08:27:12Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:20Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-reviewProof-gl02-20": {
    "w": 1080,
@@ -2527,14 +2527,14 @@
   "r-reviewProof-io03-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 188984,
-   "sha1": "9218a3865504220989ec7482abcec6baeddc60ef",
-   "stamp": "b688caad50fcb9799d9d7c0cbe822d8264685a4e",
+   "bytes": 187639,
+   "sha1": "944d6b8cdebdc1c4c5caef421e9338af93fecc70",
+   "stamp": "860fadc6e7d6e4066bf17acbfc00338387da0a71",
    "from": "reviewProof-io03-15",
    "title": "Review Proof 2",
-   "rendered": "2026-11-23T08:27:19Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:28Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-reviewProof-io03-20": {
    "w": 1080,
@@ -2575,14 +2575,14 @@
   "r-scriptRetro-ca07-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 271249,
-   "sha1": "13d4c305ce8bb5027852ac0c65cc211696d05765",
-   "stamp": "16eba3d919f9d5d6563f33e3fd056a48d69b4429",
+   "bytes": 291728,
+   "sha1": "f08e333a1a82461590ea38e9ca03f1cd8b243c32",
+   "stamp": "d8b88ace4d9a3843f2944009c3f106b188ae2086",
    "from": "scriptRetro-ca07-20",
    "title": "Script Retro 1",
-   "rendered": "2026-11-23T08:27:20Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:28Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-scriptRetro-cd06-15": {
    "w": 1080,
@@ -2647,14 +2647,14 @@
   "r-scriptRetro-du07-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 197544,
-   "sha1": "647083234535fe4d60126ae1d6e07aeacf5a92fb",
-   "stamp": "034063d2dde509bb6c501f81c530a29464c535cd",
+   "bytes": 219509,
+   "sha1": "11acacb825079170daec914b8284025ab8559211",
+   "stamp": "0f43e0aabb2419d8756b62ae26fd986d3a3eea2c",
    "from": "scriptRetro-du07-15",
    "title": "Script Retro 2",
-   "rendered": "2026-11-23T08:27:20Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:28Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-scriptRetro-du07-30": {
    "w": 1080,
@@ -2719,50 +2719,50 @@
   "r-scriptRetro-jw05-16": {
    "w": 1080,
    "h": 1080,
-   "bytes": 226047,
-   "sha1": "f21becb6f45b9f4763e0cd11e8aed974667b6dea",
-   "stamp": "9fe8b1ee303dbf55755baeff59bec66960c2e41b",
+   "bytes": 227800,
+   "sha1": "eb8cd59e28acf4d5172516da235d2641bf6cb234",
+   "stamp": "089f1d490398f602be2019992274485260a386a0",
    "from": "scriptRetro-jw05-16",
    "title": "Script Retro 1",
-   "rendered": "2026-11-23T08:27:13Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:20Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-scriptRetro-jw07-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 223279,
-   "sha1": "b3d078d12d0a7e94865bb331cdb3bba01eeb57a7",
-   "stamp": "6054b2a1ec5ca9e83271754cf06ff36a4cd1694a",
+   "bytes": 238994,
+   "sha1": "2643d1c50042818ae2ab1a8dafbe93752841ae6e",
+   "stamp": "1b5ab60cdb396e0bba5037beba316b713d743587",
    "from": "scriptRetro-jw07-15",
    "title": "Script Retro 2",
-   "rendered": "2026-11-23T08:27:13Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:20Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-scriptRetro-jw07-16": {
    "w": 1080,
    "h": 1080,
-   "bytes": 190044,
-   "sha1": "d5626bf9cd301fe00980b178bdc1bab9dc9409ea",
-   "stamp": "b8f2997897e95140a90669b3d81c3313fb62b2df",
+   "bytes": 185130,
+   "sha1": "39a28c14d3aca9b70ae835085df4f689047e29cc",
+   "stamp": "4a5cb6ee887909d200114700f22d2f40715be4c2",
    "from": "scriptRetro-jw07-16",
    "title": "Script Retro 3",
-   "rendered": "2026-11-23T08:27:20Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:28Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-scriptRetro-nn01-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 209075,
-   "sha1": "cde0f6d2421cf1ed2df0e54792bb40de79ba155b",
-   "stamp": "3d48f37999171ec35dc611d42664237a5d8737cb",
+   "bytes": 221319,
+   "sha1": "07da0c5a6623c9174d899fad3d0d201194923618",
+   "stamp": "86bd2eee2ed3c7fad0f7d6c3fb1b4ce27312ecf4",
    "from": "scriptRetro-nn01-15",
    "title": "Script Retro 3",
-   "rendered": "2026-11-23T08:27:13Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:21Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-scriptRetro-nn01-30": {
    "w": 1080,
@@ -2899,26 +2899,26 @@
   "r-slabPoster-du07-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 229187,
-   "sha1": "12ba6a2d8ed96646ea9f808631f766a6f9d49c00",
-   "stamp": "796913c3fc738389b0f076e08cee376dfa7dedca",
+   "bytes": 238358,
+   "sha1": "37082ee0093eb178f76a9e831a5f26f8137ee167",
+   "stamp": "b907418ace0e1e441efd4799a7999e4bc208a4b1",
    "from": "slabPoster-du07-20",
    "title": "Slab Poster 1",
-   "rendered": "2026-11-23T08:27:20Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:28Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-slabPoster-gl03-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 385887,
-   "sha1": "5ab990f99aa718bb5ea4bc31245f89d9109340d6",
-   "stamp": "1013f491aca8f0ca9fe9444f3eba07d8f5820d8a",
+   "bytes": 394117,
+   "sha1": "2c176154856f1c9a618bafca91491dcb7e6f5396",
+   "stamp": "c56dd829de8f7bd23fe3bcaf155d36adf1b54493",
    "from": "slabPoster-gl03-35",
    "title": "Slab Poster 2",
-   "rendered": "2026-11-23T08:27:20Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:28Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-slabPoster-ik06-20": {
    "w": 1080,
@@ -2959,26 +2959,26 @@
   "r-slabPoster-jw01-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 244587,
-   "sha1": "cef595ac55057e5e851f887b7e13849692c23775",
-   "stamp": "67e2f0db287387fd34e366dc61da7b8f31f12028",
+   "bytes": 211083,
+   "sha1": "8374fe94b637880e1a7b41de018e656c177d604c",
+   "stamp": "d2204cacfef4e15c85aad45b58f79cb3e5432542",
    "from": "slabPoster-jw01-20",
    "title": "Slab Poster 2",
-   "rendered": "2026-11-23T08:26:35Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:12Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-slabPoster-jw02-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 175140,
-   "sha1": "3b9976e97c4de60b622b91c1f488e8a8cd045d94",
-   "stamp": "a45e2b14b548dc9b8b59fa5d78e5cf35ce9ed702",
+   "bytes": 198458,
+   "sha1": "b2baa28d4ebceb17b13bc91d4ea2d52aab22c9b4",
+   "stamp": "9f3fbfc38d16a30f09441dc9213744f345f7b42f",
    "from": "slabPoster-jw02-35",
    "title": "Slab Poster 1",
-   "rendered": "2026-11-23T08:27:06Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:15Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-slabPoster-jw04-20": {
    "w": 1080,
@@ -2995,14 +2995,14 @@
   "r-slabPoster-jw06-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 378949,
-   "sha1": "2e5cf180836c43c8f503065d98ea77d917c87524",
-   "stamp": "12c59a2ba69efdd9c948f79ccc33a90af91864d7",
+   "bytes": 366548,
+   "sha1": "46d1cfb200e968cad1fde52e669779c541c1b182",
+   "stamp": "fe23a9d691c27fc0e57699c2f4fbeb34dc7b34a9",
    "from": "slabPoster-jw06-35",
    "title": "Slab Poster 2",
-   "rendered": "2026-11-23T08:26:42Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:13Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-slabPoster-jw08-35": {
    "w": 1080,
@@ -3187,14 +3187,14 @@
   "r-stepsFlow-cd10-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 237017,
-   "sha1": "3fbd64d428919ae379994d1de9a2abdf969cdef1",
-   "stamp": "550d228304122357df614ab269d4ac14732094d5",
+   "bytes": 247151,
+   "sha1": "b9266f9d70bff0c1d41043093676a1234b900012",
+   "stamp": "2228d196d18abe08e64d1e5b6ff00f78cb0b1b56",
    "from": "stepsFlow-cd10-15",
    "title": "Steps Flow 1",
-   "rendered": "2026-11-23T08:27:13Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:21Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-stepsFlow-cd10-20": {
    "w": 1080,
@@ -3439,26 +3439,26 @@
   "r-stepsFlow-jw07-16": {
    "w": 1080,
    "h": 1080,
-   "bytes": 196547,
-   "sha1": "859d63bb6f78d052f8a252892ade5801388cba10",
-   "stamp": "4aef8bf09dd9df83e2007bf64e6bddbc8bb9c80e",
+   "bytes": 217024,
+   "sha1": "c5c78cd6f7997980151447e2e2fec666b726a5dd",
+   "stamp": "d4188885c5a55947462de362ab99d43c8149c08b",
    "from": "stepsFlow-jw07-16",
    "title": "Steps Flow 3",
-   "rendered": "2026-11-23T08:27:13Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:21Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-stepsFlow-jw07-17": {
    "w": 1080,
    "h": 1080,
-   "bytes": 165812,
-   "sha1": "210cdf3fd86dde185d06f66fbeba8265ebf03aa7",
-   "stamp": "6c7327044c9354af1fc627b66e24f3c495a8cd9b",
+   "bytes": 164068,
+   "sha1": "7478a43d7886b336d48671326a7b2cd8af8bed82",
+   "stamp": "ec151d3645d3efb2032423ea66baf4d1c07e6179",
    "from": "stepsFlow-jw07-17",
    "title": "Steps Flow 4",
-   "rendered": "2026-11-23T08:27:21Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:28Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-stepsFlow-jw08-35": {
    "w": 1080,
@@ -3595,14 +3595,14 @@
   "r-ticketStub-cd06-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 270151,
-   "sha1": "a8f63100e8b8e97c3ba996cb86a36acab51e8ecd",
-   "stamp": "7e6634d6b941e0659dc08ca446c340d13c50d358",
+   "bytes": 336429,
+   "sha1": "851733b55ed0a3ca05862c957b19be77811c4c43",
+   "stamp": "c85c807204a3e63b7a2c8b5d6c6e4e7cfbb60b89",
    "from": "ticketStub-cd06-15",
    "title": "Ticket Stub",
-   "rendered": "2026-11-23T08:27:14Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:21Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-ticketStub-cd10-30": {
    "w": 1080,
@@ -3751,14 +3751,14 @@
   "r-trustSeal-cd04-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 262619,
-   "sha1": "0d429e1a83a852dd9006e313aacaad9faade0811",
-   "stamp": "c62897bb43925e8398dde1c7fbdc78d57b0be687",
+   "bytes": 361155,
+   "sha1": "0bbc69e8d11660c8361172b1478cd51f398e64ed",
+   "stamp": "1e2729f5f1c8fd6ea5bf0c65d0e6cab609bd2f2c",
    "from": "trustSeal-cd04-30",
    "title": "Trust Seal 1",
-   "rendered": "2026-11-23T08:27:21Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:29Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-trustSeal-cd06-26": {
    "w": 1080,
@@ -3811,26 +3811,26 @@
   "r-trustSeal-cd10-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 231168,
-   "sha1": "61b0e8b8b70936a0df23e4926cbefaf02e225577",
-   "stamp": "698d91af2f2e45e1130a81e2004ebbc7a0eb4ccc",
+   "bytes": 231145,
+   "sha1": "3d681319ce10d16a66dcfebb6df11c88cc1dc60b",
+   "stamp": "665bd046e8340992d5f8c23708f1fbde8fa75388",
    "from": "trustSeal-cd10-30",
    "title": "Trust Seal 1",
-   "rendered": "2026-11-23T08:27:14Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:21Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-trustSeal-du02-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 235912,
-   "sha1": "9bc00c6199f5eb4561ba68c4d77f5a8998527a08",
-   "stamp": "361b7005feb62cc75975bb276ec20610464486db",
+   "bytes": 388022,
+   "sha1": "f09d138b176ca60ba1d5861f41473780c278fd02",
+   "stamp": "39804b25f3bd665238e3518383927a9433fc3f8c",
    "from": "trustSeal-du02-20",
    "title": "Trust Seal 2",
-   "rendered": "2026-11-23T08:27:21Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:29Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-trustSeal-du03-35": {
    "w": 1080,
@@ -3871,14 +3871,14 @@
   "r-trustSeal-du07-25": {
    "w": 1080,
    "h": 1080,
-   "bytes": 214508,
-   "sha1": "9cb2f4bc8e6505e09432b797c79f52818fd8e640",
-   "stamp": "01d7c353ddfbebf3f0f0d8bc135366b575689a4e",
+   "bytes": 212028,
+   "sha1": "538107c2aa4cf59fafe3e88b2e3b7026f9da1a52",
+   "stamp": "8677cfa02545cf48892c2eb28d1edd18a8b21763",
    "from": "trustSeal-du07-25",
    "title": "Trust Seal 2",
-   "rendered": "2026-11-23T08:27:14Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:21Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-trustSeal-du07-30": {
    "w": 1080,
@@ -3895,26 +3895,26 @@
   "r-trustSeal-gl02-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 215587,
-   "sha1": "84162c8f9bdae9671ba0d443c8933ca2a5d0fee8",
-   "stamp": "1a4756b08f23e296aeea3cfb684e932d55dae364",
+   "bytes": 219985,
+   "sha1": "ffbefb4b298fe7536cb3bedd22badde467734c5b",
+   "stamp": "2227ecd27795be5a1ce562808566fec42ecfe45b",
    "from": "trustSeal-gl02-15",
    "title": "Trust Seal 3",
-   "rendered": "2026-11-23T08:27:14Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:22Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-trustSeal-ik05-25": {
    "w": 1080,
    "h": 1080,
-   "bytes": 243857,
-   "sha1": "42d134c995d0b3940223e2d742c8462923c849e9",
-   "stamp": "ed94feea1b4ea522949722ec4296822a9f303abc",
+   "bytes": 246522,
+   "sha1": "48498e05f1b933952a36e9cda1b1e4825104b31f",
+   "stamp": "8448e95bb800448cb2825120a1e2dc558ff28a63",
    "from": "trustSeal-ik05-25",
    "title": "Trust Seal 4",
-   "rendered": "2026-11-23T08:27:14Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:22Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-trustSeal-io04-35": {
    "w": 1080,
@@ -3955,14 +3955,14 @@
   "r-trustSeal-jw07-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 234459,
-   "sha1": "497182753754863ebc22fc7302d6599ec63cc3da",
-   "stamp": "b314e7214f779e0e7626ec32d70c55554915b844",
+   "bytes": 207553,
+   "sha1": "4741e968cc38ac1ddad9b8a303f0e718de10bd27",
+   "stamp": "739962924b88b6ef273c2f70171e5101568fdd7e",
    "from": "trustSeal-jw07-15",
    "title": "Trust Seal 3",
-   "rendered": "2026-11-23T08:27:21Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:29Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-trustSeal-jw07-16": {
    "w": 1080,
@@ -4003,26 +4003,26 @@
   "r-trustSeal-jw10-31": {
    "w": 1080,
    "h": 1080,
-   "bytes": 250724,
-   "sha1": "39474e67c7ac5a232153ce133fda659907732f99",
-   "stamp": "b5cf9e9ad80a3778321a914b2903a4303a26c889",
+   "bytes": 252586,
+   "sha1": "7497aa190c923e8a7359ecad7be5b66c4ecc4b16",
+   "stamp": "a1773a42511d4bf788b0c929f0b7b68336c48b7e",
    "from": "trustSeal-jw10-31",
    "title": "Trust Seal 3",
-   "rendered": "2026-11-23T08:26:44Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:13Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-trustSeal-nn04-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 223180,
-   "sha1": "6a6b24a59f1055b7a54a7a3afebdeef88413d0bc",
-   "stamp": "5e85a99bbe54b3018ae8bdcfdc52f4e4e468dced",
+   "bytes": 237074,
+   "sha1": "c866097017ec355cbf4b2bbb9e5c391536f88c61",
+   "stamp": "932c3883fda88aabc8e8424248ba9dc7abf24f90",
    "from": "trustSeal-nn04-20",
    "title": "Trust Seal 4",
-   "rendered": "2026-11-23T08:26:45Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:13Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-trustSeal-nn05-30": {
    "w": 1080,
@@ -4039,14 +4039,14 @@
   "r-trustSeal-pa05-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 206361,
-   "sha1": "93c4a1322234b1bb405e7138f13935e19acafb17",
-   "stamp": "fb90097b7d783fa5856bb68eb98fc5e103495b88",
+   "bytes": 216372,
+   "sha1": "715fd74d3b74eb832fb02c5926256e894a593f81",
+   "stamp": "3e78ea5c29ab9c8bc4f5ce9a3cec5bc662ec813b",
    "from": "trustSeal-pa05-20",
    "title": "Trust Seal 4",
-   "rendered": "2026-11-23T08:27:21Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:29Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-trustSeal-pp06-35": {
    "w": 1080,
@@ -4075,26 +4075,26 @@
   "r-voltStack-ca07-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 222808,
-   "sha1": "79fd74bdf63c7361556e98f155e52555876a9d45",
-   "stamp": "cee59202a14352224c4873f35e62a61c621da3c8",
+   "bytes": 200272,
+   "sha1": "8c47034dcd0b8c48951ed5ceb931e427bdaaf920",
+   "stamp": "3322a1e1af08b7363f90c49e4e8023a49c5a16d3",
    "from": "voltStack-ca07-15",
    "title": "Volt Stack 1",
-   "rendered": "2026-11-23T08:27:22Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:30Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-voltStack-ck01-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 219026,
-   "sha1": "b356ff167c093dd1c8d967ea5973449c646d648d",
-   "stamp": "58c7279155bf4660cd4911937cc28a679ababb32",
+   "bytes": 232218,
+   "sha1": "c89f3566f40d6ec5ecc10bade607687aaba4fde0",
+   "stamp": "ae73b391be1b989d7024d91a9e2a79b69ffcb6b8",
    "from": "voltStack-ck01-15",
    "title": "Volt Stack 1",
-   "rendered": "2026-11-23T08:26:37Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:12Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-voltStack-ck03-20": {
    "w": 1080,
@@ -4111,26 +4111,26 @@
   "r-voltStack-du01-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 246692,
-   "sha1": "5fbb5ffc585a2bdbfece90afd5eda5bef0a6f00c",
-   "stamp": "aa5aacd77003270e71d5578c9a2d85e86557d79b",
+   "bytes": 237776,
+   "sha1": "3c75af43e9811ee1948b4e03cf011ee6f198f422",
+   "stamp": "76731a5b5e627df09dfab540ec121e458e28895b",
    "from": "voltStack-du01-20",
    "title": "Volt Stack",
-   "rendered": "2026-11-23T08:27:02Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:15Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-voltStack-du02-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 228884,
-   "sha1": "c5adddf13464a0a378df213607f52ae74eaaa235",
-   "stamp": "3061526237dd4f4fa39f71bd278e573e859e6e8f",
+   "bytes": 244169,
+   "sha1": "ef1ec8ea5ceb80a3d7ca36c7893130ee579bd4f1",
+   "stamp": "f3195ca7ab5fcfc63f71cff575c2410fa9c1acd8",
    "from": "voltStack-du02-20",
    "title": "Volt Stack 2",
-   "rendered": "2026-11-23T08:27:22Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:30Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-voltStack-du04-35": {
    "w": 1080,
@@ -4195,14 +4195,14 @@
   "r-voltStack-gl02-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 231354,
-   "sha1": "35991b5fb37257818fd835ea2ef4ecd3cbb74a02",
-   "stamp": "66ec71500ac31d7e4ea8857fc99edf7518f97f4f",
+   "bytes": 227034,
+   "sha1": "7094c7aa7d54920ccc8e5823dd9e18b897d1caf6",
+   "stamp": "a121e75b7cd1a3c64a8f1a8f4026da54562addc9",
    "from": "voltStack-gl02-15",
    "title": "Volt Stack 2",
-   "rendered": "2026-11-23T08:26:54Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:14Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-voltStack-gl03-35": {
    "w": 1080,
@@ -4315,26 +4315,26 @@
   "r-voltStack-jw07-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 214712,
-   "sha1": "447033642bfdb01631c97ceeab100ced7f3077df",
-   "stamp": "cc13d6992d7fabbfa3a26243339b30d9f6271f65",
+   "bytes": 199762,
+   "sha1": "7d01615f034dbea3534c261c8704f8e34edbb903",
+   "stamp": "d8d2999b28c96b21024ba6615648d98f5eade110",
    "from": "voltStack-jw07-20",
    "title": "Volt Stack",
-   "rendered": "2026-11-23T08:27:14Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:22Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-voltStack-jw09-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 186540,
-   "sha1": "49777e03a28edee2b7d91ad283d93cd8e1705af8",
-   "stamp": "3c562a49a13bd6e8577508c50fb82fb4818918be",
+   "bytes": 200572,
+   "sha1": "44752c04d433d8ae532a44274292f526a0683f8a",
+   "stamp": "75fbb073778f7fe94a5359b61103dd14cd9e81cc",
    "from": "voltStack-jw09-35",
    "title": "Volt Stack 3",
-   "rendered": "2026-11-23T08:27:22Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:30Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   },
   "r-voltStack-jw10-15": {
    "w": 1080,
@@ -4387,14 +4387,14 @@
   "r-voltStack-su02-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 239548,
-   "sha1": "eca87e10041e7bbd3d79d2ccdb2621eeba2e90d2",
-   "stamp": "25fab298d860fe2f9621bdeba2b1857fc06f69f9",
+   "bytes": 240364,
+   "sha1": "a093bb8dc567836fa2070b286fba28882d61caa9",
+   "stamp": "4d1f9b281ecfff77654569e395ea02a00dc4eb79",
    "from": "voltStack-su02-30",
    "title": "Volt Stack",
-   "rendered": "2026-11-23T08:27:00Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-24T21:32:15Z",
+   "created": "2026-11-24T21:15:43Z",
+   "updated": "2026-11-24T21:15:43Z"
   }
  }
 }

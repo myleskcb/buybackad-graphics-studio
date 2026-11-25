@@ -12950,7 +12950,7 @@
      "palette": "jw07",
      "cat": "pokemon",
      "family": "Jewel",
-     "ground": "bg-web/pokemon-charizard-card-1.jpg",
+     "ground": "bg-web/pokemon-slabs-display-1.jpg",
      "faces": {
       "display": "Barlow Condensed",
       "support": "Zilla Slab",
@@ -13110,7 +13110,7 @@
      "palette": "du08",
      "cat": "pokemon",
      "family": "Duotone",
-     "ground": "bg-web/pokemon-charizard-card-1.jpg",
+     "ground": "bg-web/pokemon-slabs-display-1.jpg",
      "faces": {
       "display": "Oswald",
       "support": "Manrope",
