@@ -148,3 +148,21 @@ footer.bottom::after{
   h2{margin-top:56px}
   .hero-art{padding:22px}
 }
+
+/* reset.html and confirm.html, the pages a mailed link opens (DESIGN-LAW 182): one card on the
+   page's own tokens, the fields as big as a thumb, the words in the reading measure */
+main.acct-page{max-width:560px}
+.acct-page h1{font-size:clamp(36px,5.4vw,56px)}
+.acct-card{background:var(--panel);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-radius:20px;padding:22px 22px 24px;margin:26px 0 22px}
+.acct-card[hidden],.acct-page [hidden]{display:none}
+.acct-card label{display:block;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.acct-field{position:relative;margin-bottom:6px}
+.acct-field input{width:100%;min-height:50px;padding:12px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--text);font:500 17px/1.3 -apple-system,BlinkMacSystemFont,system-ui,sans-serif}
+.acct-field input:focus{outline:none;border-color:var(--btn);box-shadow:0 0 0 4px color-mix(in srgb,var(--btn) 22%,transparent)}
+.acct-field input[type=password],.acct-field input#ap-pass{padding-right:78px}
+.acct-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);min-height:40px;padding:0 12px;border:0;border-radius:10px;background:var(--veil);color:var(--text);font:600 14px/1 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;cursor:pointer}
+.acct-msg{min-height:22px;margin:6px 0 10px;color:#ff7a6b;font-size:14.5px}
+@media (prefers-color-scheme:light){.acct-msg{color:#c8321e}}
+.acct-ok{margin:0 0 16px;padding:13px 15px;border-radius:14px;background:color-mix(in srgb,var(--deal) 14%,transparent);border:1px solid color-mix(in srgb,var(--deal) 45%,transparent);color:var(--text);font-size:15.5px;line-height:1.5}
+.acct-card .btn{border:0;cursor:pointer;font-family:inherit}
+.acct-card .btn:disabled{opacity:.55;cursor:default}

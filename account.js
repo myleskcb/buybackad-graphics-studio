@@ -15,7 +15,8 @@
      api(path, body?, opts?)   fetch the backend as the account (JSON back)
      token(), signedIn(), demo, me() → { email, plan, role } | null
      signup(email, pass), login(email, pass), signout()
-     openAuth({ message, mode: 'up' | 'in', next })   the dialog
+     forgot(email)             mail a reset link (the same answer for every address)
+     openAuth({ message, mode: 'up' | 'in' | 'forgot', next })   the dialog
      onChange(fn)              after a sign-in or sign-out
    ═══════════════════════════════════════════════════════ */
 (() => {
@@ -85,6 +86,10 @@
   };
   async function signup(email, password){ return took(await api('/auth/signup', { email: clean(email), password })); }
   async function login(email, password){ return took(await api('/auth/login', { email: clean(email), password })); }
+  /* Forgot password? (DESIGN-LAW 182): the server answers the same for every address, and says
+     so in these words whether or not it has an account */
+  async function forgot(email){ await api('/auth/forgot', { email: clean(email) }); return true; }
+  const SENT_WORDS = (em) => 'If ' + em + ' has a WeBuy.AD account, a link to choose a new password is on its way. It works for an hour. Not there in a few minutes? Look in spam, or write to support@webuy.ad.';
   function signout(){ jset(TOKEN, null); state.me = null; state.meFor = null; tell(); }
 
   /* ---------- Sign in with Apple, and with Google ----------
@@ -232,9 +237,13 @@
 .acct-row button:disabled{opacity:.5;cursor:default}
 .acct-note{font-size:13px;color:var(--text-2,#3b3833);margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(20,20,20,.05)}
 .acct-social{display:flex;flex-direction:column;align-items:stretch;gap:10px;margin:2px 0 4px}
-.acct-social[hidden],.acct-or[hidden]{display:none}
+.acct-social[hidden],.acct-or[hidden],.acct-tabs[hidden]{display:none}
 .acct-or{display:flex;align-items:center;gap:12px;margin:12px 0 2px;color:var(--muted,#66615a);font-size:12px}
 .acct-or::before,.acct-or::after{content:'';flex:1;height:1px;background:var(--line,rgba(20,20,20,.18))}
+.acct-forgot{display:block;margin:2px 0 0 auto;padding:10px 0 4px;border:0;background:none;color:var(--accent,#2b56f5);font:700 13px Satoshi,system-ui,sans-serif;cursor:pointer}
+.acct-forgot:hover{text-decoration:underline}
+.acct-forgot[hidden],.acct-pass-box[hidden],.acct-sent[hidden]{display:none}
+.acct-sent{font-size:13.5px;color:var(--text,#141414);margin-top:12px;padding:11px 13px;border-radius:12px;background:rgba(43,86,245,.1);border:1px solid rgba(43,86,245,.28)}
 `;
   let overlay = null, styled = false, mode = 'up', next = null;
   const el = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt != null) n.textContent = txt; return n; };
@@ -251,9 +260,11 @@
       <div class="acct-tabs" role="tablist"><button type="button" role="tab" id="acct-tab-up" aria-selected="true">Create free account</button><button type="button" role="tab" id="acct-tab-in" aria-selected="false">Sign in</button></div>
       <form id="acct-form" novalidate>
         <label for="acct-email">Email</label><input type="email" id="acct-email" autocomplete="email" placeholder="you@example.com">
-        <label for="acct-pass">Password</label><input type="password" id="acct-pass" autocomplete="new-password" placeholder="At least 8 characters">
+        <div class="acct-pass-box" id="acct-pass-box"><label for="acct-pass">Password</label><input type="password" id="acct-pass" autocomplete="new-password" placeholder="At least 8 characters">
+        <button type="button" class="acct-forgot" id="acct-forgot" hidden>Forgot password?</button></div>
         <div class="acct-hint" id="acct-hint">No card needed. Your account works on every device.</div>
         <div class="acct-err" id="acct-err" role="alert"></div>
+        <div class="acct-sent" id="acct-sent" role="status" hidden></div>
         <div class="acct-row"><button type="button" id="acct-cancel">Cancel</button><button type="submit" class="primary" id="acct-go">Create account</button></div>
       </form>
       <div class="acct-note" id="acct-note" hidden></div>`;
@@ -262,18 +273,26 @@
     overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     m.querySelector('#acct-tab-up').onclick = () => setMode('up');
     m.querySelector('#acct-tab-in').onclick = () => setMode('in');
-    m.querySelector('#acct-cancel').onclick = close;
+    m.querySelector('#acct-cancel').onclick = () => (mode === 'forgot' ? setMode('in') : close());
+    m.querySelector('#acct-forgot').onclick = () => setMode('forgot');
     m.querySelector('#acct-form').onsubmit = e => { e.preventDefault(); submit(); };
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('show')) close(); });
   }
+  /* 'forgot' is the Sign in side's own step: the email alone, and a link mailed to it */
   function setMode(m){
     mode = m;
-    const q = id => overlay.querySelector('#' + id);
+    const q = id => overlay.querySelector('#' + id), forgotten = m === 'forgot';
     q('acct-tab-up').setAttribute('aria-selected', m === 'up' ? 'true' : 'false');
-    q('acct-tab-in').setAttribute('aria-selected', m === 'in' ? 'true' : 'false');
-    q('acct-go').textContent = m === 'up' ? 'Create account' : 'Sign in';
+    q('acct-tab-in').setAttribute('aria-selected', m === 'up' ? 'false' : 'true');
+    q('acct-go').textContent = m === 'up' ? 'Create account' : forgotten ? 'Send reset link' : 'Sign in';
     q('acct-pass').autocomplete = m === 'up' ? 'new-password' : 'current-password';
-    q('acct-hint').textContent = m === 'up' ? 'No card needed. Your account works on every device.' : 'The email and password you signed up with.';
+    q('acct-hint').textContent = m === 'up' ? 'No card needed. Your account works on every device.'
+      : forgotten ? "Type the email you signed up with. We'll send a link to choose a new password." : 'The email and password you signed up with.';
+    q('acct-pass-box').hidden = forgotten;
+    q('acct-forgot').hidden = m !== 'in';
+    q('acct-cancel').textContent = forgotten ? 'Back' : 'Cancel';
+    overlay.querySelector('.acct-tabs').hidden = DEMO || forgotten;
+    q('acct-sent').hidden = true;
     q('acct-err').textContent = '';
   }
   async function submit(){
@@ -281,6 +300,13 @@
     const email = clean(q('acct-email').value), pass = q('acct-pass').value, err = q('acct-err');
     err.textContent = '';
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent = 'Enter a valid email address'; q('acct-email').focus(); return; }
+    if (mode === 'forgot'){
+      q('acct-go').disabled = true;
+      try { await forgot(email); q('acct-sent').textContent = SENT_WORDS(email); q('acct-sent').hidden = false; q('acct-go').textContent = 'Send again'; }
+      catch (e){ err.textContent = explain(e); }
+      q('acct-go').disabled = false;
+      return;
+    }
     if (pass.length < 8){ err.textContent = 'Password needs at least 8 characters'; q('acct-pass').focus(); return; }
     q('acct-go').disabled = true;
     try {
@@ -309,7 +335,6 @@
     q('acct-form').hidden = DEMO;
     q('acct-note').hidden = !DEMO;
     if (DEMO) q('acct-note').textContent = 'Demo mode: accounts and the ad library live on the hosted site. Open the studio there to create an account.';
-    overlay.querySelector('.acct-tabs').hidden = DEMO;
     setMode(want);
     overlay.classList.add('show');
     setTimeout(() => { try { q('acct-email').focus(); } catch (e){} }, 60);
@@ -320,7 +345,7 @@
     }).then(shown => { q('acct-social').hidden = !shown; q('acct-or').hidden = !shown; }).catch(() => {});
   }
 
-  window.pgfxAccount = { api, API, demo: DEMO, token, signedIn, me, signup, login, signout, openAuth, close, onChange: fn => { state.listeners.push(fn); }, seen: () => jget(SEEN, false),
+  window.pgfxAccount = { api, API, demo: DEMO, token, signedIn, me, signup, login, forgot, signout, openAuth, close, onChange: fn => { state.listeners.push(fn); }, seen: () => jget(SEEN, false),
     social: { mount: mountSocial } };
   if (signedIn() && !demoToken()) jset(SEEN, true);
 })();
