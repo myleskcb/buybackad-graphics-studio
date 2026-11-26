@@ -73,6 +73,9 @@ const keep = () => { try { localStorage.setItem(KEY, JSON.stringify({ on: FA.on,
 /** the logo picked in the logo maker, or null */
 const kitNow = () => { try { const k = JSON.parse(localStorage.getItem("pgfx_logo_kit") || "null"); return k && k.design && k.design.t ? k.design : null; } catch (e) { return null; } };
 const logoOn = () => FA.logo !== false && !!kitNow();
+/** the house pairs nearest the logo's own, when it wears one of the logo maker's calm pairs the ads do not (DESIGN-LAW
+ *  186): a logo in Navy & Brass opens its ad in Navy & Gold */
+const kitPairs = () => { try { const k = JSON.parse(localStorage.getItem("pgfx_logo_kit") || "null"); return k && Array.isArray(k.adPairs) ? k.adPairs : []; } catch (e) { return []; } };
 const logoPics = {};
 /** The badge: the logo's name beside its mark (logo/engine.js, form "horizontal") on a pill of its ground
  *  with an edge in its accent, in the pair asked for (the ad's), drawn at 240 px tall. Cached by design. */
@@ -197,7 +200,7 @@ function styleNow(S, ids, set, size, R = recipeNow()) {
   // the face: one picked, the house face ("house"), or none, and the seed draws one (fullStyle, rule 154). A
   // recipe's card pair and face are leans (its hint), never kept as picked: only a pick by hand is
   const kit = logoOn() ? kitNow() : null;
-  const pair = FA.pair || (kit && COLOUR_OF[kit.pair] ? kit.pair : ""), voice = FA.voice === "house" ? "house" : fullVoiceOk(FA.voice) ? FA.voice : "";
+  const pair = FA.pair || (kit ? (COLOUR_OF[kit.pair] ? kit.pair : kitPairs().find(k => COLOUR_OF[k]) || "") : ""), voice = FA.voice === "house" ? "house" : fullVoiceOk(FA.voice) ? FA.voice : "";
   const pick = { ...(COLOUR_OF[pair] ? { palette: pair } : {}), ...(voice ? { type_pair: voice } : {}) };
   return { st: fullStyle(base, base.seed, assets.index, pick), W: F.w, H: F.h };
 }

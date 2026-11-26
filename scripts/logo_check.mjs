@@ -414,8 +414,9 @@ if (!NO_BROWSER) {
     ok(st.edit && st.kit && st.kit.design && st.kit.design.name === 'Gold Rush Cash' && st.kit.design.cat === 'gold', 'one tap: the rows open, and the logo is kept for the site');
     ok(st.rows.every((n) => n >= 5) && st.files === 6, 'four rows of the logo, 5 to 8 each, and its six files (' + st.rows.join(', ') + '; ' + st.files + ')');
     console.log('  name typed, logos shown, one picked and drawn in ' + ((Date.now() - t0) / 1000).toFixed(1) + ' s');
-    const folded = await page.evaluate(() => { const d = document.getElementById('lg-tweak'); return !!d && !d.open && d.querySelectorAll('.lg-row').length === 5 && !!document.getElementById('ok-all'); });
-    ok(folded, 'the five rows that change the logo are folded until asked for, and Make my whole kit now is beside Next');
+    // six rows since DESIGN-LAW 186 added Corners (soft or sharp)
+    const folded = await page.evaluate(() => { const d = document.getElementById('lg-tweak'); return !!d && !d.open && d.querySelectorAll('.lg-row').length === 6 && !!d.querySelector('#row-corners') && !!document.getElementById('ok-all'); });
+    ok(folded, 'the six rows that change the logo (Corners among them) are folded until asked for, and Make my whole kit now is beside Next');
     await page.click('#lg-tweak > summary');
     const before = st.kit.design.pair;
     await page.click('#row-pair button >> nth=3');
@@ -640,6 +641,27 @@ if (!NO_BROWSER) {
     ok(r.out.every((x) => x.ok), 'the full ad with the logo passes its pre-flight (' + r.out.map((x) => x.fixes.join('; ')).filter(Boolean).join(' | ') + ')');
     ok(r.out[0].colour === 'black_cyan', 'it opens in the logo\'s colours (' + r.out[0].colour + ')');
     ok(errors.length === 0, 'Easy Mode: no page error (' + errors.slice(0, 2).join(' | ') + ')');
+    await ctx.close();
+  }
+  // DESIGN-LAW 186: a logo in one of the logo maker's own calm pairs opens the ad and the card maker in the nearest of theirs
+  {
+    const CALM = { t: 'lockup', name: 'Long Beach Phone Buyers', cat: 'phones', voice: 'classic', pair: 'navy_brass', mark: 'signal', seed: 3 };
+    const near = E.nearPairs('navy_brass');
+    const init = `localStorage.setItem('pgfx_logo_kit', JSON.stringify({ v: 1, design: ${JSON.stringify(CALM)}, at: 1, adPairs: ${JSON.stringify(near)} }))`;
+    ok(near[0] === 'navy_gold' && E.nearPairs('navy_gold').join() === 'navy_gold' && E.LOGO_OWN_PAIRS.every((p) => E.nearPairs(p.key).length >= 3), 'each of the logo\'s own pairs has house pairs near it (Navy & Brass: ' + near.slice(0, 3).join(', ') + ')');
+    let { page, ctx, errors } = await open('index.html?brand=logo', { brand: { ...BRAND, name: 'Long Beach Phone Buyers' }, init: new Function(init) });
+    await page.waitForFunction(() => window.FullAdStudio && FullAdStudio.isOn(), null, { timeout: 40000 });
+    const fa = await page.evaluate(async () => { FullAdStudio.state.seed = 1; await FullAdStudio.build(1080); const c = await FullAdStudio.check(1080); return { colour: c.colour, ok: c.ok, on: FullAdStudio.logoOn() }; });
+    ok(fa.on && fa.colour === 'navy_gold' && fa.ok, 'a logo in Navy & Brass opens its full ad in Navy & Gold, the nearest of the ad\'s, and passes the pre-flight (' + fa.colour + ')');
+    ok(errors.length === 0, 'the full ad with a calm logo: no page error (' + errors.slice(0, 2).join(' | ') + ')');
+    await ctx.close();
+    ({ page, ctx, errors } = await open('cards/', { brand: { ...BRAND, name: 'Long Beach Phone Buyers' }, init: new Function(init) }));
+    await page.waitForFunction(() => document.getElementById('cd-gal') && document.getElementById('cd-gal').dataset.drawn && !document.querySelector('#cd-gal .cd-pick.wait'), null, { timeout: 60000 });
+    await page.click('#cd-tab-promo').catch(() => {});
+    await page.waitForFunction(() => document.getElementById('cd-gal').dataset.drawn && document.querySelector('#cd-gal .cd-pick[data-layout="logo"]'), null, { timeout: 60000 });
+    const cp = await page.evaluate(() => [...document.querySelectorAll('#cd-gal .cd-pick[data-layout="logo"]')].map((b) => b.dataset.pair));
+    ok(cp.length && cp[0] === 'navy_gold', 'the card maker\'s first logo card in Navy & Gold, the nearest of its own (' + cp.slice(0, 3).join(', ') + ')');
+    ok(errors.length === 0, 'the card maker with a calm logo: no page error (' + errors.slice(0, 2).join(' | ') + ')');
     await ctx.close();
   }
   await browser.close();

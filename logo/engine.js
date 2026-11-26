@@ -72,6 +72,36 @@ export const LOGO_PAIRS = ["navy_gold", "navy_orange", "midnight_cyan", "blue_gr
   "sand_teal", "arctic_teal", "bone_purple", "white_pink", "black_pink", "black_lime", "black_cyan", "black_violet", "teal_pink",
   "hot_pink_black_cobalt", "yellow_black_magenta", "mint_black_violet", "orange_black_cobalt", "red_on_white", "black_on_white",
   ...LOGO_OWN_PAIRS.map(p => p.key)].filter(k => PAIR_OF[k] && !PAIR_OF[k].twin);
+/** The house pairs nearest a pair, nearest first, for the places that wear only the house's own (the full ad, the
+ *  card maker): a logo in Navy & Brass opens the ad in Navy & Gold, not in the ad's own default. Near by eye: the
+ *  ground and the accent in CIE Lab, the calm house pairs before the loud. A house pair is its own nearest. */
+const labOf = h => {
+  const [r, g, b] = rgbOf(h).map(lin), x = (r * .4124 + g * .3576 + b * .1805) / .95047, y = r * .2126 + g * .7152 + b * .0722, z = (r * .0193 + g * .1192 + b * .9505) / 1.08883;
+  const f = t => t > .008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116, fx = f(x), fy = f(y), fz = f(z);
+  return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
+};
+const labDist = (a, b) => { const A = labOf(a), B = labOf(b); return Math.hypot(A[0] - B[0], A[1] - B[1], A[2] - B[2]); };
+/* chosen by eye for each of the logo's own pairs (the same ground's family and a metal or a red like its accent);
+   the measured order follows them */
+const NEAR_BY_EYE = {
+  navy_brass: ["navy_gold", "white_on_navy", "black_gold"], ink_gold: ["black_gold", "navy_gold"], forest_brass: ["green_gold", "teal_orange"],
+  oxblood_cream: ["red_yellow", "cream_red", "black_gold"], slate_teal: ["midnight_cyan", "white_on_teal", "black_green"], graphite_red: ["black_red", "navy_white_red"],
+  midnight_sky: ["midnight_cyan", "white_on_navy", "white_on_blue"], plum_champagne: ["purple_gold", "bone_purple", "black_gold"], teal_sand: ["teal_orange", "sand_teal", "white_on_teal"],
+  paper_navy: ["red_white_blue", "cream_red", "red_on_white"], white_cobalt: ["silver_blue", "sky_cobalt", "black_on_white"], sage_pine: ["mint_green", "sand_teal", "cream_red"],
+  stone_charcoal: ["black_on_white", "sand_teal", "cream_red"], ivory_oxblood: ["cream_red", "red_on_white", "red_white_blue"], mist_slate: ["arctic_teal", "silver_blue", "black_on_white"],
+  cream_forest: ["sand_teal", "cream_red", "black_on_white"],
+};
+export function nearPairs(key, n = 6) {
+  const p = PAIR_OF[key];
+  if (!p) return [];
+  if (!p.logoOnly) return [key];
+  const eye = (NEAR_BY_EYE[key] || []).filter(k => PAIR_OF[k] && !PAIR_OF[k].logoOnly);
+  // the calm house pairs first (a calm logo stays calm on its ad), nearest by eye; the loud after
+  const P = paletteOf(key), d = k => { const Q = paletteOf(k); return labDist(P.G, Q.G) + labDist(P.A, Q.A); };
+  const house = HOUSE_COLOURS.filter(h => !h.twin).map(h => h.key), calm = house.filter(k => CALM_PAIRS.includes(k));
+  const by = ks => ks.map(k => [k, d(k)]).sort((x, y) => x[1] - y[1]).map(x => x[0]);
+  return [...new Set([...eye, ...by(calm), ...by(house.filter(k => !calm.includes(k)))])].slice(0, n);
+}
 /** The pairs a calm logo wears (DESIGN-LAW 186): the logo's own and the house pairs a sign can carry. The rest
  *  (neon, lime, aqua, hot pink and the like) stay for the Bold style, where a shop that wants them finds them. */
 export const CALM_PAIRS = [...LOGO_OWN_PAIRS.map(p => p.key), "navy_gold", "black_gold", "green_gold", "purple_gold", "silver_blue",
@@ -1058,7 +1088,7 @@ const markOf = c => c.d.mark || (MARKS_FOR[c.d.cat] || MARKS_FOR.phones)[0];
 const splitName = c => !!c.N.trail && c.N.trail.split(" ").length >= 2;
 const nameOf = c => splitName(c) ? c.Nx.lead : c.Nx.full;
 /** what a calm logo says under its name: the trade's words split from the name, else the small line */
-const descOf = c => splitName(c) ? c.N.trail : c.small;
+const descOf = c => splitName(c) ? up(c.N.trail) : c.small;   // in capitals, also under a script's name
 /** the plain facts the shop typed: since when, and its town */
 const factOf = c => [c.since, c.town && !c.N.full.includes(c.town) ? c.town : ""].filter(Boolean).join("  ·  ");
 /** A centred layout's artboard drawn wide, narrowed to hug what was drawn on it (x0 to x1), so a short name is not
@@ -1940,13 +1970,13 @@ const AD_VOICES = Object.keys(LOGO_VOICES).filter(v => !LOGO_VOICES[v].logoOnly)
    the four calm ones as the line suits (gold leans Luxury and Classic, phones Modern and Friendly), and Bold is the
    gallery as it was before, for a shop that wants an ad's energy. */
 export const STYLES = {
-  classic: { name: "Classic", says: "Established, here for years", voices: ["classic", "banker", "sturdy", "block", "stadium", "bold", "editorial"],
+  classic: { name: "Classic", says: "Established, here for years", voices: ["classic", "banker", "sturdy", "block", "stadium", "bold", "editorial", "sign"],
     layouts: ["heritage", "centred", "lockup", "wordmark", "framed", "label", "roundel", "shopplate", "signboard"], marks: ["letter", "act", "object"], line: .25,
     pairs: ["navy_brass", "forest_brass", "oxblood_cream", "paper_navy", "ivory_oxblood", "cream_forest", "navy_gold", "green_gold", "cream_red", "white_on_navy", "red_white_blue", "navy_white_red", "white_on_green", "stone_charcoal"] },
   modern: { name: "Modern", says: "Clean and current, a tech business", voices: ["sleek", "geometric", "clean", "studio", "grotesk", "tech"],
     layouts: ["wordmark", "split", "lockup", "tile", "centred", "monogram", "stacked", "framed"], marks: ["abstract", "act", "letter"], line: .55,
     pairs: ["white_cobalt", "slate_teal", "midnight_sky", "graphite_red", "mist_slate", "stone_charcoal", "black_on_white", "white_on_blue", "silver_blue", "arctic_teal", "ink_gold", "black_green", "teal_orange"] },
-  friendly: { name: "Friendly", says: "Approachable, family-run", voices: ["friendly", "geometric", "editorial", "workshop", "clean", "brush", "marker"],
+  friendly: { name: "Friendly", says: "Approachable, family-run", voices: ["friendly", "geometric", "editorial", "workshop", "clean", "sign", "brush", "marker"],
     layouts: ["lockup", "split", "wordmark", "centred", "tile", "roundel", "signboard", "varsity"], marks: ["abstract", "object", "act"], line: .3,
     pairs: ["sage_pine", "teal_sand", "paper_navy", "white_cobalt", "mist_slate", "teal_orange", "white_on_teal", "white_on_green", "sand_teal", "cream_red", "blue_green", "navy_orange", "cream_forest"] },
   luxury: { name: "Luxury", says: "Discreet and premium", voices: ["engraved", "banker", "editorial", "classic", "luxe", "stadium"],

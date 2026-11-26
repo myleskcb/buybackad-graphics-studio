@@ -45,6 +45,9 @@ export const LOGO_VOICES = {
   studio:    { name: "Studio",    display: "clash",            label: "satoshi-700",     kind: "geometric", logoOnly: true, case: "title" },
   sturdy:    { name: "Sturdy",    display: "roboto-slab",      label: "franklin-700",    kind: "slab",      logoOnly: true, case: "title" },
   workshop:  { name: "Workshop",  display: "zilla-slab",       label: "barlow-cond",     kind: "slab",      logoOnly: true, case: "title" },
+  /* the sign painter's script for the Sign layout: Kaushan Script, approved in the Type Lab review (rule 140,
+     assets/approved-fonts.json), over condensed capitals; the lab's other sign-painter scripts wait for the owner's pick */
+  sign:      { name: "Sign painter", display: "kaushan",       label: "oswald",          kind: "script",    logoOnly: true },
 };
 /** every face a logo may be set in: the modules logo/glyphs/<face>.js */
 export const LOGO_FACES = [...new Set(Object.values(LOGO_VOICES).flatMap(v => [v.display, v.label]))];

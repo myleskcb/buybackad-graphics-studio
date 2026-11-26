@@ -42,7 +42,8 @@ if (!KIT.KIT_FORMATS[state.format]) state.format = "png";
 state.details ||= {}; state.looks ||= {}; state.ok ||= {};
 const keep = () => jset(STORE, { name: state.name, cat: state.cat, town: state.town, small: state.small, since: state.since, seed: state.seed, group: state.group, style: state.style, picked: state.picked, details: state.details, looks: state.looks, ok: state.ok, tier: state.tier, format: state.format, card: state.card, view: state.view, quiz: state.quiz, answers: state.answers, hearts: state.hearts, aiPicks: state.aiPicks });
 /** the logo the rest of the site wears: the card maker and the full ad read it */
-const keepKit = () => { if (state.picked) jset(KITKEY, { v: E.ENGINE_VERSION, design: state.picked, at: Date.now() }); };
+// adPairs: the house pairs nearest a logo's own calm pair (DESIGN-LAW 186), for the full ad, which wears only the house's
+const keepKit = () => { if (state.picked) jset(KITKEY, { v: E.ENGINE_VERSION, design: state.picked, at: Date.now(), adPairs: E.nearPairs(state.picked.pair) }); };
 /* card: the layout and background chosen in the card maker (cards/, which writes it here; DESIGN-LAW 185) */
 const spec = () => ({ design: state.picked, details: state.details, looks: state.looks, card: state.card });
 

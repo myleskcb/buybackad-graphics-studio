@@ -5181,9 +5181,10 @@ Open:
   against the live model from here (no key in the worktree): the first real ask on webuy.ad, with
   `ANTHROPIC_API_KEY` set, is its first true test; `logo_check` stands the function in and holds the answer's
   cleaning.
-- **A sign-painter script** for the Sign layout (a new open-licence face, rule 140): it uses Brush and Marker today.
-- **The full ad opening in a logo's own pair**: a logo in one of the logo's own pairs opens the ad in its default
-  pair, since the ads do not wear those. A nearest house pair could stand in.
+- Done the same day, at the owner's word ("Add both here"): the full ad and the card maker open in the nearest of
+  their pairs for a logo in one of the logo's own; the Sign layout's own lettering, Sign painter (Kaushan Script, the
+  Type Lab's approved sign-painter script). **Open:** a classic baseball script (Playball or Yesteryear, both OFL in
+  the Type Lab) needs the owner's yes on the Type Lab page first (rule 140).
 - **Merge with custom-name-location-keywords**: it adds `iconOn` to `cleanDesign` and its own Symbol row for the
   industry marks; this branch's `variants("icon")` keeps both (the calm logos' catalogue first).
 

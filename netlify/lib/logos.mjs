@@ -56,6 +56,7 @@ export const FACE_MODULES = {
   "clash": () => import("../../logo/glyphs/clash.js"),
   "roboto-slab": () => import("../../logo/glyphs/roboto-slab.js"),
   "zilla-slab": () => import("../../logo/glyphs/zilla-slab.js"),
+  "kaushan": () => import("../../logo/glyphs/kaushan.js"),
 };
 
 /** the kit for a design: { "logo.svg": "<svg…", …, "README.txt": "…" } */

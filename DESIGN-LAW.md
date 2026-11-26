@@ -7847,12 +7847,18 @@ The maker (`logo/engine.js`, `logo/voices.js`, `logo/logo.js`):
    Brass, Oxblood & Cream, Slate & Teal, Graphite & Red, Midnight & Sky, Plum & Champagne, Deep Teal & Sand, Paper &
    Navy, White & Cobalt, Sage & Pine, Stone & Charcoal, Ivory & Oxblood, Mist & Slate, Cream & Forest), each held to
    the same 4.5:1 and 3:1, and 24 of the house pairs: 40 calm pairs in all. Lime, aqua, hot pink, neon cyan and the
-   like stay for Bold. The ads never wear the logo's own pairs: the full ad and the card maker take a logo's pair only
-   when it is one of theirs, and draw the logo in their own otherwise.
-5. **Lettering of the trade** (`logo/voices.js`, `logoOnly`): eleven tones from faces the site already ships (Young
+   like stay for Bold. The ads never wear the logo's own pairs: a logo in one of them opens the full ad and the card
+   maker in the nearest of theirs (`nearPairs`: chosen by eye for each, Navy & Brass to Navy & Gold, Oxblood & Cream
+   to Red & Yellow, Sage & Pine to Mint & Green; the calm house pairs nearest in CIE Lab after them). The kept logo
+   carries the list (`pgfx_logo_kit.adPairs`), so the full ad needs no engine to read it; the brand card (rule 185)
+   wears the logo's own colours as it is.
+5. **Lettering of the trade** (`logo/voices.js`, `logoOnly`): twelve tones from faces the site already ships (Young
    Serif, Zodiak, Cormorant Garamond, Instrument Serif, Satoshi, Sora, Instrument Sans, Nunito, Clash Display, Roboto
-   Slab, Zilla Slab), named Classic, Banker, Engraved, Editorial, Modern (key `sleek`: `modern` is an ad voice's),
-   Geometric, Clean, Friendly, Studio, Sturdy and Workshop. A tone may set the name in Title Case (keeping iPhones, MK
+   Slab, Zilla Slab, Kaushan Script), named Classic, Banker, Engraved, Editorial, Modern (key `sleek`: `modern` is an ad
+   voice's), Geometric, Clean, Friendly, Studio, Sturdy, Workshop and Sign painter. Sign painter sets the Sign layout's
+   name in Kaushan Script over condensed capitals: of the Type Lab's sign-painter scripts it is the one the owner
+   approved (`assets/approved-fonts.json`, rule 140); Playball, Yesteryear and the lab's others wait for the owner's
+   pick on the Type Lab page before any logo may wear them. A tone may set the name in Title Case (keeping iPhones, MK
    and LA as typed, small words small) or lower case (Title Case when the name holds initials). Their outlines are
    built by `scripts/build_logo_glyphs.mjs` like every face's, and the function loads them (`FACE_MODULES`).
 6. **The rows** (`variants`, `variantName`): a calm logo's Colours and Lettering rows offer calm choices first; its
@@ -7897,7 +7903,7 @@ The maker (`logo/engine.js`, `logo/voices.js`, `logo/logo.js`):
    tokens in, the catalogue cached per line, 3,000 out, priced at the refusal fallback's rates), taken first and
    given back if it fails, never from an operator; signed in only; only with `ANTHROPIC_API_KEY`, as the name ideas.
 
-Held by `scripts/logo_check.mjs` (176 checks: the eleven tones in the catalogue's faces; every new layout in every
+Held by `scripts/logo_check.mjs` (183 checks: the twelve tones in the catalogue's faces; every new layout in every
 name and voice it takes; 5,460 drawings of the catalogue, solid and line, soft and sharp, in colour and one colour,
 in the four layouts that wear a mark; the first gallery calm for all 16 lines; each calm style filling 24 of its own;
 Bold as it was, its own layouts early; a taste leading; the rows of a calm logo; the 192 approved designs unchanged;
@@ -7905,7 +7911,8 @@ the page's chips and rows in Chromium; Show my logos opening the questionnaire, 
 chosen style, colours and symbol, hearts and More, Start from a template and the editor it opens; AI logo picks:
 401 signed out, 503 and no credit without a key, off in /plans, the model's answer held to what the engine draws,
 3 credits, and in Chromium the door with its price, the shop's words and answers sent, the picks drawn with their
-reasons and one opened in the editor; `plan_economics.mjs` holds the price; no sideways scroll
+reasons and one opened in the editor; `plan_economics.mjs` holds the price; a logo in Navy & Brass opening the full
+ad and the card maker in Navy & Gold, the ad passing its pre-flight; no sideways scroll
 and nothing under 12 px from 320 px, looked at by hand). `scripts/logo_sheet.mjs` now also writes `marks.html` (every line's family,
 solid, line and sharp, with a lockup of each) and `styles.html` (one name in every style).
 
