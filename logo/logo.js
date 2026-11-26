@@ -279,10 +279,16 @@ function approve(k) {
 }
 /** the fast lane (2026-11-25, the owner: "easier to generate, easier to use"): every step approved as it is
     drawn, straight to the review. The steps stay on the page above it, each with Try another look. */
-function approveAll() {
+async function approveAll() {
   for (const f of KIT.FLOW) state.ok[f.key] = true;
-  keep(); rail(); okUI(); showSteps(); redrawSteps();
-  $("kit-review").scrollIntoView({ behavior: "smooth", block: "start" });
+  keep(); rail(); okUI(); showSteps();
+  note("Drawing your whole kit…");
+  /* the steps above the review are drawn first: scrolled to before they were, the review moved on down the page
+     as they filled in, and the visitor was left at the business card (the iPhone app, 2026-11-25) */
+  await Promise.all(KIT.FLOW.filter(f => f.key !== "logo").map(f => drawStep(f.key)));
+  drawReview();
+  note("");
+  requestAnimationFrame(() => $("kit-review").scrollIntoView({ behavior: "smooth", block: "start" }));
 }
 function okUI() {
   for (const f of KIT.FLOW) {

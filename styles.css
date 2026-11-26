@@ -1183,6 +1183,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .view-drop.open{display:block}
 .view-item{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--text);font:500 13.5px/1 var(--ui);padding:11px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left;transition:background .12s,color .12s}
 .view-item:hover{background:var(--accent-wash);color:var(--accent)}
+a.view-item{text-decoration:none}   /* the More menus' links read as the menus' buttons do */
 .view-item .vi-check{width:16px;height:16px;border:1.5px solid var(--text-dim);border-radius:5px;flex:none;display:grid;place-items:center;font-size:11px;color:var(--accent-ink)}
 .view-item.on .vi-check{background:var(--accent);border-color:var(--accent)}
 .view-item.on .vi-check::after{content:'✓';color:var(--accent-ink)}

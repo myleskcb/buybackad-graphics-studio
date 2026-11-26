@@ -139,8 +139,8 @@ footer.bottom a{color:var(--text-2);text-decoration:none;transition:color .2s}
 footer.bottom a:hover{color:var(--text)}
 footer.bottom .cats{columns:4 200px;column-gap:32px;margin-bottom:28px;padding-bottom:32px;border-bottom:1px solid var(--line)}
 footer.bottom::after{
-  content:'WeBuy.AD';display:block;flex-basis:100%;margin-top:clamp(40px,5vw,72px);
-  font:750 clamp(72px,19.5vw,280px)/.78 'Inter Tight',var(--x-disp);letter-spacing:-.06em;
+  content:'webuy.ad';display:block;flex-basis:100%;margin-top:clamp(40px,5vw,72px);
+  font:800 clamp(72px,19.5vw,280px)/.78 'Inter Tight',var(--x-disp);letter-spacing:-.06em;
   color:#101b33;white-space:nowrap;transform:translateY(.16em);pointer-events:none;user-select:none;
 }
 @media (max-width:760px){
