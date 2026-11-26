@@ -6240,7 +6240,7 @@ and `/static/app.css`), applied to the new name, so the two read as one family.
 - **The icon**: the mint tag over `webuy.ad` on the navy (#0b1222), the two set as one block 7 units
   apart in 120 and centred by their ink (`tools/brand/icon.html`). The owner, of the first drawing,
   where the gap was about 22: "closer logo / wordmark?". `assets/brand/icon-{180,192,512,1024}.png` and
-  the iPhone app's `AppIcon.png` (flattened: App Store Connect refuses an alpha channel). The word stops
+  the iPhone app's `AppIcon.png` (`ios/generate_project.py` flattens it: App Store Connect refuses an alpha channel). The word stops
   reading under about 40 px, so `icon-32.png`, `favicon.svg` and the sign-in window's tile are the tag
   alone (`assets/brand/tag-tile.svg`).
 - **The share card** (og:image, `assets/brand/share-card.jpg`, 1200 x 630,
