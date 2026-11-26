@@ -37,12 +37,13 @@ const CATS = [["phones", "Phones & devices"], ["gaming", "Games & consoles"], ["
   ["wearables", "Watches & wearables"], ["cameras", "Cameras & drones"], ["strips", "Diabetic test strips"],
   ["devices", "Device store"], ["wholesale", "Wholesale & bulk lots"], ["resale", "Resale & trade-ins"]];
 const STORE = "pgfx_logo", KITKEY = "pgfx_logo_kit";
-const state = Object.assign({ name: "", cat: "", town: "", small: "", seed: 1, group: "", picked: null, details: {}, looks: {}, ok: {}, tier: "complete", format: "png", card: null }, jget(STORE, null) || {});
+const state = Object.assign({ name: "", cat: "", town: "", small: "", since: "", seed: 1, group: "", style: "", picked: null, details: {}, looks: {}, ok: {}, tier: "complete", format: "png", card: null, view: "", quiz: null, answers: null, hearts: [], aiPicks: [] }, jget(STORE, null) || {});
 if (!KIT.KIT_FORMATS[state.format]) state.format = "png";
 state.details ||= {}; state.looks ||= {}; state.ok ||= {};
-const keep = () => jset(STORE, { name: state.name, cat: state.cat, town: state.town, small: state.small, seed: state.seed, group: state.group, picked: state.picked, details: state.details, looks: state.looks, ok: state.ok, tier: state.tier, format: state.format, card: state.card });
+const keep = () => jset(STORE, { name: state.name, cat: state.cat, town: state.town, small: state.small, since: state.since, seed: state.seed, group: state.group, style: state.style, picked: state.picked, details: state.details, looks: state.looks, ok: state.ok, tier: state.tier, format: state.format, card: state.card, view: state.view, quiz: state.quiz, answers: state.answers, hearts: state.hearts, aiPicks: state.aiPicks });
 /** the logo the rest of the site wears: the card maker and the full ad read it */
-const keepKit = () => { if (state.picked) jset(KITKEY, { v: E.ENGINE_VERSION, design: state.picked, at: Date.now() }); };
+// adPairs: the house pairs nearest a logo's own calm pair (DESIGN-LAW 186), for the full ad, which wears only the house's
+const keepKit = () => { if (state.picked) jset(KITKEY, { v: E.ENGINE_VERSION, design: state.picked, at: Date.now(), adPairs: E.nearPairs(state.picked.pair) }); };
 /* card: the layout and background chosen in the card maker (cards/, which writes it here; DESIGN-LAW 185) */
 const spec = () => ({ design: state.picked, details: state.details, looks: state.looks, card: state.card });
 
@@ -91,11 +92,16 @@ async function paint(canvas, d, { form = "primary", fill = .78, w, h, bg = true,
 }
 
 /* ---------- step 1: the name, and name ideas ---------- */
-function input() { return { name: state.name.trim(), cat: state.cat || "phones", town: state.town.trim(), small: state.small.trim() }; }
+/** a new name or line starts the questionnaire afresh: its answers and hearts were for another business */
+function newBusiness(was) {
+  if (was === state.name.trim().toUpperCase() + "|" + state.cat && state.view) return;
+  state.answers = null; state.hearts = []; state.aiPicks = []; state.quiz = { step: 0, styles: [], pairs: [], marks: [] }; state.view = "quiz"; state.style = "";
+}
+function input() { return { name: state.name.trim(), cat: state.cat || "phones", town: state.town.trim(), small: state.small.trim(), since: (state.since || "").trim() }; }
 function fillForm() {
   $("lg-cat").innerHTML = CATS.map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join("");
   $("lg-name").value = state.name; $("lg-cat").value = state.cat || "phones"; $("lg-town").value = state.town;
-  $("lg-small").value = state.small;
+  $("lg-small").value = state.small; $("lg-since").value = state.since || "";
   $("lg-small").placeholder = E.smallFor(state.cat || "phones");
 }
 let nmSeed = 1;
@@ -111,7 +117,7 @@ async function drawIdeas(given = null, append = false) {
     b.setAttribute("aria-label", "Use the name " + x.name);
     const c = document.createElement("canvas"); b.appendChild(c);
     const cap = document.createElement("span"); cap.innerHTML = `<b>${esc(x.name)}</b><small>${esc(x.why)}</small>`; b.appendChild(cap);
-    b.onclick = () => { $("lg-name").value = x.name; state.name = x.name; state.cat = cat; state.town = $("lg-town").value; state.seed = 1; state.picked = null; state.ok = {}; keep(); fillForm(); showGallery(true); };
+    b.onclick = () => { const was = state.name.trim().toUpperCase() + "|" + state.cat; $("lg-name").value = x.name; state.name = x.name; state.cat = cat; state.town = $("lg-town").value; newBusiness(was); state.seed = 1; state.picked = null; state.ok = {}; keep(); fillForm(); showGallery(true); };
     grid.appendChild(b);
     paint(c, designs[i], { w: 260, h: 130, fill: .86 }).catch(() => {});
   });
@@ -119,9 +125,11 @@ async function drawIdeas(given = null, append = false) {
 }
 
 /* the AI's ideas (netlify/lib/names.mjs): Claude mixes the customer's words in, for a few AI credits */
-let aiCost = null;
+let aiCost = null, aiLogoCost = null;
 async function aiReady() {
-  try { const r = await fetch(new URL("../api/plans", import.meta.url)); const j = await r.json(); aiCost = j && j.ai && j.ai.names; } catch (e) { aiCost = null; }
+  try { const r = await fetch(new URL("../api/plans", import.meta.url)); const j = await r.json(); aiCost = j && j.ai && j.ai.names; aiLogoCost = j && j.ai && j.ai.logos; } catch (e) { aiCost = null; aiLogoCost = null; }
+  // AI logo picks (DESIGN-LAW 186): offered beside the questions once the function says they are on and priced
+  if (aiLogoCost) { $("lq-ai-go").textContent = "Ask AI to pick (" + aiLogoCost + " AI credits)"; doorsUI(); }
   const b = $("nm-ai"); if (b && aiCost) { b.hidden = false; b.textContent = "Ask AI for ideas (" + aiCost + " AI credits)"; }
 }
 async function askAI(btn) {
@@ -140,45 +148,197 @@ async function askAI(btn) {
 /* ---------- step 2: the gallery ---------- */
 const SHOW = 24;
 let galleryRun = 0;
-const GROUPS = { "": "", badge: "badge", wordmark: "wordmark", monogram: "monogram", mark: "mark" };
+/* the style chips (DESIGN-LAW 186): All is the calm mix for the line; Bold is the gallery as it was */
+const STYLE_KEYS = ["", "classic", "modern", "friendly", "luxury", "bold"];
 const labelOf = d => `${E.LOGO_LAYOUTS[d.t].name} in ${E.paletteOf(d.pair).name}, ${E.LOGO_VOICES[d.voice].name} lettering`;
+/* the gallery shows one of three views: the questionnaire, the logos (built from its answers and hearts), or the
+   templates (every layout in the shop's name, to start from) */
+const VIEWS = ["quiz", "logos", "templates", "ai"];
+const viewNow = () => state.view === "ai" && !(state.aiPicks || []).length ? "logos" : VIEWS.includes(state.view) ? state.view : state.answers || state.picked ? "logos" : "quiz";
+const HEARTS = 12;
+/** a heart keeps what a logo is made of, not the logo (the taste, DESIGN-LAW 186) */
+const heartOf = d => ({ t: d.t, voice: d.voice, pair: d.pair, mark: d.mark || "", line: !!d.line, icon: d.icon || "" });
+const hearted = d => (state.hearts || []).some(h => h.t === d.t && h.voice === d.voice && h.pair === d.pair && (h.mark || "") === (d.mark || ""));
+const taste = () => E.tasteOf(state.answers, state.hearts);
 async function drawGallery(append = false) {
-  const run = ++galleryRun, grid = $("lg-grid");
+  const run = ++galleryRun, grid = $("lg-grid"), view = viewNow(), tpl = view === "templates", ai = view === "ai", whys = {};
   if (!append) grid.innerHTML = "";
-  const list = E.gallery(input(), { seed: state.seed, n: SHOW + 8, group: GROUPS[state.group] || "" });
-  const tiles = [];
-  for (let i = 0; i < SHOW; i++) { const b = document.createElement("button"); b.type = "button"; b.className = "lg-tile wait"; b.setAttribute("aria-label", "A logo, loading"); grid.appendChild(b); tiles.push(b); }
+  if (ai) (state.aiPicks || []).forEach((x, i) => { whys[i] = x.why; });
+  const list = ai ? (state.aiPicks || []).map(x => E.cleanDesign({ ...x.design, ...input(), t: x.design.t })) : tpl ? E.templates(input()) : E.gallery(input(), { seed: state.seed, n: SHOW + 8, style: STYLE_KEYS.includes(state.style) ? state.style : "", like: taste() });
+  const tiles = [], n = tpl || ai ? list.length : SHOW;
+  for (let i = 0; i < n; i++) {
+    const cell = document.createElement("div"); cell.className = "lg-cell";
+    const b = document.createElement("button"); b.type = "button"; b.className = "lg-tile wait"; b.setAttribute("aria-label", "A logo, loading");
+    cell.appendChild(b); grid.appendChild(cell); tiles.push(b);
+  }
   await needFor(list);
   if (run !== galleryRun) return;
   let t = 0;
-  for (const d of list) {
+  for (const [li, d] of list.entries()) {
     if (t >= tiles.length) break;
     const b = tiles[t], c = document.createElement("canvas");
     let r;
     try { b.appendChild(c); r = await paint(c, d, { fill: .8 }); } catch (e) { c.remove(); continue; }
     if (run !== galleryRun) return;
     if (!r.ok) { c.remove(); continue; }   // a name too long for this layout at a size a logo is read at
-    b.classList.remove("wait"); b.setAttribute("aria-label", "Pick this logo: " + labelOf(d)); b.title = labelOf(d);
-    b.dataset.t = d.t; b.dataset.pair = d.pair; b.dataset.voice = d.voice;
+    b.classList.remove("wait"); b.setAttribute("aria-label", (tpl ? "Start from this template: " : "Pick this logo: ") + labelOf(d)); b.title = labelOf(d);
+    b.dataset.t = d.t; b.dataset.pair = d.pair; b.dataset.voice = d.voice; b.dataset.mark = d.mark || "";
     b.setAttribute("aria-pressed", String(!!state.picked && sameLogo(d, state.picked)));
     b.onclick = () => pick(d, b);
+    if (ai && whys[li]) { const w = document.createElement("p"); w.className = "lg-why"; w.textContent = whys[li]; b.parentElement.appendChild(w); }
+    if (!tpl && !ai) {
+      // a heart: More leans toward what the hearted logos are made of
+      const h = document.createElement("button"); h.type = "button"; h.className = "lg-heart"; h.textContent = "♥";
+      const set = on => { h.setAttribute("aria-pressed", String(on)); h.setAttribute("aria-label", (on ? "Hearted: " : "Heart this logo: ") + labelOf(d)); };
+      set(hearted(d));
+      h.onclick = () => {
+        const on = !hearted(d);
+        state.hearts = (state.hearts || []).filter(x => !(x.t === d.t && x.voice === d.voice && x.pair === d.pair && (x.mark || "") === (d.mark || "")));
+        if (on) state.hearts = [...state.hearts, heartOf(d)].slice(-HEARTS);
+        keep(); set(on); heartsUI();
+      };
+      b.parentElement.appendChild(h);
+    }
     t++;
   }
-  for (; t < tiles.length; t++) tiles[t].remove();
+  for (; t < tiles.length; t++) tiles[t].parentElement.remove();
   grid.dataset.drawn = String(run);
   grid.dataset.count = String(grid.querySelectorAll(".lg-tile:not(.wait)").length);
 }
-const sameLogo = (a, b) => a && b && a.t === b.t && a.pair === b.pair && a.voice === b.voice && a.icon === b.icon && a.name === b.name;
+const sameLogo = (a, b) => a && b && a.t === b.t && a.pair === b.pair && a.voice === b.voice && a.icon === b.icon && a.name === b.name && (a.mark || "") === (b.mark || "") && !!a.line === !!b.line;
+function heartsUI() {
+  const n = (state.hearts || []).length, el = $("lq-hearts");
+  el.hidden = !n || viewNow() !== "logos";
+  el.textContent = n === 1 ? "More leans toward the logo you hearted." : "More leans toward the " + n + " logos you hearted.";
+}
+/** the way in and out of each view: the questionnaire, 24 logos now, a template, the logo already picked */
+function doorsUI() {
+  const view = viewNow(), d = [];
+  if (view !== "quiz") d.push(["quiz", state.answers ? "Change my answers" : "Answer 3 quick questions"]);
+  if (view !== "logos") d.push(["logos", view === "quiz" ? "Show me 24 logos now" : "Back to the logos"]);
+  if (view !== "templates") d.push(["templates", "Start from a template"]);
+  if (aiLogoCost) d.push(["ai", view === "ai" ? "Ask AI again" : "Ask AI to pick for me (" + aiLogoCost + " AI credits)"]);
+  if (state.picked) d.push(["edit", "Edit the logo I picked"]);
+  $("lq-doors").innerHTML = `<span>Or</span>` + d.map(([k, l]) => `<button class="lg-link" type="button" data-go="${k}">${esc(l)}</button>`).join("");
+  const sum = $("lq-sum");
+  if (view === "templates") { sum.hidden = false; sum.innerHTML = "<b>Templates:</b> every layout, in your name. Tap one, then make it yours: colours, lettering, symbol and words."; }
+  else if (view === "ai") { sum.hidden = false; sum.innerHTML = "<b>Picked by AI</b> for what you told it, from the same parts as every logo here. Tap one to make it yours."; }
+  else if (view === "logos" && state.answers) {
+    const a = state.answers, names = [...(a.styles || []).map(k => E.STYLES[k] && E.STYLES[k].name), ...(a.pairs || []).map(k => E.paletteOf(k).name), ...(a.marks || []).map(k => k === "name" ? "Just my name" : k === "initials" ? "My initials" : E.LOGO_MARKS[k] && E.LOGO_MARKS[k].name)].filter(Boolean);
+    sum.hidden = false; sum.innerHTML = names.length ? "<b>Built from your answers:</b> " + esc(names.join(", ")) + "." : "<b>Built from your answers:</b> a surprise in every style that suits what you buy.";
+  } else sum.hidden = true;
+}
+/** step 2 as the view says: the questionnaire, or a grid of logos or templates */
+async function renderStep2() {
+  const view = viewNow();
+  $("lg-quiz").hidden = view !== "quiz"; $("lg-grid").hidden = view === "quiz"; $("lg-tabs").hidden = view !== "logos";
+  $("lg-more-row").hidden = view !== "logos";
+  $("lg-h2").textContent = view === "quiz" ? "Tell us what you like" : view === "templates" ? "Start from a template" : view === "ai" ? "The AI's picks for you" : "Tap the logo you like";
+  doorsUI(); heartsUI();
+  if (view === "quiz") return renderQuiz();
+  return drawGallery(false);
+}
 async function showGallery(scroll) {
   const sec = $("lg-gallery"); sec.hidden = false;
   if (scroll) sec.scrollIntoView({ behavior: "smooth", block: "start" });
-  await drawGallery(false);
+  await renderStep2();
+}
+function go(view) {
+  if (view === "ai") { const box = $("lq-ai"); box.hidden = false; $("lq-ai-msg").textContent = ""; box.scrollIntoView({ behavior: "smooth", block: "center" }); $("lq-about").focus({ preventScroll: true }); return; }
+  if (view === "edit") { if (!state.picked) return; $("lg-edit").hidden = false; drawPicked(); $("lg-edit").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  if (view === "quiz") state.quiz = { step: 0, styles: (state.answers || {}).styles || [], pairs: (state.answers || {}).pairs || [], marks: (state.answers || {}).marks || [] };
+  if (view === "logos") state.seed = 1;
+  state.view = view; keep(); renderStep2();
+  $("lg-gallery").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* ---------- Ask AI to pick for me (netlify/lib/logo-ai.mjs, DESIGN-LAW 186) ----------
+   Claude reads the shop's own words and the answers so far, and picks logos from the engine's catalogue for a few AI
+   credits; the engine draws them here, as every logo on the page is drawn. */
+async function askLogoAI() {
+  const acct = window.pgfxAccount, btn = $("lq-ai-go"), msg = $("lq-ai-msg");
+  if (!acct || !acct.signedIn()) { acct && acct.openAuth({ message: "Create a free account, or sign in: AI logo picks use your AI credits (Free has 5 a month).", next: () => askLogoAI() }); return; }
+  const q = state.quiz || {}, answers = state.answers || { styles: q.styles || [], pairs: q.pairs || [], marks: q.marks || [] };
+  const label = btn.textContent; btn.disabled = true; btn.textContent = "Picking logos for you…"; msg.textContent = ""; msg.classList.remove("bad");
+  try {
+    const j = await acct.api("/logo/picks", { about: $("lq-about").value.trim(), ...input(), answers });
+    state.aiPicks = (j.picks || []).filter(x => x && x.design && E.LOGO_LAYOUTS[x.design.t]).map(x => ({ design: E.cleanDesign(x.design), why: String(x.why || "").slice(0, 110) }));
+    if (!state.aiPicks.length) throw Object.assign(new Error("No picks came back: try again"), { status: 502 });
+    state.view = "ai"; keep(); $("lq-ai").hidden = true;
+    await renderStep2(); $("lg-gallery").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) {
+    msg.textContent = e.status === 402 ? "Out of AI credits for this month. The questions, the logos and the templates here never run out." : (e.message || "The AI did not answer.");
+    msg.classList.add("bad");
+  } finally { btn.disabled = false; btn.textContent = label; }
+}
+
+/* ---------- the questionnaire (DESIGN-LAW 186) ---------- */
+const QUIZ_STYLES = ["classic", "modern", "friendly", "luxury", "bold"];
+let quizRun = 0;
+/** a logo to dress in each answer: one of the first liked style's (a mark beside or above the name, where there is one) */
+function quizBase(q, inp) {
+  const st = (q.styles || []).find(s => s !== "bold") || "";
+  const g = E.gallery(inp, { seed: 1, n: 12, style: st });
+  const d = g.find(x => x.t === "lockup" || x.t === "centred") || g[0];
+  return { ...d, pair: (q.pairs || [])[0] || d.pair };
+}
+function quizCards(q, inp) {
+  if (q.step === 0) return QUIZ_STYLES.map(s => ({ key: s, label: E.STYLES[s].name, sub: E.STYLES[s].says, designs: E.gallery(inp, { seed: 1, n: 8, style: s }) }));
+  const base = quizBase(q, inp);
+  if (q.step === 1) return E.pairChoices(inp, q.styles).map(k => ({ key: k, label: E.paletteOf(k).name, designs: [{ ...base, pair: k }] }));
+  // a symbol is judged by itself: each card shows the mark alone, large, in the shop's colours and initials
+  return E.markChoices(inp.cat).map(k => ({ key: k, label: k === "name" ? "Just my name" : k === "initials" ? "My initials" : E.LOGO_MARKS[k].name,
+    form: k === "name" ? "primary" : "mark",
+    designs: [k === "name" ? { ...base, t: "wordmark", mark: "" } : k === "initials" ? { ...base, t: "interlace", mark: "" } : { ...base, t: "centred", mark: k, line: false }] }));
+}
+async function renderQuiz() {
+  const run = ++quizRun, inp = input();
+  const q = state.quiz && typeof state.quiz.step === "number" ? state.quiz : (state.quiz = { step: 0, styles: [], pairs: [], marks: [] });
+  q.step = Math.max(0, Math.min(E.QUIZ.length - 1, q.step | 0));
+  const Q = E.QUIZ[q.step], picks = q[Q.key] || (q[Q.key] = []);
+  $("lq-count").textContent = `Question ${q.step + 1} of ${E.QUIZ.length}`; $("lq-q").textContent = Q.q; $("lq-hint").textContent = Q.hint;
+  $("lq-back").hidden = q.step === 0;
+  const last = q.step === E.QUIZ.length - 1, next = $("lq-next");
+  next.textContent = last ? "Show my logos" : "Next"; next.disabled = !picks.length;
+  const grid = $("lq-grid"), cards = quizCards(q, inp);
+  grid.innerHTML = ""; grid.dataset.step = String(q.step); delete grid.dataset.drawn;
+  const btns = cards.map(card => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "lq-card"; b.dataset.key = card.key;
+    b.setAttribute("aria-pressed", String(picks.includes(card.key)));
+    b.innerHTML = `<canvas></canvas><span>${esc(card.label)}${card.sub ? `<small>${esc(card.sub)}</small>` : ""}</span>`;
+    b.setAttribute("aria-label", card.label + (card.sub ? ": " + card.sub : ""));
+    b.onclick = () => {
+      const i = picks.indexOf(card.key);
+      if (i >= 0) picks.splice(i, 1); else { picks.push(card.key); while (picks.length > Q.max) picks.shift(); }
+      grid.querySelectorAll(".lq-card").forEach(x => x.setAttribute("aria-pressed", String(picks.includes(x.dataset.key))));
+      next.disabled = !picks.length; keep();
+    };
+    grid.appendChild(b);
+    return [b, card];
+  });
+  await needFor(cards.flatMap(c => c.designs.slice(0, 3)));
+  for (const [b, card] of btns) {
+    if (run !== quizRun) return;
+    const c = b.querySelector("canvas");
+    for (const d of card.designs.slice(0, 4)) { try { const r = await paint(c, d, { fill: card.form === "mark" ? .62 : .8, w: 320, h: 240, form: card.form || "primary" }); if (r.ok) break; } catch (e) { /* the next one */ } }
+  }
+  if (run === quizRun) grid.dataset.drawn = String(run);
+}
+/** the next question, or the logos built from the answers; skip: this question answered "surprise me" */
+function quizNext(skip) {
+  const q = state.quiz; if (!q) return;
+  if (skip) q[E.QUIZ[q.step].key] = [];
+  if (q.step < E.QUIZ.length - 1) { q.step++; keep(); renderQuiz(); $("lg-gallery").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  state.answers = { styles: q.styles || [], pairs: q.pairs || [], marks: q.marks || [] };
+  state.quiz = null; state.view = "logos"; state.seed = 1; state.style = "";
+  $("lg-tabs").querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", String(x.dataset.s === "")));
+  keep(); renderStep2(); $("lg-gallery").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 /* ---------- step 3: the one picked ---------- */
 function pick(d, tile) {
-  state.picked = { ...d, small: state.small, town: state.town };
-  changed(); keepKit();
+  state.picked = { ...d, small: state.small, town: state.town, since: state.since || "" };
+  changed(); keepKit(); doorsUI();
   document.querySelectorAll(".lg-tile").forEach(b => b.setAttribute("aria-pressed", String(b === tile)));
   const first = $("lg-edit").hidden;
   $("lg-edit").hidden = false;
@@ -188,8 +348,9 @@ function pick(d, tile) {
 /** the logo changed: what was approved after it is looked at again */
 function changed() { state.ok = {}; keep(); rail(); }
 let pickRun = 0;
-const ROWS = [["row-pair", "pair", d => E.paletteOf(d.pair).name], ["row-voice", "voice", d => E.LOGO_VOICES[d.voice].name],
-  ["row-layout", "t", d => E.LOGO_LAYOUTS[d.t].name], ["row-icon", "icon", d => d.icon ? E.LOGO_ICONS[d.icon][1] : "Initials"], ["row-finish", "finish", d => E.FINISHES[d.finish || "flat"]]];
+// each row's choices and their names come from the engine (a calm logo's Symbol row is its line's catalogue of marks)
+const ROWS = [["row-pair", "pair"], ["row-voice", "voice"], ["row-layout", "layout"], ["row-icon", "icon"], ["row-corners", "corners"], ["row-finish", "finish"]];
+const sameDesign = (a, b) => JSON.stringify(E.cleanDesign(a)) === JSON.stringify(E.cleanDesign(b));
 async function drawPicked() {
   const run = ++pickRun, d = state.picked; if (!d) return;
   const big = $("lg-big"), mine = owned();
@@ -197,17 +358,19 @@ async function drawPicked() {
   if (run !== pickRun) return;
   big.dataset.drawn = String(run); big.dataset.marked = String(!mine);
   $("lg-big-cap").textContent = labelOf(d) + (mine ? "" : ". The WeBuy.AD mark comes off when the kit is yours.");
-  for (const [id, axis, name] of ROWS) {
-    const row = $(id), list = E.variants(d, axis === "t" ? "layout" : axis, 8);
+  for (const [id, axis] of ROWS) {
+    const row = $(id), list = E.variants(d, axis, 8), name = v => E.variantName(v, axis);
     await needFor(list);
     if (run !== pickRun) return;
     // a finish needs a body to sit on: a wordmark has none, so its row is not offered
-    if (axis === "finish") { const has = /linearGradient/.test(E.logoSvg({ ...d, finish: "gradient" }, FACES, {}).svg); row.hidden = !has; row.previousElementSibling.hidden = !has; if (!has) continue; }
+    if (axis === "finish") { const has = /linearGradient/.test(E.logoSvg({ ...d, finish: "gradient" }, FACES, {}).svg); row.hidden = !has; row.previousElementSibling.hidden = !has; if (!has) { row.innerHTML = ""; continue; } }
+    // corners: offered where soft and sharp draw differently (a mark, a tile, a frame or a plate)
+    if (axis === "corners") { const has = E.logoSvg({ ...d, sharp: false }, FACES, {}).svg !== E.logoSvg({ ...d, sharp: true }, FACES, {}).svg; row.hidden = !has; row.previousElementSibling.hidden = !has; if (!has) { row.innerHTML = ""; continue; } }
     row.innerHTML = "";
     for (const v of list) {
       const b = document.createElement("button"); b.type = "button";
-      b.setAttribute("aria-pressed", String(v[axis] === d[axis])); b.setAttribute("aria-label", name(v)); b.title = name(v);
-      b.dataset.v = v[axis];
+      b.setAttribute("aria-pressed", String(sameDesign(v, d))); b.setAttribute("aria-label", name(v)); b.title = name(v);
+      b.dataset.v = axis === "icon" ? (v.mark || v.icon || "") : String(axis === "layout" ? v.t : axis === "corners" ? !!v.sharp : v[axis]);
       const c = document.createElement("canvas"); b.appendChild(c);
       const lab = document.createElement("span"); lab.textContent = name(v); b.appendChild(lab);
       row.appendChild(b);
@@ -373,7 +536,7 @@ function openSaved(id) {
   const s = k.spec || {};
   state.picked = s.design; state.details = s.details || {}; state.looks = s.looks || {}; state.name = s.design.name; state.cat = s.design.cat; state.town = s.design.town || ""; state.small = s.design.small || "";
   state.ok = { logo: true, social: true, card: true, posts: true, print: true }; state.tier = k.tier; keep(); keepKit(); fillForm();
-  $("lg-gallery").hidden = false; drawGallery(false); $("lg-edit").hidden = false; buildSteps(); drawPicked().then(() => $("kit-review").scrollIntoView({ behavior: "smooth" }));
+  state.view = "logos"; $("lg-gallery").hidden = false; renderStep2(); $("lg-edit").hidden = false; buildSteps(); drawPicked().then(() => $("kit-review").scrollIntoView({ behavior: "smooth" }));
 }
 
 function tiersUI() {
@@ -578,10 +741,18 @@ let typing = 0;
 function bind() {
   $("lg-form").addEventListener("submit", e => {
     e.preventDefault();
+    const was = state.name.trim().toUpperCase() + "|" + state.cat;
     state.name = $("lg-name").value; state.cat = $("lg-cat").value; state.town = $("lg-town").value;
     if (!state.name.trim()) { $("lg-name").focus(); return; }
-    state.seed = 1; keep(); fillForm(); showGallery(true);
+    newBusiness(was); state.seed = 1; keep(); fillForm(); showGallery(true);
   });
+  // the questionnaire's buttons and the ways in and out of it (DESIGN-LAW 186)
+  $("lq-next").onclick = () => quizNext(false);
+  $("lq-skip").onclick = () => quizNext(true);
+  $("lq-back").onclick = () => { if (state.quiz && state.quiz.step > 0) { state.quiz.step--; keep(); renderQuiz(); } };
+  $("lq-doors").addEventListener("click", e => { const b = e.target.closest("button[data-go]"); if (b) go(b.dataset.go); });
+  $("lq-ai-go").onclick = () => askLogoAI();
+  $("lq-ai-close").onclick = () => { $("lq-ai").hidden = true; };
   $("lg-cat").addEventListener("change", e => { state.cat = e.target.value; $("lg-small").placeholder = E.smallFor(state.cat); });
   $("nm-open").onclick = () => { const p = $("nm-panel"), open = p.hidden; p.hidden = !open; $("nm-open").setAttribute("aria-expanded", String(open)); if (open) { $("nm-words").focus(); if (!$("nm-grid").children.length) drawIdeas(); } };
   $("nm-go").onclick = () => { nmSeed = 1; drawIdeas(); };
@@ -589,8 +760,8 @@ function bind() {
   $("nm-more").onclick = () => { nmSeed++; drawIdeas(); };
   $("nm-ai").onclick = () => askAI($("nm-ai"));
   $("lg-tabs").addEventListener("click", e => {
-    const b = e.target.closest("button[data-g]"); if (!b) return;
-    state.group = b.dataset.g; keep();
+    const b = e.target.closest("button[data-s]"); if (!b) return;
+    state.style = b.dataset.s; state.seed = 1; keep();
     $("lg-tabs").querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", String(x === b)));
     drawGallery(false);
   });
@@ -600,6 +771,12 @@ function bind() {
     if (!state.picked) return;
     clearTimeout(typing);
     typing = setTimeout(() => { state.picked = { ...state.picked, small: state.small }; changed(); keepKit(); drawPicked(); }, 300);
+  });
+  $("lg-since").addEventListener("input", e => {
+    state.since = e.target.value; keep();
+    if (!state.picked) return;
+    clearTimeout(typing);
+    typing = setTimeout(() => { state.picked = { ...state.picked, since: state.since }; changed(); keepKit(); drawPicked(); }, 300);
   });
   $("ok-logo").onclick = () => approve("logo");
   $("ok-all").onclick = approveAll;
@@ -626,8 +803,8 @@ async function start() {
   await loadKits();
   if (state.name.trim()) {
     $("lg-gallery").hidden = false;
-    const g = $("lg-tabs").querySelector(`button[data-g="${state.group || ""}"]`); if (g) $("lg-tabs").querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", String(x === g)));
-    const shownGallery = drawGallery(false);
+    const g = $("lg-tabs").querySelector(`button[data-s="${STYLE_KEYS.includes(state.style) ? state.style : ""}"]`); if (g) $("lg-tabs").querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", String(x === g)));
+    const shownGallery = renderStep2();
     if (state.picked) { $("lg-edit").hidden = false; await drawPicked(); }
     await shownGallery;
   }
@@ -635,6 +812,6 @@ async function start() {
   if (window.pgfxAccount && window.pgfxAccount.onChange) window.pgfxAccount.onChange(async () => { await loadKits(); if (state.picked) { drawPicked(); } });
 }
 
-window.LogoMaker = { state, E, KIT, FACES, need, zip, input, owned, kits: () => acctKits, drawGallery, drawReview, approve, spec,
+window.LogoMaker = { state, E, KIT, FACES, need, zip, input, owned, kits: () => acctKits, drawGallery, renderStep2, go, drawReview, approve, spec,
   pick: i => { const b = document.querySelectorAll(".lg-tile:not(.wait)")[i]; if (b) b.click(); }, localFiles, downloadFiles, ready: null };
 window.LogoMaker.ready = start().catch(e => { console.error("logo maker:", e); note("The logo maker did not load. Reload the page.", true); });

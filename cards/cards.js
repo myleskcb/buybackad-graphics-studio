@@ -1247,7 +1247,8 @@ function galleryLooks(gseed) {
     const voice = VOICES.includes(kit.voice) ? kit.voice : "bold";
     [["pro", "glow"], ["premium", "fade"], ["bold", "flat"]].forEach(([st, fill], i) => {
       const S = STYLE_OF[st], pair = i === 0 || !PAIR_OF[kit.pair] ? kit.pair : pick(S.pairs.filter(k => PAIR_OF[k]));
-      out.push({ layout: "logo", pair: PAIR_OF[pair] ? pair : PAIRS[0].key, voice, fill, look: st, style: st, frame: !!S.frame, seed: gseed * 100 + i });
+      // a logo in one of the logo maker's own calm pairs (DESIGN-LAW 186) opens the card in the nearest of the card's
+      out.push({ layout: "logo", pair: PAIR_OF[pair] ? pair : LE.nearPairs(pair).find(k => PAIR_OF[k]) || PAIRS[0].key, voice, fill, look: st, style: st, frame: !!S.frame, seed: gseed * 100 + i });
       used.add(pair);
     });
   }

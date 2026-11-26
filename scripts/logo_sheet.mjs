@@ -2,7 +2,9 @@
 /* A contact sheet of the logo maker's gallery (DESIGN-LAW 176): the finished logos it offers for a few
    real kinds of name and line, drawn by logo/engine.js in Node exactly as the page and the function
    draw them, written to .render/logo-sheet/index.html (with every layout's mark, lockup and one-colour
-   versions on a second sheet). Look at it before and after any change to a layout.
+   versions on a second sheet, forms.html). DESIGN-LAW 186 adds marks.html, every line's family of marks drawn
+   solid, as a line and sharp in that line's own colours, and styles.html, one name's gallery in each style.
+   Look at them before and after any change to a layout or a mark.
 
    usage: node scripts/logo_sheet.mjs [--n 24] [--seed 1] [--names "A|B"] [--cats phones,gold] */
 import { writeFileSync, mkdirSync } from "node:fs";
@@ -56,4 +58,42 @@ for (const t of ["seal", "stacked", "monogram", "crest"]) {
   h2 += tile(E.coverSvg(d, faces, { phone: "(562) 555-0123" }), t + " cover");
 }
 writeFileSync(join(OUT, "forms.html"), h2 + "</div>");
-console.log("wrote .render/logo-sheet/index.html and forms.html");
+
+// the mark catalogue: each line's family, solid, as a line and sharp, in the line's own calm colours
+const LINE_NAMES = { phones: "Harbor Mobile", devices: "Harbor Devices", computers: "Harbor Tech", gold: "Harbor Gold", silver: "Harbor Silver", coins: "Harbor Coins",
+  wearables: "Harbor Watches", pokemon: "Harbor Cards", sports: "Harbor Sports Cards", gaming: "Harbor Games", cars: "Harbor Auto", audio: "Harbor Audio",
+  cameras: "Harbor Cameras", strips: "Harbor Strips", wholesale: "Harbor Wholesale", resale: "Harbor Resale" };
+const VOICE_OF = { gold: "banker", silver: "banker", coins: "classic", wearables: "engraved", pokemon: "friendly", sports: "sturdy", gaming: "friendly", cars: "sturdy", wholesale: "workshop", resale: "friendly" };
+let h3 = html.split("<h2>")[0].replace("<title>Logo sheet</title>", "<title>Mark catalogue</title>") + `<style>.m{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.m figure{background:#fff}.m .a{aspect-ratio:1;padding:10px}</style>`;
+h3 += `<h1 style="font:700 22px system-ui">The mark catalogue (DESIGN-LAW 186): ${Object.keys(E.LOGO_MARKS).length} marks, a family of six to eight a line</h1>`;
+for (const [cat, fam] of Object.entries(E.MARKS_FOR)) {
+  const d = { name: LINE_NAMES[cat] || "Harbor", cat, voice: VOICE_OF[cat] || "geometric", town: "Long Beach" };
+  const gal = E.gallery(d, { seed: 1, n: 8 }).map((x) => x.pair);
+  h3 += `<h2>${E.LINE_WORDS[cat]} · ${cat}</h2><div class="g m">`;
+  fam.forEach((k, i) => {
+    const pair = gal[i % gal.length] || "navy_brass", P = E.paletteOf(pair);
+    for (const [line, sharp, lab] of [[false, false, ""], [true, false, " · line"], [false, true, " · sharp"]]) {
+      const r = E.markSvg({ ...d, pair }, faces, k, { line, sharp, pad: .1 });
+      h3 += `<figure style="background:${P.G}"><div class="a">${r.svg.replace(/ width="\d+" height="\d+"/, "")}</div><figcaption>${E.LOGO_MARKS[k].name}${lab}</figcaption></figure>`;
+    }
+  });
+  h3 += "</div><div class=\"g\" style=\"margin-top:10px\">";
+  for (const t of ["lockup", "centred"]) {
+    const x = { ...d, t, mark: fam[t === "lockup" ? 0 : 1], pair: gal[t === "lockup" ? 2 : 3] || "paper_navy", voice: VOICE_OF[cat] || "geometric", line: t === "centred" };
+    h3 += tile(E.logoSvg(x, faces, { bg: false, pad: .06 }), `${t} · ${x.voice} · ${x.pair} · ${x.mark}${x.line ? " line" : ""}`);
+  }
+  h3 += "</div>";
+}
+writeFileSync(join(OUT, "marks.html"), h3);
+
+// one name's gallery in each style: the first gallery (the calm mix), the four calm styles, and Bold
+let h4 = html.split("<h2>")[0].replace("<title>Logo sheet</title>", "<title>Logo styles</title>");
+const sName = names[0], sCat = cats[0];
+for (const st of ["", "classic", "modern", "friendly", "luxury", "bold"]) {
+  const list = E.gallery({ name: sName, cat: sCat, town: "Long Beach" }, { seed, n: 12, style: st }).filter((x) => E.logoSvg(x, faces, { bg: false }).ok).slice(0, 10);
+  h4 += `<h2>${st ? E.STYLES[st].name + ": " + E.STYLES[st].says : "The first gallery (the calm mix)"} · ${sName}</h2><div class="g">`;
+  for (const x of list) h4 += tile(E.logoSvg(x, faces, { bg: false, pad: .06 }), `${x.t} · ${x.voice} · ${x.pair}${x.mark ? " · " + x.mark + (x.line ? " line" : "") : ""}`);
+  h4 += "</div>";
+}
+writeFileSync(join(OUT, "styles.html"), h4);
+console.log("wrote .render/logo-sheet/index.html, forms.html, marks.html and styles.html");

@@ -5167,6 +5167,27 @@ Open:
    (`netlify/lib/mail.mjs` resetMail and confirmMail).
 
 
+## CK. 2026-11-25 — calm logos, a catalogue of marks, five styles (DESIGN-LAW 186)
+
+Done: the research page for the owner (direction A picked), the calm first gallery, twelve new layouts, the
+68-mark catalogue drawn solid and as a line with soft or sharp corners, 16 logo pairs of their own, eleven lettering
+tones, the style chips, the Symbol and Corners rows, the "since" line, the frozen hashes of every older design, the
+contact sheets (marks.html, styles.html).
+
+Open:
+- Done the same day, at the owner's word ("Build it here"): the questionnaire, hearts that steer More, Start from a
+  template and Edit the logo I picked (DESIGN-LAW 186, 10).
+- Done the same day, at the owner's word ("Build it here"): Ask AI to pick for me (DESIGN-LAW 186, 11). Not run
+  against the live model from here (no key in the worktree): the first real ask on webuy.ad, with
+  `ANTHROPIC_API_KEY` set, is its first true test; `logo_check` stands the function in and holds the answer's
+  cleaning.
+- Done the same day, at the owner's word ("Add both here"): the full ad and the card maker open in the nearest of
+  their pairs for a logo in one of the logo's own; the Sign layout's own lettering, Sign painter (Kaushan Script, the
+  Type Lab's approved sign-painter script). **Open:** a classic baseball script (Playball or Yesteryear, both OFL in
+  the Type Lab) needs the owner's yes on the Type Lab page first (rule 140).
+- **Merge with custom-name-location-keywords**: it adds `iconOn` to `cleanDesign` and its own Symbol row for the
+  industry marks; this branch's `variants("icon")` keeps both (the calm logos' catalogue first).
+
 ## CL. 2026-11-25 — the brand card: one card for the logo, the kit and the card maker (DESIGN-LAW 185)
 
 The owner: "business cards also dont have any real brand assets? or background options?", "still not enough to

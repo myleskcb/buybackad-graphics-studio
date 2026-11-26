@@ -146,8 +146,10 @@ function groundItems(it, c, P, ground, w, h) {   // returns the texture's tone, 
   if (ground === "sheen") {
     // a gentle light down the card in its own colour (rule 5: a gradient never travels between hues)
     let top = .1, foot = .18;
-    while (top > 0 && contrast(P.I, mixHex(P.G, "#ffffff", top)) < 4.5) top -= .02;
-    while (foot > 0 && contrast(P.I, mixHex(P.G, "#000000", foot)) < 4.5) foot -= .02;
+    // each end only as far as the words keep 4.5:1 and the accent 3:1 (a light ground's foot darkens toward its accent)
+    const holds = g => contrast(P.I, g) >= 4.5 && (P.A === P.I || contrast(P.A, g) >= 3);
+    while (top > 0 && !holds(mixHex(P.G, "#ffffff", top))) top -= .02;
+    while (foot > 0 && !holds(mixHex(P.G, "#000000", foot))) foot -= .02;
     const ends = [mixHex(P.G, "#ffffff", Math.max(0, top)), mixHex(P.G, "#000000", Math.max(0, foot))];
     it.push({ d: rectD(0, 0, w, h), fill: { grad: ends }, tone: 0 });
     return ends;
