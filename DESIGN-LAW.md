@@ -6225,8 +6225,9 @@ and `/static/app.css`), applied to the new name, so the two read as one family.
 - **The wordmark** (2026-11-25, the owner picked direction D in lowercase, "Lowercase webuy.ad", from
   `tools/brand/logo-d-2026-11-23.html`; the Inter Tight "WeBuy.AD" before it was called bad): the mint
   tag, then `webuy` and `.ad` in Inter Tight 800, -0.045em, the tag and `.ad` in the mint (#2fd58f;
-  #0e9f6a on light, `--mark`). The tag is `assets/brand/tag.svg`, drawn as a CSS mask 1.05em square
-  with .28em after it (a margin, not a flex gap, which would split `webuy` from `.ad`). Pages draw it
+  #0e9f6a on light, `--mark`). The tag is `assets/brand/tag.svg`, its viewBox cropped to the rotated tag's own ink, drawn as a
+  CSS mask .91em by .83em with .12em after it (a margin, not a flex gap, which would split `webuy` from
+  `.ad`). The owner, of .28em on the 24-unit square: "in line closer?". Pages draw it
   from `pages.css` `.brand::before`; the studio from `styles.css` `.logo .logo-mark` in the family skin.
   22px, 21px on a phone, 18px at 360 px and under (at 320 px the bar's menu ran 11 px off at 21). The
   face is reselling.us's own file, OFL, in `assets/fonts/`, and sets the wordmark and nothing else.

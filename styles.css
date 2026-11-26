@@ -3053,7 +3053,7 @@ a.view-item{text-decoration:none}   /* the More menus' links read as the menus' 
 :root[data-skin='family']{--mark:#2fd58f}
 :root[data-skin='family'][data-theme='light']{--mark:#0e9f6a}
 :root[data-skin='family'] .logo{font-family:'Inter Tight',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-weight:800;font-size:22px;letter-spacing:-.045em;gap:0;align-items:center}
-:root[data-skin='family'] .logo .logo-mark{display:block;width:1.05em;height:1.05em;flex:none;margin-right:.28em;border:0;border-radius:0;box-shadow:none;font-size:inherit;color:transparent;overflow:hidden;background:var(--mark);-webkit-mask:url('assets/brand/tag.svg') center/contain no-repeat;mask:url('assets/brand/tag.svg') center/contain no-repeat}
+:root[data-skin='family'] .logo .logo-mark{display:block;width:.91em;height:.83em;flex:none;margin-right:.12em;border:0;border-radius:0;box-shadow:none;font-size:inherit;color:transparent;overflow:hidden;background:var(--mark);-webkit-mask:url('assets/brand/tag.svg') center/contain no-repeat;mask:url('assets/brand/tag.svg') center/contain no-repeat}
 :root[data-skin='family'] .logo em{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--mark)}
 :root[data-skin='family'] .auth-brand .logo-mark{background:url('assets/brand/tag-tile.svg') center/cover;color:transparent;box-shadow:none;border-radius:14px}
 @media (max-width:640px){
