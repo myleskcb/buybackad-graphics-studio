@@ -30,7 +30,7 @@ export const LOGO_VOICES = {
   riot:    { name: "Riot",    display: "protest-riot",    label: "franklin-700",    kind: "display" },
   boogie:  { name: "Boogie",  display: "boogaloo",        label: "instrument-sans", kind: "display" },
   toon:    { name: "Toon",    display: "galindo",         label: "nunito",          kind: "display" },
-  /* The logo's own tones (DESIGN-LAW 183): what real businesses in the trade set their names in, from faces
+  /* The logo's own tones (DESIGN-LAW 186): what real businesses in the trade set their names in, from faces
      the site already ships (assets/fonts, each open-licence and in motion/catalog.js FONTS). The ads never
      wear them, so they are held to FONTS and their outlines, not to TYPE_VOICES (logoOnly). case: how the
      name is set by the layouts drawn for them ("title", "lower" or capitals); track: the name's tracking. */

@@ -92,6 +92,7 @@ ${ids.map(card).join('\n')}
   </div>
 ${table}
   <p class="lp-price-foot">AI credits pay for AI backgrounds: one background is one credit. Need more? ${pack.credits} credits are ${usd(pack.price)} and never expire.</p>
+  <p class="lp-price-foot lp-price-addon">Add-on: a <a href="logo/">logo and brand kit</a> in your business name, ${usd(P.KITS.essentials.price)} or ${usd(P.KITS.complete.price)} once, or add it at checkout. Pro and Business include it.</p>
   <!-- PRICING:END -->`;
 
 /* ---------- write or check ---------- */

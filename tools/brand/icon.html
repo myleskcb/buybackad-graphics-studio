@@ -1,14 +1,45 @@
 <!doctype html>
-<!-- The WeBuy.AD app icon, drawn at 1024 px by tools/brand/make.sh. Reselling.US's
-     icon in WeBuy.AD's letter (DESIGN-LAW rule 153): the navy ground with the
-     blue glow, a white W in Inter Tight, and the period in mint, money made. -->
+<!-- The WeBuy.AD app icon, drawn at 1024 px by tools/brand/make.sh (DESIGN-LAW rule 153).
+     Direction D, lowercase, as the owner picked it on 2026-11-25: the mint tag with
+     "webuy.ad" under it, on the navy. The owner, of the first drawing: "closer logo /
+     wordmark?", so the tag and the word are measured and set as one block, GAP apart,
+     and the block is centred. ?tag draws the tag alone (the favicon, where the word
+     stops reading). -->
 <html><head><meta charset="utf-8"><style>
 @font-face { font-family: "Inter Tight"; src: url("../../assets/fonts/inter-tight-latin.woff2") format("woff2"); font-weight: 500 800; }
-html, body { margin: 0; width: 1024px; height: 1024px; background: transparent; }
-.icon { width: 1024px; height: 1024px; position: relative; overflow: hidden;
-  background: radial-gradient(90% 70% at 78% 8%, rgba(61,139,255,.55), transparent 62%), linear-gradient(160deg, #11244a, #070d1c 70%); }
-.w { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-53%); text-align: center;
-  font: 800 600px/1 "Inter Tight", sans-serif; letter-spacing: -0.06em; color: #f4f7ff; margin-left: -66px; }
-.dot { position: absolute; width: 120px; height: 120px; border-radius: 50%; background: #2fd58f; left: 702px; top: 592px;
-  box-shadow: 0 0 80px rgba(47,213,143,.45); }
-</style></head><body><div class="icon"><div class="w">W</div><div class="dot"></div></div></body></html>
+html, body { margin: 0; width: 1024px; height: 1024px; background: transparent; overflow: hidden; }
+svg { display: block; width: 1024px; height: 1024px; }
+</style></head><body>
+<svg id="icon" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="120" fill="#0b1222"/>
+  <g id="tag"><g transform="rotate(-28 12 12)"><path fill-rule="evenodd" fill="#2fd58f" d="M8.6 4.5H20a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8.6a2 2 0 0 1-1.5-.68L2.4 13.3a2 2 0 0 1 0-2.6l4.7-5.52A2 2 0 0 1 8.6 4.5Zm-.1 9.3a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Z"/></g></g>
+  <text id="word" x="60" y="0" text-anchor="middle" font-family="Inter Tight" font-weight="800" font-size="20" letter-spacing="-.9" fill="#fff">webuy<tspan fill="#2fd58f">.ad</tspan></text>
+</svg>
+<script>
+/* The block: the tag TAG units wide, GAP units above the word's ink, the whole
+   centred on the icon by its ink, not by its boxes. */
+const TAG = 42, GAP = 7, FS = 20, alone = location.search.includes('tag');
+const tag = document.getElementById('tag'), word = document.getElementById('word');
+function place() {
+  if (alone) {
+    word.remove();
+    tag.setAttribute('transform', 'translate(20 20) scale(3.333)');
+    document.body.dataset.done = '1';
+    return;
+  }
+  const s = TAG / 24;
+  tag.setAttribute('transform', `scale(${s})`);
+  const t = tag.getBBox(), w = word.getBBox();
+  /* getBBox gives the tag's ink in its own units and the word's line box; the
+     word's ink starts at its cap height above the baseline (y = 0), about .73 em */
+  const tagTop = t.y * s, tagBot = (t.y + t.height) * s, tagMid = (t.x + t.width / 2) * s;
+  const inkTop = -0.73 * FS, inkBot = 0.2 * FS;           // b and y: ascender to descender
+  const blockH = (tagBot - tagTop) + GAP + (inkBot - inkTop);
+  const top = (120 - blockH) / 2;
+  tag.setAttribute('transform', `translate(${60 - tagMid} ${top - tagTop}) scale(${s})`);
+  word.setAttribute('y', (top + (tagBot - tagTop) + GAP - inkTop).toFixed(2));
+  document.body.dataset.done = '1';
+}
+(document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(place);
+</script>
+</body></html>

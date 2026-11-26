@@ -1183,6 +1183,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .view-drop.open{display:block}
 .view-item{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--text);font:500 13.5px/1 var(--ui);padding:11px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left;transition:background .12s,color .12s}
 .view-item:hover{background:var(--accent-wash);color:var(--accent)}
+a.view-item{text-decoration:none}   /* the More menus' links read as the menus' buttons do */
 .view-item .vi-check{width:16px;height:16px;border:1.5px solid var(--text-dim);border-radius:5px;flex:none;display:grid;place-items:center;font-size:11px;color:var(--accent-ink)}
 .view-item.on .vi-check{background:var(--accent);border-color:var(--accent)}
 .view-item.on .vi-check::after{content:'✓';color:var(--accent-ink)}
@@ -3046,12 +3047,22 @@ input[type=range]{width:100%;accent-color:var(--accent)}
    their own faces. */
 :root[data-type='system'] .hero h1{font-weight:700;letter-spacing:-.04em;line-height:1.02}
 :root[data-type='system'] h1,:root[data-type='system'] h2{letter-spacing:-.03em}
-:root[data-skin='family'] .logo{font-family:'Inter Tight',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-weight:750;font-size:22px;letter-spacing:-.035em;gap:0}
-:root[data-skin='family'] .logo .logo-mark{display:none}
-:root[data-skin='family'] .logo em{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--accent)}
-:root[data-skin='family'] .auth-brand .logo-mark{background:url('assets/brand/icon-192.png') center/cover;color:transparent;box-shadow:none;border-radius:14px}
+/* 2026-11-25, the owner picked direction D in lowercase: the mint tag, then webuy.ad in Inter Tight 800 with
+   .ad in the mint (rule 153). The tag is assets/brand/tag.svg as a mask, so it takes --mark. The sign-in
+   window's tile is the tag alone on the navy, the favicon's picture: the word stops reading that small. */
+:root[data-skin='family']{--mark:#2fd58f}
+:root[data-skin='family'][data-theme='light']{--mark:#0e9f6a}
+:root[data-skin='family'] .logo{font-family:'Inter Tight',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-weight:800;font-size:22px;letter-spacing:-.045em;gap:0;align-items:center}
+:root[data-skin='family'] .logo .logo-mark{display:block;width:1.05em;height:1.05em;flex:none;margin-right:.28em;border:0;border-radius:0;box-shadow:none;font-size:inherit;color:transparent;overflow:hidden;background:var(--mark);-webkit-mask:url('assets/brand/tag.svg') center/contain no-repeat;mask:url('assets/brand/tag.svg') center/contain no-repeat}
+:root[data-skin='family'] .logo em{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--mark)}
+:root[data-skin='family'] .auth-brand .logo-mark{background:url('assets/brand/tag-tile.svg') center/cover;color:transparent;box-shadow:none;border-radius:14px}
 @media (max-width:640px){
   :root[data-skin='family'] .logo,:root[data-skin='family'] .lp-nav .logo{font-size:21px;gap:0}
+}
+/* the tag adds a word's width of its own: on the narrowest phones the mark steps down so the bar's
+   Make my ad and its menu stay on the screen (320 px: 11 px over at 21 px) */
+@media (max-width:360px){
+  :root[data-skin='family'] .logo,:root[data-skin='family'] .lp-nav .logo{font-size:18px}
 }
 
 /* The kicker and the section labels in sentence case, as reselling.us writes them:

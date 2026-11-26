@@ -1,4 +1,4 @@
-/* AI LOGO PICKS (DESIGN-LAW 183). The owner, 2026-11-25: "How do we integrate AI into this and generating what you
+/* AI LOGO PICKS (DESIGN-LAW 186). The owner, 2026-11-25: "How do we integrate AI into this and generating what you
    like?", then "Build it here" for an "Ask AI to pick for me" beside the logo questionnaire.
 
    Claude is the art director, never the illustrator: it reads the shop's own words about itself, what it buys, its

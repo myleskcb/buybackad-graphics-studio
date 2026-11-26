@@ -328,7 +328,7 @@ const logoFile = o => (spec, faces) => E.logoSvg(spec.design, faces, o);
 function profile(spec, faces, { size = 1080, form = "auto", ground = "G" } = {}) {
   const c = ctxOf(spec.design, faces), L = layoutOf(c), whole = form === "auto" ? ["seal", "coin", "burst", "hexagon"].includes(c.d.t) : form === "primary";
   const a = whole ? L.draw(c) : drawMark(c, L.shape), it = [fill(1000, 1000, ground)];
-  // a calm logo's mark (DESIGN-LAW 183) is drawn in the accent, which is the band's own colour: on the band it is
+  // a calm logo's mark (DESIGN-LAW 186) is drawn in the accent, which is the band's own colour: on the band it is
   // knocked out, its ink in the band's lettering. An older logo's mark brings its own body and draws as it did.
   const knock = !whole && ground === "P" && !E.LOGO_LAYOUTS[c.d.t].bold;
   place(it, a, 120, 120, 760, 760, knock ? { as: "Q", under: "P" } : {});

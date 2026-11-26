@@ -64,7 +64,7 @@ for (const f of LOGO_FACES) { const p = join(ROOT, 'logo/glyphs', f + '.js'); if
   ok(!bad.length, 'every logo voice the ads also wear is the catalogue\'s own pair (' + bad.map(([k]) => k).join(', ') + ')');
   const notFull = adV.map(([k]) => k).filter((k) => k !== 'bold' && !FULL_VOICES.includes(k));
   ok(!notFull.length, 'every logo voice the ads also wear is one the full ad wears, or Bold (' + notFull.join(', ') + ')');
-  // DESIGN-LAW 183: the logo's own tones, from faces the catalogue already holds, never an ad voice's key
+  // DESIGN-LAW 186: the logo's own tones, from faces the catalogue already holds, never an ad voice's key
   ok(ownV.length >= 10 && ownV.every(([k, v]) => FONTS[v.display] && FONTS[v.label] && !TYPE_VOICES[k] && (!v.case || ['title', 'lower'].includes(v.case))), 'the logo\'s own tones: ' + ownV.length + ', each in faces of motion/catalog.js FONTS, none sharing an ad voice\'s key');
   const kinds = Object.entries(LOGO_VOICES).filter(([, v]) => (FONTS[v.display] || [])[3] !== v.kind && !(v.kind === 'condensed' && (FONTS[v.display] || [])[3] === 'condensed'));
   ok(!kinds.length, 'each voice\'s kind is its display face\'s (' + kinds.map(([k, v]) => k + ':' + v.kind + '/' + (FONTS[v.display] || [])[3]).join(', ') + ')');
@@ -114,7 +114,7 @@ const NAMES = ['Long Beach Phone Buyers', 'Gold Rush Cash', "Sam's Coins", 'MK E
     const okd = all.filter((d) => E.logoSvg(d, faces, { bg: false }).ok).slice(0, 24);
     const pairs = okd.map((d) => d.pair), voices = {}, dark = okd.filter((d) => E.paletteOf(d.pair).dark).length;
     okd.forEach((d) => { voices[d.voice] = (voices[d.voice] || 0) + 1; });
-    // the calm gallery (DESIGN-LAW 183) leads with the calm layouts drawn for the line (Deco for gold, Varsity for cards)
+    // the calm gallery (DESIGN-LAW 186) leads with the calm layouts drawn for the line (Deco for gold, Varsity for cards)
     const own = Object.keys(E.LOGO_LAYOUTS).filter((t) => E.LOGO_LAYOUTS[t].calm && (E.LOGO_LAYOUTS[t].cats || []).includes(cat));
     if (okd.length < 24) bad.push(cat + '/' + name + ': ' + okd.length + ' logos');
     if (new Set(pairs).size !== pairs.length) bad.push(cat + '/' + name + ': a pair twice');
@@ -124,7 +124,7 @@ const NAMES = ['Long Beach Phone Buyers', 'Gold Rush Cash', "Sam's Coins", 'MK E
     if (new Set(okd.map((d) => d.t)).size < 12) bad.push(cat + '/' + name + ': ' + new Set(okd.map((d) => d.t)).size + ' layouts');
   }
   ok(!bad.length, 'the gallery: 24 logos for every line and name, no pair twice, no voice more than twice, dark and light, 12 layouts or more, the line\'s own layouts early (' + bad.slice(0, 4).join(' | ') + ')');
-  // DESIGN-LAW 183: the first gallery is calm; the styles narrow it; Bold is the gallery as it was
+  // DESIGN-LAW 186: the first gallery is calm; the styles narrow it; Bold is the gallery as it was
   {
     const cb = [];
     for (const cat of Object.keys(E.LINE_WORDS)) {
@@ -178,7 +178,7 @@ const NAMES = ['Long Beach Phone Buyers', 'Gold Rush Cash', "Sam's Coins", 'MK E
   ok(!/clipPath/.test(E.logoSvg({ ...fd, finish: 'pattern' }, faces, { mode: 'black' }).svg) && !/clipPath/.test(E.logoSvg({ ...fd, finish: 'pattern' }, faces, { mode: 'white' }).svg), 'the one-colour versions stay flat');
   ok(E.cleanDesign({ ...fd, finish: 'nope' }).finish === 'flat' && E.cleanDesign({ ...fd, finish: 'pattern' }).finish === 'pattern', 'a design keeps its finish, and only a real one');
 }
-/* ---------- DESIGN-LAW 183: the calm logos, the mark catalogue, and every design saved before them unchanged ---------- */
+/* ---------- DESIGN-LAW 186: the calm logos, the mark catalogue, and every design saved before them unchanged ---------- */
 {
   // a saved design keeps drawing exactly as it was approved: every older layout, in every form, against the hashes the
   // engine of main 5061d8a36 drew (spec/logo-approved.json, written once)
@@ -331,7 +331,7 @@ const NAMES = ['Long Beach Phone Buyers', 'Gold Rush Cash', "Sam's Coins", 'MK E
   r = await hit('/names', { keywords: 'Maria', cat: 'gold' }, kt);
   ok(r.status === 503 && /not switched on/.test(r.json.error), 'AI name ideas without a key: 503, no credit taken (' + r.status + ')');
   ok(((user('kit@x.example').credits || {}).used | 0) === 0, 'no credit used when the AI is off');
-  // AI logo picks (DESIGN-LAW 183): the same gate as the names; the model's answer held to what the engine draws
+  // AI logo picks (DESIGN-LAW 186): the same gate as the names; the model's answer held to what the engine draws
   ok((await hit('/logo/picks', { name: 'Gold Rush Cash', cat: 'gold' })).status === 401, '/logo/picks signed out: 401');
   r = await hit('/logo/picks', { name: 'Gold Rush Cash', cat: 'gold', about: 'family-run' }, kt);
   ok(r.status === 503 && /not switched on/.test(r.json.error) && ((user('kit@x.example').credits || {}).used | 0) === 0, 'AI logo picks without a key: 503, no credit taken (' + r.status + ')');
@@ -394,7 +394,7 @@ if (!NO_BROWSER) {
     await page.fill('#lg-name', 'Gold Rush Cash');
     await page.selectOption('#lg-cat', 'gold');
     await page.click('#lg-go');
-    // DESIGN-LAW 183: Show my logos opens the questionnaire, its first answers already logos in the name
+    // DESIGN-LAW 186: Show my logos opens the questionnaire, its first answers already logos in the name
     const quizAt = (step) => page.waitForFunction((st) => { const g = document.getElementById('lq-grid'); return !document.getElementById('lg-quiz').hidden && g.dataset.step === String(st) && g.dataset.drawn; }, step, { timeout: 60000 });
     await quizAt(0);
     const q0 = (Date.now() - t0) / 1000;
@@ -414,11 +414,14 @@ if (!NO_BROWSER) {
     ok(st.edit && st.kit && st.kit.design && st.kit.design.name === 'Gold Rush Cash' && st.kit.design.cat === 'gold', 'one tap: the rows open, and the logo is kept for the site');
     ok(st.rows.every((n) => n >= 5) && st.files === 6, 'four rows of the logo, 5 to 8 each, and its six files (' + st.rows.join(', ') + '; ' + st.files + ')');
     console.log('  name typed, logos shown, one picked and drawn in ' + ((Date.now() - t0) / 1000).toFixed(1) + ' s');
+    const folded = await page.evaluate(() => { const d = document.getElementById('lg-tweak'); return !!d && !d.open && d.querySelectorAll('.lg-row').length === 5 && !!document.getElementById('ok-all'); });
+    ok(folded, 'the five rows that change the logo are folded until asked for, and Make my whole kit now is beside Next');
+    await page.click('#lg-tweak > summary');
     const before = st.kit.design.pair;
     await page.click('#row-pair button >> nth=3');
     await page.waitForFunction((p) => { const k = JSON.parse(localStorage.getItem('pgfx_logo_kit') || 'null'); return k && k.design.pair !== p; }, before, { timeout: 10000 }).catch(() => {});
     ok(await page.evaluate((p) => JSON.parse(localStorage.getItem('pgfx_logo_kit')).design.pair !== p, before), 'a colour in the row changes the logo');
-    // the style chips (DESIGN-LAW 183): a calm style shows its own layouts; Bold is the gallery as it was
+    // the style chips (DESIGN-LAW 186): a calm style shows its own layouts; Bold is the gallery as it was
     await page.click('#lg-tabs button[data-s="luxury"]');
     await waitTiles(page, 24);
     ok(await page.evaluate((ls) => [...document.querySelectorAll('#lg-grid .lg-tile')].every((b) => ls.includes(b.dataset.t)), E.STYLES.luxury.layouts), 'the Luxury chip shows Luxury\'s layouts');
@@ -549,7 +552,7 @@ if (!NO_BROWSER) {
     await ctx.close();
   }
   {
-    // Ask AI to pick for me (DESIGN-LAW 183): offered once /plans prices it; signed in, the picks come back drawn here
+    // Ask AI to pick for me (DESIGN-LAW 186): offered once /plans prices it; signed in, the picks come back drawn here
     const answer = { picks: [
       { design: { t: 'lockup', name: 'Gold Rush Cash', cat: 'gold', voice: 'classic', pair: 'navy_brass', mark: 'hallmark' }, why: 'A hallmark says gold handled properly.' },
       { design: { t: 'interlace', name: 'Gold Rush Cash', cat: 'gold', voice: 'engraved', pair: 'ink_gold' }, why: 'Discreet, like a jeweller.' },

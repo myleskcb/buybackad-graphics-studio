@@ -706,7 +706,7 @@ export default async (req, context) => {
       }
     }
 
-    /* AI LOGO PICKS (netlify/lib/logo-ai.mjs, DESIGN-LAW 183): Claude picks logos from the engine's catalogue for
+    /* AI LOGO PICKS (netlify/lib/logo-ai.mjs, DESIGN-LAW 186): Claude picks logos from the engine's catalogue for
        the shop's own words and its questionnaire answers; the engine draws them. Credits as for the names. */
     if (p === '/logo/picks' && req.method === 'POST') {
       const em = await readToken(req, env);

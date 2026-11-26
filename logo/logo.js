@@ -127,7 +127,7 @@ async function drawIdeas(given = null, append = false) {
 let aiCost = null, aiLogoCost = null;
 async function aiReady() {
   try { const r = await fetch(new URL("../api/plans", import.meta.url)); const j = await r.json(); aiCost = j && j.ai && j.ai.names; aiLogoCost = j && j.ai && j.ai.logos; } catch (e) { aiCost = null; aiLogoCost = null; }
-  // AI logo picks (DESIGN-LAW 183): offered beside the questions once the function says they are on and priced
+  // AI logo picks (DESIGN-LAW 186): offered beside the questions once the function says they are on and priced
   if (aiLogoCost) { $("lq-ai-go").textContent = "Ask AI to pick (" + aiLogoCost + " AI credits)"; doorsUI(); }
   const b = $("nm-ai"); if (b && aiCost) { b.hidden = false; b.textContent = "Ask AI for ideas (" + aiCost + " AI credits)"; }
 }
@@ -147,7 +147,7 @@ async function askAI(btn) {
 /* ---------- step 2: the gallery ---------- */
 const SHOW = 24;
 let galleryRun = 0;
-/* the style chips (DESIGN-LAW 183): All is the calm mix for the line; Bold is the gallery as it was */
+/* the style chips (DESIGN-LAW 186): All is the calm mix for the line; Bold is the gallery as it was */
 const STYLE_KEYS = ["", "classic", "modern", "friendly", "luxury", "bold"];
 const labelOf = d => `${E.LOGO_LAYOUTS[d.t].name} in ${E.paletteOf(d.pair).name}, ${E.LOGO_VOICES[d.voice].name} lettering`;
 /* the gallery shows one of three views: the questionnaire, the logos (built from its answers and hearts), or the
@@ -155,7 +155,7 @@ const labelOf = d => `${E.LOGO_LAYOUTS[d.t].name} in ${E.paletteOf(d.pair).name}
 const VIEWS = ["quiz", "logos", "templates", "ai"];
 const viewNow = () => state.view === "ai" && !(state.aiPicks || []).length ? "logos" : VIEWS.includes(state.view) ? state.view : state.answers || state.picked ? "logos" : "quiz";
 const HEARTS = 12;
-/** a heart keeps what a logo is made of, not the logo (the taste, DESIGN-LAW 183) */
+/** a heart keeps what a logo is made of, not the logo (the taste, DESIGN-LAW 186) */
 const heartOf = d => ({ t: d.t, voice: d.voice, pair: d.pair, mark: d.mark || "", line: !!d.line, icon: d.icon || "" });
 const hearted = d => (state.hearts || []).some(h => h.t === d.t && h.voice === d.voice && h.pair === d.pair && (h.mark || "") === (d.mark || ""));
 const taste = () => E.tasteOf(state.answers, state.hearts);
@@ -251,7 +251,7 @@ function go(view) {
   $("lg-gallery").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-/* ---------- Ask AI to pick for me (netlify/lib/logo-ai.mjs, DESIGN-LAW 183) ----------
+/* ---------- Ask AI to pick for me (netlify/lib/logo-ai.mjs, DESIGN-LAW 186) ----------
    Claude reads the shop's own words and the answers so far, and picks logos from the engine's catalogue for a few AI
    credits; the engine draws them here, as every logo on the page is drawn. */
 async function askLogoAI() {
@@ -271,7 +271,7 @@ async function askLogoAI() {
   } finally { btn.disabled = false; btn.textContent = label; }
 }
 
-/* ---------- the questionnaire (DESIGN-LAW 183) ---------- */
+/* ---------- the questionnaire (DESIGN-LAW 186) ---------- */
 const QUIZ_STYLES = ["classic", "modern", "friendly", "luxury", "bold"];
 let quizRun = 0;
 /** a logo to dress in each answer: one of the first liked style's (a mark beside or above the name, where there is one) */
@@ -438,6 +438,19 @@ function approve(k) {
   const to = next ? $("step-" + next) : $("kit-review");
   if (!next) drawReview();
   if (to) to.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+/** the fast lane (2026-11-25, the owner: "easier to generate, easier to use"): every step approved as it is
+    drawn, straight to the review. The steps stay on the page above it, each with Try another look. */
+async function approveAll() {
+  for (const f of KIT.FLOW) state.ok[f.key] = true;
+  keep(); rail(); okUI(); showSteps();
+  note("Drawing your whole kit…");
+  /* the steps above the review are drawn first: scrolled to before they were, the review moved on down the page
+     as they filled in, and the visitor was left at the business card (the iPhone app, 2026-11-25) */
+  await Promise.all(KIT.FLOW.filter(f => f.key !== "logo").map(f => drawStep(f.key)));
+  drawReview();
+  note("");
+  requestAnimationFrame(() => $("kit-review").scrollIntoView({ behavior: "smooth", block: "start" }));
 }
 function okUI() {
   for (const f of KIT.FLOW) {
@@ -732,7 +745,7 @@ function bind() {
     if (!state.name.trim()) { $("lg-name").focus(); return; }
     newBusiness(was); state.seed = 1; keep(); fillForm(); showGallery(true);
   });
-  // the questionnaire's buttons and the ways in and out of it (DESIGN-LAW 183)
+  // the questionnaire's buttons and the ways in and out of it (DESIGN-LAW 186)
   $("lq-next").onclick = () => quizNext(false);
   $("lq-skip").onclick = () => quizNext(true);
   $("lq-back").onclick = () => { if (state.quiz && state.quiz.step > 0) { state.quiz.step--; keep(); renderQuiz(); } };
@@ -765,6 +778,7 @@ function bind() {
     typing = setTimeout(() => { state.picked = { ...state.picked, since: state.since }; changed(); keepKit(); drawPicked(); }, 300);
   });
   $("ok-logo").onclick = () => approve("logo");
+  $("ok-all").onclick = approveAll;
   let resize = 0;
   window.addEventListener("resize", () => { clearTimeout(resize); resize = setTimeout(() => { if (state.picked && !$("lg-edit").hidden) paint($("lg-big"), state.picked, { w: $("lg-big").parentElement.clientWidth || 600, h: Math.round(($("lg-big").parentElement.clientWidth || 600) * .68), fill: .74, marked: !owned() }); }, 250); });
 }

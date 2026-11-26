@@ -2,7 +2,7 @@
 /* A contact sheet of the logo maker's gallery (DESIGN-LAW 176): the finished logos it offers for a few
    real kinds of name and line, drawn by logo/engine.js in Node exactly as the page and the function
    draw them, written to .render/logo-sheet/index.html (with every layout's mark, lockup and one-colour
-   versions on a second sheet, forms.html). DESIGN-LAW 183 adds marks.html, every line's family of marks drawn
+   versions on a second sheet, forms.html). DESIGN-LAW 186 adds marks.html, every line's family of marks drawn
    solid, as a line and sharp in that line's own colours, and styles.html, one name's gallery in each style.
    Look at them before and after any change to a layout or a mark.
 
@@ -65,7 +65,7 @@ const LINE_NAMES = { phones: "Harbor Mobile", devices: "Harbor Devices", compute
   cameras: "Harbor Cameras", strips: "Harbor Strips", wholesale: "Harbor Wholesale", resale: "Harbor Resale" };
 const VOICE_OF = { gold: "banker", silver: "banker", coins: "classic", wearables: "engraved", pokemon: "friendly", sports: "sturdy", gaming: "friendly", cars: "sturdy", wholesale: "workshop", resale: "friendly" };
 let h3 = html.split("<h2>")[0].replace("<title>Logo sheet</title>", "<title>Mark catalogue</title>") + `<style>.m{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.m figure{background:#fff}.m .a{aspect-ratio:1;padding:10px}</style>`;
-h3 += `<h1 style="font:700 22px system-ui">The mark catalogue (DESIGN-LAW 183): ${Object.keys(E.LOGO_MARKS).length} marks, a family of six to eight a line</h1>`;
+h3 += `<h1 style="font:700 22px system-ui">The mark catalogue (DESIGN-LAW 186): ${Object.keys(E.LOGO_MARKS).length} marks, a family of six to eight a line</h1>`;
 for (const [cat, fam] of Object.entries(E.MARKS_FOR)) {
   const d = { name: LINE_NAMES[cat] || "Harbor", cat, voice: VOICE_OF[cat] || "geometric", town: "Long Beach" };
   const gal = E.gallery(d, { seed: 1, n: 8 }).map((x) => x.pair);

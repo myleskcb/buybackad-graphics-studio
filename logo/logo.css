@@ -43,7 +43,7 @@
 @media (prefers-reduced-motion:reduce){.lg-tile.wait{animation:none}.lg-tile{transition:none}}
 .lg-more-row{display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;margin-top:20px}
 
-/* the questionnaire (DESIGN-LAW 183): each answer a finished logo in the shop's name */
+/* the questionnaire (DESIGN-LAW 186): each answer a finished logo in the shop's name */
 .lq[hidden],.lq-sum[hidden],.lq-hearts[hidden],.lg-more-row[hidden],.lg-grid[hidden],.lg-tabs[hidden],.lg-btn[hidden],.lg-link[hidden]{display:none}
 .lq{background:var(--panel);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-radius:22px;padding:clamp(16px,2.4vw,26px);margin-bottom:16px}
 .lq-top{margin-bottom:16px}
@@ -248,3 +248,12 @@
 .kit-format button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .kit-format small{flex-basis:100%;font-size:13.5px;color:var(--muted)}
 .kit-mine .kit-format{margin:0 0 6px}
+
+/* the five rows that change a picked logo, folded until asked for (2026-11-25) */
+.lg-tweak{border:1px solid var(--line);border-radius:14px;background:var(--panel);margin:14px 0 0}
+/* the summary wears the site's own plus that turns to a minus (pages.css), set in from the box's edge */
+.lg-tweak>summary{display:block;padding:15px 52px 15px 16px;font-family:inherit;font-weight:650;font-size:15px;letter-spacing:0;color:var(--text);line-height:1.35}
+.lg-tweak>summary::before,.lg-tweak>summary::after{right:18px}
+.lg-tweak>summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:12px}
+.lg-tweak>:not(summary){margin-left:16px;margin-right:16px}
+.lg-tweak>:last-child{margin-bottom:16px}

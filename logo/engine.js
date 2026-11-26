@@ -37,7 +37,7 @@ export const lumOf = h => { const [r, g, b] = rgbOf(h); return .2126 * lin(r) + 
 export const contrast = (a, b) => { const x = lumOf(a), y = lumOf(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
 const hx = n => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, "0");
 export const mixHex = (a, b, t) => { const A = rgbOf(a), B = rgbOf(b); return "#" + A.map((v, i) => hx(v + (B[i] - v) * t)).join(""); };
-/* The logo's own pairs (DESIGN-LAW 183). The owner, 2026-11-25: "most of the colors are pretty good, but some of
+/* The logo's own pairs (DESIGN-LAW 186). The owner, 2026-11-25: "most of the colors are pretty good, but some of
    them are a little out there", "we don't want the exact same effects of a super eye-catching neon ad". What
    established dealers wear (researched 2026-11-25): metal as a flat brass or ochre beside navy, slate or black,
    never a bright yellow; one or two flat colours. The ads never wear these (the full ad and the card maker take a
@@ -72,7 +72,7 @@ export const LOGO_PAIRS = ["navy_gold", "navy_orange", "midnight_cyan", "blue_gr
   "sand_teal", "arctic_teal", "bone_purple", "white_pink", "black_pink", "black_lime", "black_cyan", "black_violet", "teal_pink",
   "hot_pink_black_cobalt", "yellow_black_magenta", "mint_black_violet", "orange_black_cobalt", "red_on_white", "black_on_white",
   ...LOGO_OWN_PAIRS.map(p => p.key)].filter(k => PAIR_OF[k] && !PAIR_OF[k].twin);
-/** The pairs a calm logo wears (DESIGN-LAW 183): the logo's own and the house pairs a sign can carry. The rest
+/** The pairs a calm logo wears (DESIGN-LAW 186): the logo's own and the house pairs a sign can carry. The rest
  *  (neon, lime, aqua, hot pink and the like) stay for the Bold style, where a shop that wants them finds them. */
 export const CALM_PAIRS = [...LOGO_OWN_PAIRS.map(p => p.key), "navy_gold", "black_gold", "green_gold", "purple_gold", "silver_blue",
   "white_on_navy", "white_on_blue", "white_on_green", "white_on_teal", "white_on_red", "red_white_blue", "navy_white_red", "cream_red",
@@ -115,7 +115,7 @@ export const smallFor = cat => LINE_SMALL[cat] || "WE BUY " + (LINE_WORDS[cat] |
 const up = s => String(s || "").toUpperCase().replace(/\bIPHONE/g, "iPHONE").replace(/\bIPAD/g, "iPAD").replace(/\bIMAC/g, "iMAC");
 const titleCase = s => String(s || "").split(/(\s+)/).map(w => /^\s+$/.test(w) || !w ? w : w === w.toUpperCase() && w.length <= 3 ? w : w[0].toUpperCase() + w.slice(1).toLowerCase()).join("");
 const tidy = s => String(s || "").replace(/[\u0000-\u001f<>]/g, "").replace(/\s+/g, " ").trim();
-/* How the logo's own tones set a name (DESIGN-LAW 183): Title Case that keeps what the customer typed on purpose
+/* How the logo's own tones set a name (DESIGN-LAW 186): Title Case that keeps what the customer typed on purpose
    (iPhones, McCoy, MK, LA), or all lower case, which falls back to that Title Case when the name holds initials or
    a brand's own capitals. Small words inside a name stay small (Buyers of Orange County). */
 const SMALL_WORDS = new Set(["of", "and", "the", "de", "del", "la", "for", "at", "by", "on", "in", "to", "a", "an"]);
@@ -448,7 +448,7 @@ const markLayout = (name, cats, key) => ({ name, group: "mark", shape: "circle",
   return { w: W, h: y + capOf(Lb, ss) + 50, it, ok: bx.cap >= MIN_CAP, word: true };
 } });
 
-/* ---------- the mark catalogue (DESIGN-LAW 183) ----------
+/* ---------- the mark catalogue (DESIGN-LAW 186) ----------
    The owner, 2026-11-25: "One vector doesn't work; having a family of vectors in a catalogue of vectors to pick
    from is much better", and the logos were "a little angular and a little too sharp". Each line has six to eight
    marks. What the research found (real logos in the trade, checked 2026-11-25): the strongest marks come from the
@@ -1047,7 +1047,7 @@ function ctxOf(d, faces) {
 }
 const MIN_CAP = 46;   // a name's capitals, on the 1000 unit artboard: under this it is not a logo's name
 
-/* ---------- the calm layouts' parts (DESIGN-LAW 183) ---------- */
+/* ---------- the calm layouts' parts (DESIGN-LAW 186) ---------- */
 const CALM_KINDS = ["serif", "slab", "geometric", "grotesk", "condensed"];
 /** the older layouts a calm logo may wear, with calm lettering and colours (none of them sharp or starred) */
 const CALM_OLD = ["monogram", "roundel", "stacked", "label"];
@@ -1516,7 +1516,7 @@ const LAYOUTS = {
     return { w: W, h: py + ph + 50, it, ok: capOf(D, B.size) >= MIN_CAP * 1.2, word: true };
   } },
 
-  /* ---------- the calm layouts (DESIGN-LAW 183): what real businesses in the trade wear ---------- */
+  /* ---------- the calm layouts (DESIGN-LAW 186): what real businesses in the trade wear ---------- */
   /* The wordmark: the name in a calm face and nothing round it, one accent detail (a full stop, a short rule),
      the trade's words tracked out under it as wide as the name, and the shop's own facts. */
   wordmark: { name: "Wordmark", group: "wordmark", shape: "square", calm: true, kinds: CALM_KINDS, mark: calmMark, draw(c) {
@@ -1893,7 +1893,7 @@ export function cleanDesign(x) {
     seed: Math.abs(d.seed | 0) % 100000,
     markInit: !!d.markInit,
     finish: FINISHES[d.finish] ? d.finish : "flat",
-    // DESIGN-LAW 183: the mark from the line's catalogue, drawn as a line or solid, soft corners unless sharp, and
+    // DESIGN-LAW 186: the mark from the line's catalogue, drawn as a line or solid, soft corners unless sharp, and
     // the shop's own "since". Only the calm layouts read them, so a design saved before them draws as it did.
     mark: MARK_SET[d.mark] ? d.mark : "",
     line: !!d.line,
@@ -1933,7 +1933,7 @@ function layoutsFor(cat) {
 /** the voices that were the logo maker's before its own tones: the Bold style's */
 const AD_VOICES = Object.keys(LOGO_VOICES).filter(v => !LOGO_VOICES[v].logoOnly);
 
-/* ---------- the styles (DESIGN-LAW 183) ----------
+/* ---------- the styles (DESIGN-LAW 186) ----------
    The owner, 2026-11-25, picking direction A: the gallery opens on calm logos, and styles narrow it. "We're not
    always looking for attention and unlimited variety ... we're also trying to build professionalism and trust".
    A style is a set of layouts, lettering, colours and kinds of mark that read one way; the calm gallery deals from
@@ -2086,7 +2086,7 @@ function boldGallery(base, R, { seed, n, group, liked = [] }) {
   }
   return out;
 }
-/* ---------- the questionnaire and the templates (DESIGN-LAW 183) ----------
+/* ---------- the questionnaire and the templates (DESIGN-LAW 186) ----------
    The owner, 2026-11-25: "how could this become some sort of a questionnaire where you choose assets, color schemes
    you like, suggested builds and then you end up with the final pick ... or you can build your own from a template
    or existing edit". Three questions, each answered by tapping finished logos in the shop's own name (never a

@@ -5167,7 +5167,7 @@ Open:
    (`netlify/lib/mail.mjs` resetMail and confirmMail).
 
 
-## CK. 2026-11-25 — calm logos, a catalogue of marks, five styles (DESIGN-LAW 183)
+## CK. 2026-11-25 — calm logos, a catalogue of marks, five styles (DESIGN-LAW 186)
 
 Done: the research page for the owner (direction A picked), the calm first gallery, twelve new layouts, the
 68-mark catalogue drawn solid and as a line with soft or sharp corners, 16 logo pairs of their own, eleven lettering
@@ -5176,8 +5176,8 @@ contact sheets (marks.html, styles.html).
 
 Open:
 - Done the same day, at the owner's word ("Build it here"): the questionnaire, hearts that steer More, Start from a
-  template and Edit the logo I picked (DESIGN-LAW 183, 10).
-- Done the same day, at the owner's word ("Build it here"): Ask AI to pick for me (DESIGN-LAW 183, 11). Not run
+  template and Edit the logo I picked (DESIGN-LAW 186, 10).
+- Done the same day, at the owner's word ("Build it here"): Ask AI to pick for me (DESIGN-LAW 186, 11). Not run
   against the live model from here (no key in the worktree): the first real ask on webuy.ad, with
   `ANTHROPIC_API_KEY` set, is its first true test; `logo_check` stands the function in and holds the answer's
   cleaning.
