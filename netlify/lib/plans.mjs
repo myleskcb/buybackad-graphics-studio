@@ -135,6 +135,22 @@ export const PLAN_FOR = { free: 'Try every step, no card', basic: 'Photo ads, ev
 const LEGACY = { starter: 'pro' };
 export const planId = (p) => (PLANS[p] ? p : LEGACY[p] || 'free');
 export const PAID = Object.keys(PLANS).filter((id) => id !== 'free');
+/* A plan that comes with a Reselling.US plan (netlify/lib/rsus.mjs, DESIGN-LAW 187): every paid
+   Reselling.US plan includes one of ours, kept on the account as `rsus` with the date it holds until.
+   `plan` stays the one the account is BILLED for (Stripe moves it and only it); what the account may
+   DO is planOf, the higher of the two while the included one holds. */
+export const RANK = ['free', 'basic', 'pro', 'business'];
+export const INCLUDED_PLANS = ['basic', 'pro', 'business'];
+/** the plan a Reselling.US plan includes on this account now, else 'free' */
+export const includedPlan = (u, now) => {
+  const g = u && u.rsus;
+  return g && INCLUDED_PLANS.includes(g.plan) && g.until > (now === undefined ? Date.now() : now) ? g.plan : 'free';
+};
+/** what the account may do: its billed plan or the included one, whichever is higher */
+export const planOf = (u, now) => {
+  const own = planId(u && u.plan), inc = includedPlan(u, now);
+  return RANK.indexOf(inc) > RANK.indexOf(own) ? inc : own;
+};
 /** can this plan download (or save to the library) a video ad */
 export const videoOk = (plan) => !!PLANS[planId(plan)].video;
 /** whether a plan downloads print-ready business cards (cards/) */
@@ -220,7 +236,7 @@ const thisMonth = () => { const d = new Date(); return d.getUTCFullYear() + '-' 
 
 /** The account's credits now: the plan's for this month, and bought. */
 export function creditState(user, month) {
-  const plan = PLANS[planId(user && user.plan)];
+  const plan = PLANS[planOf(user)];
   const m = month || thisMonth();
   const c = (user && user.credits) || {};
   const used = c.period === m ? c.used || 0 : 0;

@@ -65,7 +65,7 @@
 import { getStore } from '@netlify/blobs';
 import { libraryRoute } from '../lib/library.mjs';
 import { adLibraryRoute, ownerKey } from '../lib/adlibrary.mjs';
-import { PLANS, PACKS, KITS, KIT_UPGRADE, KIT_ADDON_OFF, kitIncluded, PAID, planId, videoOk, cardsOk, logosOk, creditState, backgroundCredits, creditsFor, spendCredits, refundCredits } from '../lib/plans.mjs';
+import { PLANS, PACKS, KITS, KIT_UPGRADE, KIT_ADDON_OFF, kitIncluded, PAID, planId, planOf, includedPlan, RANK, videoOk, cardsOk, logosOk, creditState, backgroundCredits, creditsFor, spendCredits, refundCredits } from '../lib/plans.mjs';
 import { logoFiles, brandKitFiles, cleanKitSpec } from '../lib/logos.mjs';
 import { aiNameIdeas, namesOn, NAMES_COST_KEY } from '../lib/names.mjs';
 import {
@@ -75,6 +75,7 @@ import {
 } from '../lib/billing.mjs';
 import { bggenRoute, generateImage, loadRecipe, dataUrlOf } from '../lib/bggen.mjs';
 import { verifyAppleIdToken } from '../lib/appleid.mjs';
+import { rsusOn, readLinkToken, grantFrom, recheckDue, askPlan, applyAnswer, includedView } from '../lib/rsus.mjs';
 import { verifyGoogleToken, googleProfileName } from '../lib/googleid.mjs';
 import { mailOn, sendMail, resetMail, confirmMail, newToken, tokenShape, sha256, siteOf, windowLimit, LIMITS, RESET_MINUTES, CONFIRM_DAYS } from '../lib/mail.mjs';
 
@@ -154,14 +155,14 @@ const roleFor = (email, env) => (adminEmails(env).includes(email) ? 'admin' : 'u
    the account has a password (rule 182). Nobody is locked out either way. */
 const confirmedOf = (u) => !!(u.confirmed || u.provider === 'google' || u.provider === 'apple' || u.appleSub);
 const publicUser = (u, env) => ({
-  email: u.email, plan: planId(u.plan), exports: u.exports, videos: u.videos || { period: '', count: 0 }, role: roleFor(u.email, env),
+  email: u.email, plan: planOf(u), billed: planId(u.plan), included: includedView(u, Date.now()), exports: u.exports, videos: u.videos || { period: '', count: 0 }, role: roleFor(u.email, env),
   credits: roleFor(u.email, env) === 'admin' ? { ...creditState(u), unlimited: true } : creditState(u),
   sub: u.sub && u.sub.id ? { plan: u.sub.plan, interval: u.sub.interval, status: u.sub.status, periodEnd: u.sub.periodEnd, cancelAt: u.sub.cancelAt } : null,
   confirmed: confirmedOf(u), askConfirm: mailOn(env) && !confirmedOf(u) && !!u.hash,
 });
 /* the download meter of an account's plan: this period's count, its cap */
 function exportMeter(user) {
-  const plan = PLANS[planId(user.plan)];
+  const plan = PLANS[planOf(user)];
   const cap = plan.weekly ?? plan.monthly;
   const period = plan.weekly ? isoWeek() : isoMonth();
   if (!user.exports || user.exports.period !== period) user.exports = { period, count: 0 };
@@ -170,7 +171,7 @@ function exportMeter(user) {
 /* the video meter, apart from the photos (plans.mjs `videos`, 2026-11-18): a
    calendar month's video downloads; null is unlimited (Business) */
 function videoMeter(user) {
-  const plan = PLANS[planId(user.plan)];
+  const plan = PLANS[planOf(user)];
   const cap = plan.videos === undefined ? null : plan.videos;
   const period = isoMonth();
   if (!user.videos || user.videos.period !== period) user.videos = { period, count: 0 };
@@ -178,7 +179,12 @@ function videoMeter(user) {
 }
 /* a paid account whose period ran out is read from Stripe again (billing.mjs) */
 async function freshUser(user, env) {
-  if (billingOn(env) && syncDue(user) && (await syncSub(user, env))) await putUser(user);
+  let changed = billingOn(env) && syncDue(user) && (await syncSub(user, env));
+  /* the plan a Reselling.US plan includes: asked again every few hours, and sooner when it is about
+     to run out; an answer that does not come leaves it holding until its own date (rsus.mjs) */
+  const now = Date.now();
+  if (rsusOn(env) && recheckDue(user, now) && applyAnswer(user, await askPlan(user.rsus.shop, env), now)) changed = true;
+  if (changed) await putUser(user);
   return user;
 }
 
@@ -298,7 +304,7 @@ export default async (req, context) => {
       store: adStore(),
       accountsReady: !!env.JWT_SECRET,
       whoami: (r) => readToken(r, env),
-      account: async (em) => { const u = await getUser(em); return u ? { plan: u.plan || 'free', role: roleFor(em, env) } : null; },
+      account: async (em) => { const u = await getUser(em); return u ? { plan: planOf(u), role: roleFor(em, env) } : null; },
       count: async (owner) => {
         try { return await bumpCounter('adlib:' + owner + ':' + isoDay(), parseInt(env.ADLIB_DAILY || '100', 10)); }
         catch (e) { console.warn('ad library: the day count failed, letting it through', e); return true; }
@@ -514,6 +520,38 @@ export default async (req, context) => {
       return json({ user: publicUser(await freshUser(user, env), env) });
     }
 
+    /* The plan a Reselling.US plan includes, switched on for the signed-in account (rsus.mjs,
+       DESIGN-LAW 187). POST { t }: the token from /included.html's address. Spent once; the shop's
+       plan moves to this account from any other; the account it is on is the one signed in here. */
+    if (p === '/rsus/claim' && req.method === 'POST') {
+      if (!rsusOn(env)) return json({ error: "Reselling.US isn't connected to WeBuy.AD yet. Write to support@webuy.ad and we'll switch your plan on." }, 503);
+      const em = await readToken(req, env);
+      if (!em) return json({ error: 'Sign in first', signIn: true }, 401);
+      if (!(await limited('rl:rsus:' + (await sha256(ipOf(req, context))), [20, 3600e3])).ok) return json({ error: 'Too many tries. Wait a little and try again.' }, 429);
+      const user = await seenUser(req, em);
+      if (!user) return json({ error: 'Account not found' }, 404);
+      const { t } = await req.json().catch(() => ({}));
+      const now = Date.now();
+      const got = await readLinkToken(t, env, now);
+      if (got.error) return json({ error: got.error === 'expired'
+        ? 'This link has expired: it works for a few minutes. Go back to Reselling.US and press Open WeBuy.AD again.'
+        : "This link isn't complete or isn't from Reselling.US. Go back to Reselling.US and press Open WeBuy.AD again.", why: got.error }, 400);
+      const d = got.data, store = users();
+      if (await store.get('rsn:' + d.n)) return json({ error: 'This link has already been used. Go back to Reselling.US and press Open WeBuy.AD again.', why: 'used' }, 409);
+      await store.set('rsn:' + d.n, String(d.exp));
+      /* one shop, one account: from whichever account had it before */
+      const before = await store.get('rsus:shop:' + d.shop);
+      if (before && before !== em) {
+        const prev = await getUser(before);
+        if (prev && prev.rsus && prev.rsus.shop === d.shop) { prev.rsus = null; await putUser(prev); }
+      }
+      if (user.rsus && user.rsus.shop && user.rsus.shop !== d.shop && (await store.get('rsus:shop:' + user.rsus.shop)) === em) await store.delete('rsus:shop:' + user.rsus.shop);
+      user.rsus = grantFrom(d, now);
+      await putUser(user);
+      await store.set('rsus:shop:' + d.shop, em);
+      return json({ ok: true, moved: !!(before && before !== em), user: publicUser(user, env) });
+    }
+
     /* Delete my account (2026-11-19, for the WeBuy.AD iPhone app: App Store
        guideline 5.1.1(v) asks an app that makes accounts to let them be
        deleted inside it; the website gets the same). POST {confirm:'delete'}.
@@ -553,6 +591,7 @@ export default async (req, context) => {
         await gen.delete('idx/' + em);
       } catch (e) { console.warn('account delete: the AI pictures', e.message); }
       for (const h of [user.resetLink, user.confirmLink]) if (h) await users().delete('mt:' + h).catch(() => {});   // its mailed links stop working
+      if (user.rsus && user.rsus.shop && (await users().get('rsus:shop:' + user.rsus.shop)) === em) await users().delete('rsus:shop:' + user.rsus.shop).catch(() => {});
       await users().delete('u:' + em);
       return json({ ok: true });
     }
@@ -575,15 +614,15 @@ export default async (req, context) => {
       const { kind } = await req.json().catch(() => ({}));
       /* a print-ready business card (cards/): Pro and Business (plans.mjs cards, owner 2026-11-22:
          "needs to be super pay walled"), then one of the plan's photo downloads */
-      if (kind === 'card' && !cardsOk(user.plan)) {
+      if (kind === 'card' && !cardsOk(planOf(user))) {
         return json({ error: 'Print-ready business cards come with Pro and Business', needs: 'cards', user: publicUser(user, env) }, 403);
       }
       /* the logo files and brand kit (logo/): Pro and Business (plans.mjs logos). The logo maker asks
          here only to know whether its preview is marked; the files come from /logo/file below. */
-      if (kind === 'logo' && !logosOk(user.plan)) {
+      if (kind === 'logo' && !logosOk(planOf(user))) {
         return json({ error: 'Logo files come with Pro and Business', needs: 'logos', user: publicUser(user, env) }, 403);
       }
-      if (kind === 'video' && !videoOk(user.plan)) {
+      if (kind === 'video' && !videoOk(planOf(user))) {
         return json({ error: 'Video downloads come with Pro and Business', needs: 'video', user: publicUser(user, env) }, 403);
       }
       if (kind === 'video') {
@@ -616,7 +655,7 @@ export default async (req, context) => {
       if (!admin) await freshUser(user, env);
       const { design, phone } = await req.json().catch(() => ({}));
       if (!design || typeof design !== 'object' || Array.isArray(design)) return json({ error: 'Send the logo to draw' }, 400);
-      if (!admin && !logosOk(user.plan)) return json({ error: 'Logo files come with Pro and Business', needs: 'logos', user: publicUser(user, env) }, 403);
+      if (!admin && !logosOk(planOf(user))) return json({ error: 'Logo files come with Pro and Business', needs: 'logos', user: publicUser(user, env) }, 403);
       const m = exportMeter(user);
       if (!admin && m.cap !== null && m.remaining <= 0) {
         return json({ error: 'Download limit reached: ' + m.plan.label + "'s " + m.cap + ' photo downloads this ' + m.per, kind: 'photo', limit: m.cap, per: m.per, user: publicUser(user, env) }, 402);
@@ -641,7 +680,7 @@ export default async (req, context) => {
       if (!admin) await freshUser(user, env);
       const view = () => {
         const k = kitsOf(user);
-        return { included: admin ? 'complete' : kitIncluded(user.plan), credits: kitCredits(user),
+        return { included: admin ? 'complete' : kitIncluded(planOf(user)), credits: kitCredits(user),
           saved: k.saved.filter((x) => !x.refunded).map((x) => ({ id: x.id, name: x.name, tier: x.tier, spec: x.spec, at: x.at, via: x.via })),
           prices: { essentials: KITS.essentials.price, complete: KITS.complete.price, upgrade: KIT_UPGRADE.price, addonOff: KIT_ADDON_OFF } };
       };
@@ -656,7 +695,7 @@ export default async (req, context) => {
         let kit = k.saved.find((x) => x.key === key && !x.refunded);
         if (kit) { kit.spec = spec; kit.at = Date.now(); }
         else {
-          const inc = admin ? 'complete' : kitIncluded(user.plan);
+          const inc = admin ? 'complete' : kitIncluded(planOf(user));
           let tier = inc, via = admin ? 'admin' : 'plan', b = null;
           if (!inc) {
             const order = body.tier === 'essentials' ? ['essentials', 'complete'] : ['complete', 'essentials'];
@@ -850,9 +889,13 @@ export default async (req, context) => {
       const consentAt = new Date().toISOString();
       await freshUser(user, env);
       if (kit === 'upgrade' && !kitsOf(user).saved.some((x) => x.id === kitId && x.tier === 'essentials' && !x.refunded)) return json({ error: 'That kit is not an Essentials kit on this account' }, 400);
-      if (kit && kit !== 'upgrade' && kitIncluded(user.plan)) return json({ error: 'Your plan already includes the Complete brand kit', included: true }, 409);
+      if (kit && kit !== 'upgrade' && kitIncluded(planOf(user))) return json({ error: 'Your plan already includes the Complete brand kit', included: true }, 409);
       if (plan && planId(user.plan) !== 'free' && user.sub && user.sub.id && user.sub.status !== 'gone') {
         return json({ error: 'You already have a plan. Switch it instead.', switch: true }, 409);
+      }
+      const inc = includedPlan(user);
+      if (plan && RANK.indexOf(plan) <= RANK.indexOf(inc)) {
+        return json({ error: 'Your ' + (user.rsus.via || 'Reselling.US') + ' plan on Reselling.US already includes ' + PLANS[inc].label + '.', included: true, user: publicUser(user, env) }, 409);
       }
       /* One open checkout per account. A second one (another tab, or the
          dialog closed and opened again) expires the first, so nobody can pay
