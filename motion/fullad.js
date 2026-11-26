@@ -2538,6 +2538,11 @@ export function fullMeasure(ad) {
 
 /** A subject's set of pictures (motion/subjects.json, from the offer family) as the engine's
  *  assets: { ids, assets }. Each is marked flat, so FullAd draws it as it is. */
+/* The cut-outs' revision (2026-11-25): assets/cutouts is served with a 30-day browser TTL (_headers), so a
+   picture replaced under its own name stayed stale for a returning visitor for up to a month; the relit
+   Camry (rule 188) would not have reached the owner's own browser. Every picture loadSubjectSet asks for
+   carries it, as app.js's ASSET_REV does for the studio's: bump both whenever assets/cutouts changes. */
+export const CUTOUT_REV = "20261125a";
 export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cutouts/", opts = {}) {
   const sets = subject.sets || [], pool = subject.pool || [];
   // the first set is the line's pool when it has one, and each seed draws one entry of it
@@ -2553,7 +2558,7 @@ export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cu
   const idOf = ({ file, k }) => "sub-" + file + (k && k !== 1 ? "@" + k : "");
   const imgs = new Map();
   await Promise.all([...new Set(set.map(p => p.file))].map(async file => {
-    const img = await new Promise((res, rej) => { const i = new Image(); i.decoding = "async"; i.onload = () => res(i); i.onerror = () => rej(new Error("The picture " + file + " did not load.")); i.src = base + file + ".webp"; });
+    const img = await new Promise((res, rej) => { const i = new Image(); i.decoding = "async"; i.onload = () => res(i); i.onerror = () => rej(new Error("The picture " + file + " did not load.")); i.src = base + file + ".webp?v=" + CUTOUT_REV; });
     imgs.set(file, img);
   }));
   for (const p of set) {
