@@ -1,0 +1,31 @@
+{
+ "_doc": "Cut-outs corrected as one light by scripts/relight_cutout.mjs: white balance toward daylight white, then one exposure gain with a soft shoulder. from/to are the SHA-256 of the cut it was applied to and of what it wrote.",
+ "cutouts": {
+  "car-toyota-camry-2025-white-side": {
+   "why": "Shot on an overcast, wet day: the white paint read blue-grey and half a stop dark on bright grounds (the owner, 2026-11-25: why does this one look so dark / shaded?)",
+   "settings": {
+    "strength": 0.85,
+    "warm": 1.02,
+    "white": 0.78,
+    "knee": 0.82,
+    "quality": 90
+   },
+   "from": "ea37b61d023404f8bf9d27181c0743223f2e43497075fd4c79497f25f8b8f7e3",
+   "to": "7e5486908493104b8c71b1468be76fb4ec4c6dd1b8e18abbdba2b6ca4a648207",
+   "measured": {
+    "paint_linear_rgb": [
+     0.393,
+     0.569,
+     0.702
+    ],
+    "wb_gains": [
+     1.404,
+     1,
+     0.826
+    ],
+    "exposure": 1.377,
+    "stops": 0.46
+   }
+  }
+ }
+}

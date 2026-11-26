@@ -975,7 +975,7 @@
     "license": "CC0",
     "artist": "Sardaka",
     "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20Camry%20001aaa.jpg",
-    "note": "cut from assets/bg-web/angles-toyota-camry-side-view-2.jpg by scripts/cut_vehicle_photos.py. a white Toyota Camry (XV80, 2025-), side on"
+    "note": "cut from assets/bg-web/angles-toyota-camry-side-view-2.jpg by scripts/cut_vehicle_photos.py, then relit to daylight white by scripts/relight_cutout.mjs (assets/cutouts/RELIGHT.json). a white Toyota Camry (XV80, 2025-), side on"
   },
   "car-toyota-corolla-cross-silver-rear": {
     "license": "CC BY-SA 4.0",

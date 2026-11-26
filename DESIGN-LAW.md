@@ -7830,3 +7830,24 @@ claim signed out and in, Starter's credits and downloads, a token spent twice, a
 checkout refusal before Stripe is asked, the check-back up, down, unanswered and long over, and the link off
 without the secret. `--serve <port>` runs the site and the function on a stand-in store for a local run
 against a local Reselling.US.
+
+## 188. A product photographed in poor light is relit as one light, never retouched
+
+Added 2026-11-25. The owner, of the white 2025 Camry on a cyan ad: "why does this one look so dark /
+shaded?", then "I like the car and model is good popular", "Yes, brighten it". The ad shades nothing;
+the photograph (CC0, Commons) was taken on an overcast, wet day. Its white paint measured blue at 1.8
+times its red in linear light, and half a stop low, so on a bright ground it read grey.
+
+- **One light, the whole picture**: `scripts/relight_cutout.mjs` brings the paint (opaque pixels
+  brighter than .35, linear) toward daylight white, a touch warm, `strength` of the way, then lifts
+  it to `white` with one exposure gain and a soft shoulder from `knee`, so nothing clips. The alpha
+  is untouched: the edge stays as the cutter cut it. Nothing is painted, cloned or removed; the rain
+  on the paint stays.
+- **Kept as data**: `assets/cutouts/RELIGHT.json` holds each picture's reason, settings, what was
+  measured (the paint's colour, the gains, the stops) and the SHA-256 of the cut it was applied to
+  and of what it wrote. A second run does nothing; a fresh cut is relit again;
+  `node scripts/relight_cutout.mjs --check` fails when a listed picture is not its relit file.
+- The Camry: red ×1.40, blue ×0.83, +0.46 stops. Before and after on cyan, navy and paper:
+  `.render/camry-before-after.png` (not in git), for the owner.
+- Only a photograph that reads wrong is listed. A shop's own photograph, or one already in good
+  light, is never run through it.
