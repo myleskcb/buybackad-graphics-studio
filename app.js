@@ -7642,6 +7642,11 @@ function bindSaasUI(){
       if (!wrap || !wrap.contains(e.target)) m.classList.remove('open');
     });
   });
+  /* More (2026-11-25): the logo and brand kit, the cards and the Look Book, out of the bars' own links */
+  for (const [btn, menu] of [['lp-more-btn', 'lp-more-menu'], ['nav-more', 'more-menu']]) {
+    const b = $(btn), m = $(menu);
+    if (b && m) b.onclick = (e) => { e.stopPropagation(); const open = m.classList.toggle('open'); b.setAttribute('aria-expanded', String(open)); };
+  }
   const lpCaret = $('lp-studio-caret');
   if (lpCaret) lpCaret.onclick = (e) => { e.stopPropagation(); toggleProjectsMenu($('lp-projects-menu'), { newProject: true }); };
   const eye = $('auth-pass-eye');

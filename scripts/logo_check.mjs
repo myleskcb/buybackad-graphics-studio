@@ -296,6 +296,9 @@ if (!NO_BROWSER) {
     ok(st.edit && st.kit && st.kit.design && st.kit.design.name === 'Gold Rush Cash' && st.kit.design.cat === 'gold', 'one tap: the rows open, and the logo is kept for the site');
     ok(st.rows.every((n) => n >= 5) && st.files === 6, 'four rows of the logo, 5 to 8 each, and its six files (' + st.rows.join(', ') + '; ' + st.files + ')');
     console.log('  name typed, logos shown, one picked and drawn in ' + ((Date.now() - t0) / 1000).toFixed(1) + ' s');
+    const folded = await page.evaluate(() => { const d = document.getElementById('lg-tweak'); return !!d && !d.open && d.querySelectorAll('.lg-row').length === 5 && !!document.getElementById('ok-all'); });
+    ok(folded, 'the five rows that change the logo are folded until asked for, and Make my whole kit now is beside Next');
+    await page.click('#lg-tweak > summary');
     const before = st.kit.design.pair;
     await page.click('#row-pair button >> nth=3');
     await page.waitForFunction((p) => { const k = JSON.parse(localStorage.getItem('pgfx_logo_kit') || 'null'); return k && k.design.pair !== p; }, before, { timeout: 10000 }).catch(() => {});

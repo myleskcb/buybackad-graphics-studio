@@ -277,6 +277,13 @@ function approve(k) {
   if (!next) drawReview();
   if (to) to.scrollIntoView({ behavior: "smooth", block: "start" });
 }
+/** the fast lane (2026-11-25, the owner: "easier to generate, easier to use"): every step approved as it is
+    drawn, straight to the review. The steps stay on the page above it, each with Try another look. */
+function approveAll() {
+  for (const f of KIT.FLOW) state.ok[f.key] = true;
+  keep(); rail(); okUI(); showSteps(); redrawSteps();
+  $("kit-review").scrollIntoView({ behavior: "smooth", block: "start" });
+}
 function okUI() {
   for (const f of KIT.FLOW) {
     const done = $("ok-" + f.key + "-done"), btn = $("ok-" + f.key);
@@ -589,6 +596,7 @@ function bind() {
     typing = setTimeout(() => { state.picked = { ...state.picked, small: state.small }; changed(); keepKit(); drawPicked(); }, 300);
   });
   $("ok-logo").onclick = () => approve("logo");
+  $("ok-all").onclick = approveAll;
   let resize = 0;
   window.addEventListener("resize", () => { clearTimeout(resize); resize = setTimeout(() => { if (state.picked && !$("lg-edit").hidden) paint($("lg-big"), state.picked, { w: $("lg-big").parentElement.clientWidth || 600, h: Math.round(($("lg-big").parentElement.clientWidth || 600) * .68), fill: .74, marked: !owned() }); }, 250); });
 }

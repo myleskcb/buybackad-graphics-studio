@@ -125,6 +125,15 @@
    Mode and the video maker's bar). It shows from 1300, where it fits at every width (6 px to spare at 1900, where
    Business cards had 16); measured at every 30 px, 1000 to 1920. */
 @media (max-width:1299px){[data-skin=family] #page-landing .lp-nav-links a[data-give="3"]{display:none}}
+/* More (2026-11-25, the owner: the kit "doesn't need an important placement like that"): the logo and brand kit
+   left the bar's own links for a menu, with Business cards and the Look Book. It is narrower than the link it
+   replaced and gives way where that did. */
+@media (max-width:1299px){[data-skin=family] #page-landing .lp-nav-links .lp-more{display:none}}
+[data-skin=family] #page-landing .lp-more-btn{background:none;border:0;padding:6px 0;font-family:inherit;font-size:14.5px;font-weight:500;line-height:inherit;color:var(--text-2);letter-spacing:-.005em;cursor:pointer}
+[data-skin=family] #page-landing .lp-more-btn:hover,[data-skin=family] #page-landing .lp-more-btn[aria-expanded="true"]{color:var(--text)}
+[data-skin=family] #page-landing .lp-nav-links .view-drop a{display:flex;padding:11px;font-size:13.5px;color:var(--text);border-radius:var(--r-md)}
+[data-skin=family] #page-landing .lp-nav-links .view-drop a::after{display:none}
+[data-skin=family] #page-landing .lp-nav-links .view-drop a:hover{background:var(--accent-wash);color:var(--accent)}
 [data-skin=family] #page-landing .lp-nav-links a{font-size:14.5px;font-weight:500;color:var(--text-2);letter-spacing:-.005em;position:relative;padding:6px 0}
 [data-skin=family] #page-landing .lp-nav-links a::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1.5px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .35s var(--x-ease)}
 [data-skin=family] #page-landing .lp-nav-links a:hover{color:var(--text)}

@@ -7620,6 +7620,18 @@ checkout, the Starter add-on as a one-time second line, Pro offered no add-on), 
 
 Not done here: OPEN-ITEMS §CG.
 
+- **Its place, and the fast lane** (2026-11-25, the owner: "make brand kit and logos easier to generate, easier
+  to use", "add to more section or checkout section, it's not as important and doesn't need an important
+  placement like that"). The kit left the bars' own links: the home bar's More menu holds Logo and brand kit,
+  Business cards and the Look Book (`#lp-more-menu`, narrower than the link it replaced, giving way below 1300
+  where that did), Easy Mode's More holds the kit and the cards (`#more-menu`), and the card and video pages
+  name it in their footers, not their headers. Pricing carries it as one add-on line under the plans
+  (`build_pricing.mjs`), beside the checkout's own add-on. On the logo page the five rows that change a picked
+  logo fold behind "Change the colours, lettering, shape or symbol" (the site's own plus and minus), so a
+  picked logo reads as finished; and **Make my whole kit now**, beside This is my logo. Next, approves every
+  step as drawn and opens the review. The steps stay above it, each with Try another look; step by step is
+  still the way through for anyone who wants it. `logo_check.mjs` holds the fold.
+
 ## 181. The ads sell: a buyer says TOP DOLLAR, with nothing a shop can be asked to prove
 
 Added 2026-11-24. The owner, looking across the ads: "all I see is honest or local buyer not top buyer
