@@ -68,6 +68,7 @@ import { adLibraryRoute, ownerKey } from '../lib/adlibrary.mjs';
 import { PLANS, PACKS, KITS, KIT_UPGRADE, KIT_ADDON_OFF, kitIncluded, PAID, planId, videoOk, cardsOk, logosOk, creditState, backgroundCredits, creditsFor, spendCredits, refundCredits } from '../lib/plans.mjs';
 import { logoFiles, brandKitFiles, cleanKitSpec } from '../lib/logos.mjs';
 import { aiNameIdeas, namesOn, NAMES_COST_KEY } from '../lib/names.mjs';
+import { aiLogoPicks, picksOn, PICKS_COST_KEY } from '../lib/logo-ai.mjs';
 import {
   billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf, kitsOf, kitCredits, refundKit,
   syncDue, syncSub, ensureWebhook, verifyEvent, webhookSecretKey, ensurePortalConfig, portalConfigKey, TERMS_VERSION,
@@ -310,7 +311,7 @@ export default async (req, context) => {
       /* billingMode and embedded say, without a secret, whether checkout is
          test or live and whether its form opens inside the site (the deploy
          check in .github/workflows/deploy.yml reads them) */
-      return json({ plans: PLANS, packs: PACKS, kits: KITS, ai: { background: backgroundCredits(env), names: namesOn(env) ? creditsFor(NAMES_COST_KEY, env) : null }, billing: billingOn(env),
+      return json({ plans: PLANS, packs: PACKS, kits: KITS, ai: { background: backgroundCredits(env), names: namesOn(env) ? creditsFor(NAMES_COST_KEY, env) : null, logos: picksOn(env) ? creditsFor(PICKS_COST_KEY, env) : null }, billing: billingOn(env),
         billingMode: billingOn(env) ? stripeMode(env) : null, embedded: billingOn(env) && !!formKey(env) });
     }
     /* One probe for a deploy (SETUP.md; the workflow's "What went live"):
@@ -701,6 +702,32 @@ export default async (req, context) => {
       } catch (e) {
         if (spent) { const u = await getUser(em); refundCredits(u, spent); await putUser(u); }
         console.error('names:', e.message);
+        return json({ error: e.message || 'The AI did not answer' }, e.status || 502);
+      }
+    }
+
+    /* AI LOGO PICKS (netlify/lib/logo-ai.mjs, DESIGN-LAW 183): Claude picks logos from the engine's catalogue for
+       the shop's own words and its questionnaire answers; the engine draws them. Credits as for the names. */
+    if (p === '/logo/picks' && req.method === 'POST') {
+      const em = await readToken(req, env);
+      if (!em) return json({ error: 'Sign in to ask the AI to pick logos' }, 401);
+      const user = await seenUser(req, em);
+      if (!user) return json({ error: 'Account not found' }, 404);
+      if (!picksOn(env)) return json({ error: 'AI logo picks are not switched on yet' }, 503);
+      const cost = creditsFor(PICKS_COST_KEY, env);
+      if (cost === null) return json({ error: 'AI logo picks are not priced yet' }, 503);
+      const admin = roleFor(em, env) === 'admin';
+      const body = await req.json().catch(() => ({}));
+      if (!String(body.name || '').trim()) return json({ error: 'Type your business name first' }, 400);
+      const spent = admin ? null : spendCredits(user, cost);
+      if (!admin && !spent) return json({ error: 'Not enough AI credits: AI logo picks take ' + cost, needs: 'credits', cost, user: publicUser(user, env) }, 402);
+      if (spent) await putUser(user);
+      try {
+        const got = await aiLogoPicks(env, { about: body.about, name: body.name, cat: body.cat, town: body.town, small: body.small, since: body.since, answers: body.answers });
+        return json({ ...got, cost: admin ? 0 : cost, user: publicUser(user, env) });
+      } catch (e) {
+        if (spent) { const u = await getUser(em); refundCredits(u, spent); await putUser(u); }
+        console.error('logo picks:', e.message);
         return json({ error: e.message || 'The AI did not answer' }, e.status || 502);
       }
     }

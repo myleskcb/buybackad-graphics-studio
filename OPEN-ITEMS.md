@@ -5177,10 +5177,10 @@ contact sheets (marks.html, styles.html).
 Open:
 - Done the same day, at the owner's word ("Build it here"): the questionnaire, hearts that steer More, Start from a
   template and Edit the logo I picked (DESIGN-LAW 183, 10).
-- **An AI art director** (AI credits, like the name ideas): Claude reads the shop's own words and the questionnaire's
-  answers and returns designs in the engine's terms (style, layout, mark, pair, tone) with a reason each; the engine
-  draws them, so no model draws a letter (rule 176). It would sit beside the questions as "Ask AI to pick for me".
-  Not built.
+- Done the same day, at the owner's word ("Build it here"): Ask AI to pick for me (DESIGN-LAW 183, 11). Not run
+  against the live model from here (no key in the worktree): the first real ask on webuy.ad, with
+  `ANTHROPIC_API_KEY` set, is its first true test; `logo_check` stands the function in and holds the answer's
+  cleaning.
 - **A sign-painter script** for the Sign layout (a new open-licence face, rule 140): it uses Brush and Marker today.
 - **The full ad opening in a logo's own pair**: a logo in one of the logo's own pairs opens the ad in its default
   pair, since the ads do not wear those. A nearest house pair could stand in.

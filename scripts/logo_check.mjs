@@ -331,6 +331,28 @@ const NAMES = ['Long Beach Phone Buyers', 'Gold Rush Cash', "Sam's Coins", 'MK E
   r = await hit('/names', { keywords: 'Maria', cat: 'gold' }, kt);
   ok(r.status === 503 && /not switched on/.test(r.json.error), 'AI name ideas without a key: 503, no credit taken (' + r.status + ')');
   ok(((user('kit@x.example').credits || {}).used | 0) === 0, 'no credit used when the AI is off');
+  // AI logo picks (DESIGN-LAW 183): the same gate as the names; the model's answer held to what the engine draws
+  ok((await hit('/logo/picks', { name: 'Gold Rush Cash', cat: 'gold' })).status === 401, '/logo/picks signed out: 401');
+  r = await hit('/logo/picks', { name: 'Gold Rush Cash', cat: 'gold', about: 'family-run' }, kt);
+  ok(r.status === 503 && /not switched on/.test(r.json.error) && ((user('kit@x.example').credits || {}).used | 0) === 0, 'AI logo picks without a key: 503, no credit taken (' + r.status + ')');
+  r = await hit('/plans');
+  ok(r.status === 200 && r.json.ai && r.json.ai.logos === null, '/plans says AI logo picks are off without a key');
+  {
+    const LA = await import(pathToFileURL(join(T, 'netlify/lib/logo-ai.mjs')).href), P = await import(pathToFileURL(join(T, 'netlify/lib/plans.mjs')).href);
+    const got = await LA.picksToDesigns([
+      { style: 'luxury', layout: 'interlace', voice: 'engraved', pair: 'ink_gold', mark: '', line: false, why: 'Discreet, like a jeweller\'s hallmark.' },
+      { style: 'classic', layout: 'lockup', voice: 'bungee', pair: 'navy_brass', mark: 'hallmark', line: true, why: 'The best in town' },
+      { style: 'modern', layout: 'tile', voice: 'sleek', pair: 'white_cobalt', mark: 'coin', line: false, why: '<b>Clean</b> and current' },
+      { style: 'bold', layout: 'varsity', voice: 'bold', pair: 'navy_gold', mark: 'bar', line: true, why: 'a card shop\'s layout' },
+      { style: 'classic', layout: 'lockup', voice: 'classic', pair: 'navy_brass', mark: 'hallmark', line: false, why: 'the same again' },
+      { layout: 'nope', voice: 'x', pair: 'y' }, null, 'x',
+    ], { name: 'Gold Rush Cash<script>', cat: 'gold', town: 'Long Beach' });
+    const g = got.map((x) => x.design);
+    ok(got.length === 3 && g[1].voice !== 'bungee' && E.LOGO_LAYOUTS.lockup.kinds.includes(E.LOGO_VOICES[g[1].voice].kind) && g[1].mark === 'hallmark' && g[1].line
+      && g[2].mark === '' && got[1].why === '' && got[2].why === 'Clean and current' && g.every((d) => d.name === 'Gold Rush Cashscript' || !/[<>]/.test(d.name)) && g.every((d) => E.LOGO_LAYOUTS[d.t] && E.LOGO_VOICES[d.voice] && E.LOGO_PAIRS.includes(d.pair)),
+      'the AI\'s picks are held to what the engine draws: a lettering its layout takes, no initials in a tile, no layout of another line, no two alike, no claim and no markup in a reason');
+    ok(LA.PICKS_MODEL === 'claude-opus-5-5' && P.creditsFor(LA.PICKS_COST_KEY, {}) === 3, 'AI logo picks run on Claude Opus 5.5 and cost 3 AI credits');
+  }
   const C = B.catalog();
   ok(C.kit_essentials.amount === 1499 && C.kit_complete.amount === 1999 && C.kit_essentials_addon.amount === 999 && C.kit_complete_addon.amount === 1499 && C.kit_upgrade.amount === 500, 'Stripe sells the kits at $14.99 and $19.99, $5 less with a plan, $5 to upgrade');
   ok(B.ownSession({ metadata: { kit: 'complete', email: 'a@b.c' } }) && !B.ownSession({ metadata: { kit: 'x' } }), 'the shared account\'s webhook knows a kit sale as the site\'s own');
@@ -524,6 +546,42 @@ if (!NO_BROWSER) {
     let got = null; page.on('download', (x) => { got = x; });
     await page.check('#kit-agree'); await page.click('#kit-pay-go'); await page.waitForTimeout(900);
     ok(s.calls.includes('/checkout:complete') && s.last && s.last.consent === true && !got && /opens soon/.test(await page.textContent('#kit-buy')), 'Starter: Buy asks the function for a Complete checkout with the agreement, and no file comes (' + s.calls.join(', ') + ')');
+    await ctx.close();
+  }
+  {
+    // Ask AI to pick for me (DESIGN-LAW 183): offered once /plans prices it; signed in, the picks come back drawn here
+    const answer = { picks: [
+      { design: { t: 'lockup', name: 'Gold Rush Cash', cat: 'gold', voice: 'classic', pair: 'navy_brass', mark: 'hallmark' }, why: 'A hallmark says gold handled properly.' },
+      { design: { t: 'interlace', name: 'Gold Rush Cash', cat: 'gold', voice: 'engraved', pair: 'ink_gold' }, why: 'Discreet, like a jeweller.' },
+      { design: { t: 'deco', name: 'Gold Rush Cash', cat: 'gold', voice: 'stadium', pair: 'plum_champagne' }, why: 'A little glamour for gold.' } ], cost: 3 };
+    let asked = null;
+    const route = async (rt) => {
+      const u = new URL(rt.request().url()), p = u.pathname.replace(/^.*\/api/, '');
+      const json = (status, j) => rt.fulfill({ status, contentType: 'application/json', body: JSON.stringify(j) });
+      if (p === '/plans') return json(200, { ai: { names: null, logos: 3 } });
+      if (p === '/me') return json(200, { user: { email: 'c@x.example', plan: 'basic', role: 'user' } });
+      if (p === '/kits') return json(200, { included: null, credits: { essentials: 0, complete: 0 }, saved: [], prices: { essentials: 1499, complete: 1999, upgrade: 500, addonOff: 500 } });
+      if (p === '/logo/picks') { asked = JSON.parse(rt.request().postData() || '{}'); return json(200, answer); }
+      return json(404, { error: 'not here' });
+    };
+    const { page, ctx, errors } = await open('logo/', { demo: false, token: 'tok', route, brand: null });
+    await page.fill('#lg-name', 'Gold Rush Cash'); await page.selectOption('#lg-cat', 'gold'); await page.click('#lg-go');
+    await page.waitForFunction(() => document.getElementById('lq-grid').dataset.drawn, null, { timeout: 60000 });
+    await page.waitForSelector('#lq-doors button[data-go="ai"]', { timeout: 10000 });
+    ok(/3 AI credits/.test(await page.textContent('#lq-doors button[data-go="ai"]')), 'Ask AI to pick for me shows beside the questions, with its price');
+    await page.click('#lq-grid .lq-card[data-key="luxury"]');
+    await page.click('#lq-doors button[data-go="ai"]');
+    await page.fill('#lq-about', 'Family-run since 2009, we want to look trustworthy');
+    await page.click('#lq-ai-go');
+    await page.waitForFunction(() => document.getElementById('lg-grid').dataset.drawn && document.querySelectorAll('#lg-grid .lg-tile:not(.wait)').length === 3, null, { timeout: 60000 });
+    const v = await page.evaluate(() => ({ h2: document.getElementById('lg-h2').textContent, whys: [...document.querySelectorAll('#lg-grid .lg-why')].map((x) => x.textContent), t: [...document.querySelectorAll('#lg-grid .lg-tile')].map((b) => b.dataset.t), view: window.LogoMaker.state.view }));
+    ok(v.view === 'ai' && v.t.join() === 'lockup,interlace,deco' && v.whys.length === 3 && /hallmark/.test(v.whys[0]) && /AI/.test(v.h2),
+      'the AI\'s picks drawn here, each with its reason (' + v.t.join(', ') + ')');
+    ok(asked && asked.name === 'Gold Rush Cash' && asked.cat === 'gold' && /trustworthy/.test(asked.about) && asked.answers && asked.answers.styles.includes('luxury'), 'the AI is asked with the name, the line, the shop\'s own words and the answers so far');
+    await page.click('#lg-grid .lg-tile >> nth=0');
+    await page.waitForFunction(() => !document.getElementById('lg-edit').hidden && document.getElementById('lg-edit').dataset.drawn, null, { timeout: 30000 });
+    ok(await page.evaluate(() => window.LogoMaker.state.picked.mark === 'hallmark'), 'an AI pick opens in the editor, made yours from there');
+    ok(errors.length === 0, 'AI picks: no page error (' + errors.slice(0, 2).join(' | ') + ')');
     await ctx.close();
   }
   for (const scheme of ['dark', 'light']) {

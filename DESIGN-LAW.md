@@ -7802,13 +7802,29 @@ The maker (`logo/engine.js`, `logo/voices.js`, `logo/logo.js`):
    me 24 logos now (the calm gallery, as before), Start from a template (`templates`: every layout once, in the
    shop's name, the calm ones first; a tap opens the editor) and, once a logo is picked, Edit the logo I picked. A
    new name or line starts the questions afresh; a visitor coming back finds the view they left.
+11. **Ask AI to pick for me** (`netlify/lib/logo-ai.mjs`, `/api/logo/picks`; the owner: "How do we integrate AI into
+   this and generating what you like?"). Beside the questions once `/api/plans` prices it: the shop says a few words
+   about itself (optional, 300 letters), and Claude Opus 5.5 reads them with the name, the line, the town and the
+   answers so far, and picks eight logos from the engine's catalogue (styles, the layouts each takes, lettering
+   tones, colour pairs with their colours, the line's marks), each with one line on why it suits the shop. Claude is
+   the art director, never the illustrator: its answer is JSON held to a schema whose every field is an enum of the
+   catalogue's keys, and each pick is held again before it goes back (`picksToDesigns`: `cleanDesign`, a lettering
+   its layout takes, a mark only where its layout wears one and never an initialled mark in a tile or a seal, no
+   layout of another line, no two alike, no claim or markup in a reason). The engine draws them on the page like
+   every other logo (rule 176: no model draws a letter or a mark); the picks are their own view, each logo with its
+   reason under it, and a tap opens the editor. 3 AI credits (`claude-logo-picks`, $0.102 at worst: about 5,300
+   tokens in, the catalogue cached per line, 3,000 out, priced at the refusal fallback's rates), taken first and
+   given back if it fails, never from an operator; signed in only; only with `ANTHROPIC_API_KEY`, as the name ideas.
 
-Held by `scripts/logo_check.mjs` (166 checks: the eleven tones in the catalogue's faces; every new layout in every
+Held by `scripts/logo_check.mjs` (176 checks: the eleven tones in the catalogue's faces; every new layout in every
 name and voice it takes; 5,460 drawings of the catalogue, solid and line, soft and sharp, in colour and one colour,
 in the four layouts that wear a mark; the first gallery calm for all 16 lines; each calm style filling 24 of its own;
 Bold as it was, its own layouts early; a taste leading; the rows of a calm logo; the 192 approved designs unchanged;
 the page's chips and rows in Chromium; Show my logos opening the questionnaire, its whole path to 24 logos in the
-chosen style, colours and symbol, hearts and More, Start from a template and the editor it opens; no sideways scroll
+chosen style, colours and symbol, hearts and More, Start from a template and the editor it opens; AI logo picks:
+401 signed out, 503 and no credit without a key, off in /plans, the model's answer held to what the engine draws,
+3 credits, and in Chromium the door with its price, the shop's words and answers sent, the picks drawn with their
+reasons and one opened in the editor; `plan_economics.mjs` holds the price; no sideways scroll
 and nothing under 12 px from 320 px, looked at by hand). `scripts/logo_sheet.mjs` now also writes `marks.html` (every line's family,
 solid, line and sharp, with a lockup of each) and `styles.html` (one name in every style).
 

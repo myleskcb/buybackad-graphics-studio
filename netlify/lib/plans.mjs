@@ -42,6 +42,10 @@ export const MODEL_COST_USD = {
   // AI name ideas (netlify/lib/names.mjs): Claude Opus 5.5 at low effort, capped at 3,000 tokens out. Priced at
   // the dearer of it and its refusal fallback ($5/$25 a million): about 600 in and 3,000 out at worst
   'claude-names': 0.078,
+  // AI logo picks (netlify/lib/logo-ai.mjs, DESIGN-LAW 183): Claude Opus 5.5 at low effort, capped at 3,000 tokens
+  // out, reading the logo catalogue (about 4,600 tokens, cached per line). Priced like the names, at the dearer
+  // fallback ($5/$25 a million) and no cache: about 5,300 in and 3,000 out at worst
+  'claude-logo-picks': 0.102,
 };
 
 /** Prices in cents. `weekly`/`monthly` are PHOTO downloads (null and null on

@@ -106,6 +106,15 @@
         <button class="lg-btn primary" type="button" id="lq-next" disabled>Next</button>
       </div>
     </div>
+    <!-- Ask AI to pick for me (DESIGN-LAW 183): Claude picks from the same parts; the engine draws them -->
+    <div class="lq-ai" id="lq-ai" hidden>
+      <div class="lg-field">
+        <label for="lq-about">Tell the AI about your shop <span class="lg-opt">optional: who comes in, how you want to come across</span></label>
+        <textarea id="lq-about" maxlength="300" rows="2" placeholder="Family-run since 2009. We want to look trustworthy, not like a pawn shop."></textarea>
+      </div>
+      <div class="lq-ai-acts"><button class="lg-btn primary" type="button" id="lq-ai-go">Ask AI to pick</button><button class="lg-link" type="button" id="lq-ai-close">Not now</button></div>
+      <p class="lq-ai-msg" id="lq-ai-msg" role="status"></p>
+    </div>
     <p class="lq-sum" id="lq-sum" hidden></p>
     <div class="lq-doors" id="lq-doors"></div>
     <div class="lg-grid" id="lg-grid" aria-live="polite"></div>

@@ -69,6 +69,16 @@
 .lq-sum{margin:0 0 12px;font-size:15px;color:var(--text-2)}
 .lq-sum b{color:var(--text)}
 .lq-hearts{font-size:14px;color:var(--muted)}
+/* Ask AI to pick for me */
+.lq-ai{background:var(--panel);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-radius:18px;padding:16px 18px;margin:0 0 16px;display:grid;gap:12px}
+.lq-ai[hidden]{display:none}
+.lq-ai textarea{width:100%;box-sizing:border-box;font:500 16px -apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',sans-serif;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;resize:vertical;min-height:64px}
+.lq-ai textarea:focus{outline:none;border-color:var(--accent)}
+.lq-ai-acts{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.lq-ai-msg{margin:0;font-size:14.5px;color:var(--text-2)}
+.lq-ai-msg:empty{display:none}
+.lq-ai-msg.bad{color:var(--danger,#e0574b)}
+.lg-why{margin:8px 2px 0;font-size:14px;line-height:1.4;color:var(--text-2)}
 /* a heart on a gallery logo: it steers More */
 .lg-cell{position:relative;min-width:0}
 .lg-cell .lg-tile{width:100%}
