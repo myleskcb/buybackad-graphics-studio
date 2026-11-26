@@ -258,12 +258,15 @@ function buildSteps() {
   }
 }
 let detTimer = 0;
-const DETAILS = [["person", "Your name", "Maria Lopez", "name"], ["role", "Your title", "Owner", "organization-title"], ["phone", "Phone", "(562) 555-0123", "tel"],
+/* what is bought and the selling points (DESIGN-LAW 185): the box shows the logo's line's own until changed */
+const lineList = k => { const cat = (state.picked && state.picked.cat) || state.cat || "phones"; return k === "buys" ? KIT.buysFor(cat) : KIT.sellsFor(cat); };
+const DETAILS = [["buys", "What you buy", "iPhone, iPad, Mac, MacBook", "off"], ["points", "Selling points", "Top dollar paid, Cash same day, Free quotes", "off"],
+  ["person", "Your name", "Maria Lopez", "name"], ["role", "Your title", "Owner", "organization-title"], ["phone", "Phone", "(562) 555-0123", "tel"],
   ["email", "Email", "hello@yourshop.com", "email"], ["site", "Website", "yourshop.com", "url"], ["handle", "Instagram or TikTok", "@yourshop", "off"],
   ["address", "Address", "123 Main St, Long Beach", "street-address"], ["hours", "Hours", "MON-SAT 10AM-7PM", "off"]];
 function detailsForm() {
-  return `<form class="kit-details" id="kit-details" onsubmit="return false"><p class="kit-details-h">Your details <span class="lg-opt">they go on the back of your card, your posts and your email signature. Leave any blank.</span></p>
-    <div class="kit-details-grid">${DETAILS.map(([k, l, ph, ac]) => `<div class="lg-field"><label for="det-${k}">${l}</label><input id="det-${k}" name="${k}" type="${k === "email" ? "email" : k === "phone" ? "tel" : "text"}" maxlength="${KIT.DETAIL_LIMITS[k]}" placeholder="${esc(ph)}" autocomplete="${ac}" value="${esc(state.details[k] || (k === "phone" ? studio.phone : ""))}"></div>`).join("")}</div></form>`;
+  return `<form class="kit-details" id="kit-details" onsubmit="return false"><p class="kit-details-h">Your details <span class="lg-opt">what you buy goes on the front of your card, the rest on the back, your posts and your email signature. Leave any blank.</span></p>
+    <div class="kit-details-grid">${DETAILS.map(([k, l, ph, ac]) => `<div class="lg-field"><label for="det-${k}">${l}</label><input id="det-${k}" name="${k}" type="${k === "email" ? "email" : k === "phone" ? "tel" : "text"}" maxlength="${KIT.DETAIL_LIMITS[k]}" placeholder="${esc(ph)}" autocomplete="${ac}" value="${esc(k === "buys" || k === "points" ? (typeof state.details[k] === "string" ? state.details[k] : lineList(k)) : state.details[k] || (k === "phone" ? studio.phone : ""))}"></div>`).join("")}</div></form>`;
 }
 function showSteps() {
   for (const f of KIT.FLOW) if (f.key !== "logo") $("step-" + f.key).hidden = false;

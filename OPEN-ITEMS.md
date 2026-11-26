@@ -5186,8 +5186,15 @@ Done (`claude/distracted-pascal-31593b`):
 - **One Print it today** (`logo/print-today.js`) for both pages; the kit's had kept the old Google-only copy
   that named The UPS Store.
 - Checks: `scripts/brand_card_check.mjs` (new), `business_card_check.mjs` and `logo_check.mjs` updated.
+- **What you buy and selling points** (the owner, 2026-11-25: "ideally there's selling points or the things you
+  buy listed?", "general sub categories? like iPhone iPad Mac Macbook"): the front lists the line's own kinds of
+  goods under the logo, the back closes with the selling points; both editable in the card maker and the kit,
+  the line's own until changed, nothing when cleared.
 
 Open:
+- **The lists by line** (`logo/card.js BUYS` and the selling points) were written here from the owner's
+  example for phones; the other lines' (Gold · Silver · Diamonds · Watches, Consoles · Games · Controllers ·
+  Handhelds, and so on) are the owner's to read.
 - **The other kit files still print samples.** Posts, stories, signs and the email signature (`kit.js` `det`,
   `SAMPLE`) fill an empty phone, email, website, address or hours with a sample in the files the kit pays for.
   The card no longer does; the rest needs the same rule (leave it off, or say "call ahead" without a number).

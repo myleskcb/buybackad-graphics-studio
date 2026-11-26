@@ -7765,10 +7765,18 @@ hello@yourshop.com), the number even when the form showed the studio's.
    Linen, Pinstripe, Pattern (the mark repeated small) and Watermark (the mark large behind the words): each
    texture in the card's own tone, stepped from the ground only as far as keeps every word 4.5:1 and every small
    line 3:1 on it. No photograph, no painted scene, no second hue.
-4. **Clean, by rule.** The front is the logo and nothing that sells: no WE BUY, no number, no QR (a band may
-   carry the website). The back is who and how to reach them, only what was given: the person and their title
-   (or the business), then a row each for the phone, email, website, handle, address and hours, each with its
-   icon in the accent, and the mark or the QR beside them. Two sizes of words a side besides the logo; nothing
+4. **Clean, by rule.** The front is the logo and what the shop buys, one quiet line of the line's own kinds of
+   goods under it in the accent (the owner, 2026-11-25: "ideally there's selling points or the things you buy
+   listed?", "general sub categories? like iPhone iPad Mac Macbook": iPhone · iPad · Mac · MacBook for phones,
+   Gold · Silver · Diamonds · Watches for gold, each line its own, `card.js BUYS`), on a Band card on the band;
+   no number, no contact, no QR. The back is who and how to reach them, only what was given: the person and
+   their title (or the business), then a row each for the phone, email, website, handle, address and hours,
+   each with its icon in the accent, the mark or the QR beside them, and the selling points under them in the
+   accent's small capitals (TOP DOLLAR PAID · CASH SAME DAY · FREE QUOTES; a collector's FAIR OFFERS on trading
+   cards, rule 144's banned words passed), on a Band card in one line on the band. Both lists are the
+   customer's to change (`details.buys`, `details.points`, in the card maker and the kit); never set, they
+   follow the logo's line; cleared, nothing is printed. A list too long for its room goes to two lines, then
+   leaves off its last items, never under 7 pt. Two sizes of words a side besides the logo; nothing
    under 7 pt (29 px); every word, the logo and the QR inside the safe area, 1/8 in inside the trim (rule 167),
    and the words a little further in; no word on the logo, the mark or the QR. When the details are many or long,
    the rows' spacing gives first, then the name's size; an address or hours breaks at its comma, an email
@@ -7790,8 +7798,9 @@ hello@yourshop.com), the number even when the form showed the studio's.
 Checked by `scripts/brand_card_check.mjs` (no browser: 6,144 sides, 48 logos of every line, long names, every
 layout and background, front and back, with every detail, none, long ones, the person alone and a QR, held to
 the sheet, the safe area, 7 pt, no overlaps, the colours on every background and texture, no sample, the front
-selling nothing, the back saying what was given, the QR's size; every logo pair on every background; the kit's
-card files the same as the card maker's), `scripts/business_card_check.mjs` (the Brand cards tab, its details
+carrying no contact, the lists the line's own until changed and nothing when cleared, a band's words inside the
+band, the back saying what was given, the QR's size; every line's lists through the banned words; every logo
+pair on every background; the kit's card files the same as the card maker's), `scripts/business_card_check.mjs` (the Brand cards tab, its details
 in the kit, New look, the chips, the print PDF, 390 px light and dark in both tabs) and `scripts/logo_check.mjs`
 (the card maker opening on twelve brand cards in all eight layouts, a pick written to the kit).
 

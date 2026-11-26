@@ -96,6 +96,7 @@
 .cd-brand-says{margin:4px 0 6px;color:var(--text-2);font-size:13.5px;line-height:1.5}
 .cd-brand-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 12px}
 .cd-brand-grid label{display:block;margin:8px 0 6px}
+.cd-brand-grid .cd-wide{grid-column:1/-1}
 @media (max-width:420px){.cd-brand-grid{grid-template-columns:minmax(0,1fr)}}
 .cd-form input[type=email]{width:100%;box-sizing:border-box;font:500 15.5px -apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',sans-serif;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px}
 .cd-brand-grid input{width:100%;box-sizing:border-box;font:500 15.5px -apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',sans-serif;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px}

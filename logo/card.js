@@ -66,6 +66,51 @@ export function cardChoice(x, seed = 0) {
   return { layout, ground };
 }
 
+/* ---------- what the shop buys, and why sell to it ----------
+   The owner, 2026-11-25: "ideally there's selling points or the things you buy listed?", "general sub
+   categories? like iPhone iPad Mac Macbook". The front lists what is bought, the line's own kinds of goods;
+   the back says why sell here. Both are the customer's to change (details.buys, details.points); never set,
+   they follow the logo's line; cleared, nothing is printed. The selling points pass the house's banned words
+   (rule 144): TOP DOLLAR, but a collector's FAIR OFFERS on trading cards (motion/banned-words.js). */
+export const BUYS = {
+  phones: "iPhone, iPad, Mac, MacBook", devices: "Phones, Tablets, Laptops, Watches", gaming: "Consoles, Games, Controllers, Handhelds",
+  computers: "Laptops, Desktops, Monitors, Parts", audio: "Headphones, Earbuds, Speakers", wearables: "Watches, Smartwatches, Smart glasses",
+  cameras: "Cameras, Lenses, Drones", gold: "Gold, Silver, Diamonds, Watches", silver: "Coins, Bars, Sterling, Flatware",
+  coins: "Gold coins, Silver coins, Bullion, Rare coins", pokemon: "Singles, Slabs, Sealed, Collections", sports: "Rookies, Slabs, Autos, Collections",
+  cars: "Cars, Trucks, SUVs, Vans", strips: "Test strips, Sensors, Meters", wholesale: "Pallets, Lots, Overstock, Returns",
+  resale: "Electronics, Collectibles, Tools, Trade-ins",
+};
+const SELLS = { pokemon: "Fair offers, Local buyer, Free quotes", sports: "Fair offers, Local buyer, Free quotes",
+  cars: "Top dollar paid, Free pickup, Cash same day", wholesale: "Top dollar paid, Bulk lots, Quick pickup" };
+export const buysFor = cat => BUYS[cat] || BUYS.phones;
+export const sellsFor = cat => SELLS[cat] || "Top dollar paid, Cash same day, Free quotes";
+/** a list as the customer wrote it (commas or dots between), or the line's own where they never set one */
+export const listOf = (v, def) => String(v === undefined || v === null ? def : v).split(/\s*[,·•|]\s*/).map(t => tidy(t)).filter(Boolean).slice(0, 6);
+const SEP = "  ·  ";
+/** a list set as one line, or two split where they come nearest a length, as large as `em` and never under
+ *  7 pt; the letter spacing gives before an item does, and an item that cannot fit even then is left off */
+function listLines(F, items, w, em, track, maxLines = 2) {
+  for (let its = items.slice(); its.length; its = its.slice(0, -1)) for (const t of [...new Set([track, track / 2, 0])]) {
+    const one = its.join(SEP), e1 = fitSize(F, one, w, 1e9, t);
+    if (e1 >= MIN_EM) return { lines: [one], em: Math.min(em, e1), n: its.length, track: t };
+    if (maxLines < 2) continue;
+    let best = null;
+    for (let i = 1; i < its.length; i++) {
+      const a = its.slice(0, i).join(SEP), b = its.slice(i).join(SEP), e = Math.min(fitSize(F, a, w, 1e9, t), fitSize(F, b, w, 1e9, t));
+      if (!best || e > best.em) best = { lines: [a, b], em: e };
+    }
+    if (best && best.em >= MIN_EM) return { lines: best.lines, em: Math.min(em, best.em), n: its.length, track: t };
+  }
+  return { lines: [], em, n: 0, track };
+}
+const LIST_LEAD = 1.9;
+const listH = (F, L) => L.lines.length ? capOf(F, L.em) * (1 + (L.lines.length - 1) * LIST_LEAD) : 0;
+function drawList(it, boxes, role, F, L, x, top, align, fill, track) {
+  const cap = capOf(F, L.em); track = L.track ?? track;
+  L.lines.forEach((t, i) => line(it, boxes, role, F, t, L.em, x, top + cap + i * cap * LIST_LEAD, { align, track, fill }));
+  return top + listH(F, L);
+}
+
 /* ---------- the colours: the logo's roles, for a background ----------
    G the card, I the words, A the small lines (3:1), P a plate or band, Q the words on it (4.5:1), S and T
    the plate's shades, L the card's own light tone (what a texture is drawn in). */
@@ -196,7 +241,7 @@ const rowsNeed = (c, x, iconW = 54) => Math.max(0, ...rowsOf(x).map(r => r[1].le
 /** the block: the person (or the business) and their title, then the rows, in [bx, by, bw, bh], set left
  *  (with an icon a row, in the accent) or centred (without). The rows' spacing gives first, then the name's
  *  size; { dry: true } only measures. */
-function detailsBlock(it, boxes, c, x, bx, by, bw, bh, { align = "left", valign = "middle", dry = false } = {}) {
+function detailsBlock(it, boxes, c, x, bx, by, bw, bh, { align = "left", valign = "middle", dry = false, points = true } = {}) {
   const person = tidy(x.person), role = tidy(x.role), rowsIn = rowsOf(x);
   const head = person ? up(person) : c.N.full, sub = person ? (role ? up(role) : "") : (rowsIn.length ? "" : c.small);
   const iconW = align === "left" ? 54 : 0, colW = bw - iconW;
@@ -206,19 +251,22 @@ function detailsBlock(it, boxes, c, x, bx, by, bw, bh, { align = "left", valign 
   let subTrack = .18, subEm = sub ? fitEm(c.Lb, sub, bw, 30, subTrack) : 0;
   if (sub && fitSize(c.Lb, sub, bw, 1e9, subTrack) < MIN_EM) { subTrack = .04; subEm = fitEm(c.Lb, sub, bw, 30, subTrack); }
   const subCap = sub ? capOf(c.Lb, subEm) : 0;
+  // the selling points close the block, in the small lines' voice
+  const sells = points ? listOf(x.points, sellsFor(c.d.cat)).map(up) : [], PL = sells.length ? listLines(c.Lb, sells, bw, 30, .1) : { lines: [] }, plh = listH(c.Lb, PL);
   let m = null;
   for (const capMax of [person ? 42 : 46, 36, 30, 24]) {
     const hB = fitBlock(c.D, head, bw, bh * .22, { maxLines: 2, lead: 1.08, capMax });
     if (hB.size < MIN_EM) hB.size = MIN_EM;
     const hCap = capOf(c.D, hB.size), hH = hCap * (1 + (hB.n - 1) * 1.08);
     const gapSub = sub ? hCap * .55 : 0, gapRows = n ? Math.max(capR * 1.2, hCap * .95) : 0;
-    const fixed = hH + gapSub + subCap + gapRows + (n ? capR : 0);
+    const gapP = plh ? Math.max(capR * 1.5, hCap * .8) : 0;
+    const fixed = hH + gapSub + subCap + gapRows + (n ? capR : 0) + gapP + plh;
     const pitch = n > 1 ? Math.min(capR * 2.5, Math.max(capR * 1.62, (bh - fixed) / (n - 1))) : 0;
-    m = { hB, hCap, hH, gapSub, gapRows, pitch, total: fixed + pitch * Math.max(0, n - 1) };
+    m = { hB, hCap, hH, gapSub, gapRows, gapP, pitch, total: fixed + pitch * Math.max(0, n - 1) };
     if (m.total <= bh + .5) break;
   }
   if (dry) return { total: m.total, fits: m.total <= bh + .5 };
-  const { hB, hH, gapSub, gapRows, pitch, total } = m;
+  const { hB, hH, gapSub, gapRows, gapP, pitch, total } = m;
   let y = valign === "top" ? by : valign === "bottom" ? by + bh - total : by + (bh - total) / 2;
   const ax = align === "left" ? bx : bx + bw / 2;
   const hb = drawBlock(it, c.D, hB, ax, y + hH / 2, { align, lead: 1.08, fill: "I", tone: 0 });
@@ -233,6 +281,7 @@ function detailsBlock(it, boxes, c, x, bx, by, bw, bh, { align = "left", valign 
       line(it, boxes, k, c.Lb, t, em, bx + iconW, base, { align: "left", track: .01, fill: "I" });
     } else line(it, boxes, k, c.Lb, t, em, ax, base, { align: "center", track: .01, fill: "I" });
   });
+  if (plh) drawList(it, boxes, "points", c.Lb, PL, ax, y + (n ? capR + pitch * (n - 1) : 0) + gapP, align, "A", .1);
   return { total, fits: total <= bh + .5 };
 }
 /** the QR on a white tile with its quiet zone, at least 3/4 in across, and what it does under it */
@@ -259,56 +308,88 @@ function sideArt(it, boxes, c, qr, x, y, w, h, o = {}) {
 const X0 = M, Y0 = M, X1 = CARD.w - M, Y1 = CARD.h - M, BW = X1 - X0, BH = Y1 - Y0;
 function front(it, boxes, c, P, layout, x) {
   const { w, h, bleed } = CARD, put = (a, x0, y0, bw, bh, o = {}, role = "logo") => { const b = place(it, a, x0, y0, bw, bh, o); boxes.push({ role, text: "", ...b, em: 0 }); return b; };
-  const small = tidy(x.site) || c.small;
-  if (layout === "left") put(art(c, "horizontal"), X0, Y0 + BH * .27, BW * .88, BH * .46, { align: "left" });
+  const buys = listOf(x.buys, buysFor(c.d.cat)), BT = .03, BEM = 34;
+  /** the logo and the list under it, as one block centred in its box's height */
+  const stack = (a, bx, by, bw, bh, align) => {
+    const L = buys.length ? listLines(c.Lb, buys, align === "left" ? bw : bw * .92, BEM, BT) : { lines: [] }, lh = listH(c.Lb, L), gap = lh ? 38 : 0;
+    const k = Math.min(bw / a.w, (bh - lh - gap) / a.h), ah = a.h * k, top = by + (bh - ah - gap - lh) / 2;
+    const b = put(a, bx, top, bw, ah, { align, valign: "top" });
+    if (lh) drawList(it, boxes, "buys", c.Lb, L, align === "left" ? bx : bx + bw / 2, b.y1 + gap, align, "A", BT);
+  };
+  if (layout === "left") stack(art(c, "horizontal"), X0, Y0 + BH * .14, BW * .88, BH * .72, "left");
   else if (layout === "corner") {
     const s = h * 1.22;
     put(art(c, "mark"), w - s * .56, (h - s) / 2 + h * .05, s, s, {}, "bigmark");   // runs off the edge on purpose
-    nameBlock(it, boxes, c, X0, Y0 + BH * .38, BW * .5, BH * .62, "bottom");
+    nameBlock(it, boxes, c, X0, Y0 + BH * .2, BW * .5, BH * .8, "bottom", buys);
   } else if (layout === "band") {
-    const by = h * .74;
+    // the band says what is bought; without a list, the website or the logo's line
+    const by = h * .74, room = Y1 + 8 - by, words = buys.length ? buys : [tidy(x.site) || c.small];
     it.push(rect(0, by, w, h - by, "P"));
     put(art(c, "primary"), X0 + BW * .14, Y0 - 6, BW * .72, by - Y0 - 30);
-    line(it, boxes, "band", c.Lb, up(small), fitEm(c.Lb, up(small), BW * .8, 31, .2), w / 2, by + (Y1 + 8 - by) / 2 + capOf(c.Lb, 31) / 2, { track: .2, fill: "Q" });
+    const L = listLines(c.Lb, words, BW * .9, 33, buys.length ? BT : .2);
+    drawList(it, boxes, buys.length ? "buys" : "band", c.Lb, L, w / 2, by + (room - listH(c.Lb, L)) / 2, "center", "Q", buys.length ? BT : .2);
   } else if (layout === "frame") {
     frame(it, w, h, bleed);
-    put(art(c, "primary"), X0 + BW * .18, Y0 + BH * .13, BW * .64, BH * .74);
+    stack(art(c, "primary"), X0 + BW * .14, Y0 + BH * .1, BW * .72, BH * .8, "center");
   } else if (layout === "minimal") {
     put(art(c, "mark"), X0, Y0, 118, 118, { align: "left", valign: "top" });
-    nameBlock(it, boxes, c, X0, Y0 + BH * .45, BW * .66, BH * .55, "bottom");
+    nameBlock(it, boxes, c, X0, Y0 + BH * .36, BW * .72, BH * .64, "bottom", buys);
   } else if (layout === "split") {
     const pw = w * .4;
     it.push(rect(0, 0, pw, h, "P"));
     put(art(c, "mark"), 0 + bleed + 40, Y0 + BH * .14, pw - bleed - 80, BH * .72, { as: "Q", under: "P" });
-    nameBlock(it, boxes, c, pw + 60, Y0, X1 - pw - 60, BH, "middle");
+    nameBlock(it, boxes, c, pw + 60, Y0, X1 - pw - 60, BH, "middle", buys);
   } else if (layout === "edge") {
     const sw = bleed + 92;
     it.push(rect(0, 0, sw, h, "P"));
-    put(art(c, "horizontal"), sw + 66, Y0 + BH * .28, X1 - sw - 66, BH * .44, { align: "left" });
-  } else put(art(c, "primary"), X0 + BW * .14, Y0 + BH * .1, BW * .72, BH * .8);   // centred
+    stack(art(c, "horizontal"), sw + 66, Y0 + BH * .14, X1 - sw - 66, BH * .72, "left");
+  } else stack(art(c, "primary"), X0 + BW * .1, Y0 + BH * .02, BW * .8, BH * .96, "center");   // centred
 }
-/** the name and the small line, set left, as a wordmark: for the layouts whose mark stands apart */
-function nameBlock(it, boxes, c, bx, by, bw, bh, valign) {
-  const lead = c.N.trail ? c.N.lead : c.N.full, sub = c.N.trail || c.small;
-  const B = fitBlock(c.D, lead, bw, bh * .62, { maxLines: 2, lead: 1.06, capMax: 84 });
-  const cap = capOf(c.D, B.size), hH = cap * (1 + (B.n - 1) * 1.06), subEm = fitEm(c.Lb, sub, bw, Math.max(MIN_EM, Math.min(36, cap * .5)), .2), sCap = capOf(c.Lb, subEm);
-  const total = hH + cap * .5 + sCap;
-  const y = valign === "bottom" ? by + bh - total : valign === "top" ? by : by + (bh - total) / 2;
+/** the name, its small line and what is bought, set left, as a wordmark: for the layouts whose mark stands
+ *  apart. With a list, the logo's own "WE BUY …" line gives way to it (a business name's second word stays). */
+function nameBlock(it, boxes, c, bx, by, bw, bh, valign, buys = []) {
+  const lead = c.N.trail ? c.N.lead : c.N.full, sub = c.N.trail || (buys.length ? "" : c.small);
+  const L = buys.length ? listLines(c.Lb, buys, bw, 34, .03) : { lines: [] }, lh = listH(c.Lb, L);
+  const B = fitBlock(c.D, lead, bw, (bh - lh) * .62, { maxLines: 2, lead: 1.06, capMax: lh ? 72 : 84 });
+  const cap = capOf(c.D, B.size), hH = cap * (1 + (B.n - 1) * 1.06);
+  const subEm = sub ? fitEm(c.Lb, sub, bw, Math.max(MIN_EM, Math.min(36, cap * .5)), .2) : 0, sCap = sub ? capOf(c.Lb, subEm) : 0;
+  const total = hH + (sub ? cap * .5 + sCap : 0) + (lh ? cap * .62 + lh : 0);
+  let y = valign === "bottom" ? by + bh - total : valign === "top" ? by : by + (bh - total) / 2;
   const b = drawBlock(it, c.D, B, bx, y + hH / 2, { align: "left", lead: 1.06, fill: "I", tone: 0 });
   boxes.push({ role: "name", text: lead, x0: b.x0, x1: b.x1, y0: b.top, y1: b.bot, em: B.size });
-  line(it, boxes, "small", c.Lb, sub, subEm, bx, y + hH + cap * .5 + sCap, { align: "left", track: .2, fill: "A" });
+  y += hH;
+  if (sub) { y += cap * .5 + sCap; line(it, boxes, "small", c.Lb, sub, subEm, bx, y, { align: "left", track: .2, fill: "A" }); }
+  if (lh) drawList(it, boxes, "buys", c.Lb, L, bx, y + cap * .62, "left", "A", .03);
 }
 function frame(it, w, h, bleed) {
   const o = bleed + 22, i = o + 13;
   it.push({ d: rectD(o, o, w - 2 * o, h - 2 * o, 6), stroke: "A", sw: 4, tone: 0 });
   it.push({ d: rectD(i, i, w - 2 * i, h - 2 * i, 3), stroke: "A", sw: 1.6, tone: 0 });
 }
+/** the Band back's band, its selling points on it in one line; returns its top */
+function backBand(it, boxes, c, x) {
+  const { w, h } = CARD, by = h * .78, sells = listOf(x.points, sellsFor(c.d.cat)).map(up);
+  it.push(rect(0, by, w, h - by, "P"));
+  if (sells.length) {
+    // one line on the band: the letter spacing gives first, then the last point
+    const L = listLines(c.Lb, sells, BW * .94, 30, .1, 1);
+    drawList(it, boxes, "points", c.Lb, L, w / 2, by + (Y1 + 8 - by - listH(c.Lb, L)) / 2, "center", "Q", .1);
+  }
+  return by;
+}
 function back(it, boxes, c, P, layout, x, qr) {
   const { w, h, bleed } = CARD, hasRows = rowsOf(x).length > 0 || tidy(x.person);
   if (!hasRows && !qr) {
-    // nothing given yet: the back is the logo, small, and its line; never a sample
-    const b = place(it, art(c, "primary"), X0 + BW * .3, Y0 + BH * .2, BW * .4, BH * .6);
+    // nothing given yet: the back is the logo, small, and the selling points; never a sample
+    if (layout === "band") {
+      const by = backBand(it, boxes, c, x), b = place(it, art(c, "primary"), X0 + BW * .25, Y0 + BH * .08, BW * .5, by - Y0 - BH * .08 - 40);
+      boxes.push({ role: "logo", text: "", ...b, em: 0 });
+      return;
+    }
+    const sells = listOf(x.points, sellsFor(c.d.cat)).map(up), L = sells.length ? listLines(c.Lb, sells, BW * .8, 30, .1) : { lines: [] }, lh = listH(c.Lb, L);
+    const b = place(it, art(c, "primary"), X0 + BW * .3, Y0 + BH * .14, BW * .4, BH * .62 - lh);
     boxes.push({ role: "logo", text: "", ...b, em: 0 });
+    if (lh) drawList(it, boxes, "points", c.Lb, L, w / 2, b.y1 + 34, "center", "A", .1);
     if (layout === "frame") frame(it, w, h, bleed);
     return;
   }
@@ -339,13 +420,14 @@ function back(it, boxes, c, P, layout, x, qr) {
   }
   // rows at the left, the mark (or the QR) at the right: Left, Big mark, Band, Edge, Centred and Frame with a QR
   let bot = Y1, right = X1;
-  if (layout === "band") { const by = h * .8; it.push(rect(0, by, w, h - by, "P")); bot = by - 26; }
+  const onBand = layout === "band";
+  if (onBand) bot = backBand(it, boxes, c, x) - 26;
   if (layout === "edge") { const sw = bleed + 92; it.push(rect(w - sw, 0, sw, h, "P")); right = w - sw - 60; }
   let side = qr ? 250 : Math.min(200, (bot - Y0) * .6);
   const need = rowsNeed(c, x), gap = 50;
   if (need > right - side - gap - X0) side = Math.max(qr ? 225 : 110, right - gap - X0 - need);   // a long row takes room from the mark (never the QR under 3/4 in)
   sideArt(it, boxes, c, qr, right - side, Y0, side, bot - Y0);
-  detailsBlock(it, boxes, c, x, X0, Y0, right - side - gap - X0, bot - Y0);
+  detailsBlock(it, boxes, c, x, X0, Y0, right - side - gap - X0, bot - Y0, { points: !onBand });
 }
 
 /* ---------- one side ---------- */

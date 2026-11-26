@@ -17,6 +17,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 import * as E from "./engine.js";
 import { brandCardSvg, cardChoice, cardValid, CARD } from "./card.js";
+export { buysFor, sellsFor } from "./card.js";
 
 const { K, LINE_WORDS, LOGO_ICONS, paletteOf } = E;
 const { ctxOf, drawMark, drawHorizontal, svgOf, textLine, fitSize, fitBlock, drawBlock, capOf, shapeRun, arcText, arcFit,
@@ -29,10 +30,13 @@ export const KIT_TIERS = {
 };
 
 /* ---------- what the customer tells the kit (the card's back, the posts, the signature) ---------- */
-export const DETAIL_LIMITS = { person: 32, role: 32, phone: 24, email: 48, site: 40, handle: 32, address: 48, hours: 40 };
+export const DETAIL_LIMITS = { person: 32, role: 32, phone: 24, email: 48, site: 40, handle: 32, address: 48, hours: 40, buys: 90, points: 90 };
+/* what is bought and the selling points (card.js, DESIGN-LAW 185): never set, they follow the logo's line,
+   so they stay unset here; set, even to nothing, they are the customer's */
+const LISTS = ["buys", "points"];
 export function cleanDetails(x) {
   const d = x && typeof x === "object" ? x : {}, out = {};
-  for (const [k, n] of Object.entries(DETAIL_LIMITS)) out[k] = tidy(d[k]).slice(0, n);
+  for (const [k, n] of Object.entries(DETAIL_LIMITS)) if (!LISTS.includes(k) || typeof d[k] === "string") out[k] = tidy(d[k]).slice(0, n);
   out.phone = out.phone.replace(/[^0-9()+\-. ]/g, "");
   out.handle = out.handle ? "@" + out.handle.replace(/^@+/, "").replace(/\s+/g, "") : "";
   out.site = out.site.replace(/^https?:\/\//i, "").replace(/\/$/, "");

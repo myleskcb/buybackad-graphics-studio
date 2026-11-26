@@ -35,7 +35,7 @@ import { FONTS, TYPE_VOICES } from "../motion/catalog.js";
 import { loadFonts, fontCss, applyCase, rng, contrastOf, mix, rgba, lum } from "../motion/engine.js";
 import { HOUSE_COLOURS } from "../motion/house-colours.js";
 import { FULL_VOICES } from "../motion/full-voices.js";
-import { brandCardSvg, cardChoice, CARD_LAYOUTS, CARD_GROUNDS, CARD_LOOKS, cardPalette } from "../logo/card.js";
+import { brandCardSvg, cardChoice, CARD_LAYOUTS, CARD_GROUNDS, CARD_LOOKS, cardPalette, buysFor, sellsFor } from "../logo/card.js";
 import * as LE from "../logo/engine.js";
 import { cleanDetails } from "../logo/kit.js";
 import { printLinks, mountPrint } from "../logo/print-today.js";
@@ -1138,7 +1138,7 @@ function showPrint(scroll) {
    ═══════════════════════════════════════════════════════════════════════════ */
 const LOGO_STORE = "pgfx_logo";
 const BLAYOUT_OF = Object.fromEntries(CARD_LAYOUTS.map(x => [x.key, x])), BGROUND_OF = Object.fromEntries(CARD_GROUNDS.map(x => [x.key, x]));
-const DETAIL_KEYS = ["person", "role", "phone", "email", "site", "handle", "address", "hours"];
+const DETAIL_KEYS = ["buys", "points", "person", "role", "phone", "email", "site", "handle", "address", "hours"];
 const logoState = () => jget(LOGO_STORE, null) || {};
 const writeLogo = patch => jset(LOGO_STORE, Object.assign(logoState(), patch));
 /** the kit's details as typed, with the studio's number and website where the kit has none yet */
@@ -1396,7 +1396,9 @@ function fillForm() {
   $("cd-models").placeholder = lineNow().models || "";
   $("cd-qr").checked = !!state.qr;
   const d = rawDetails();
-  for (const k of DETAIL_KEYS) { const el = $("cd-b-" + k); if (el && document.activeElement !== el) el.value = d[k] || ""; }
+  // what is bought and the selling points show the logo's line's own until the customer changes them
+  const own = { buys: buysFor(brandDesign().cat), points: sellsFor(brandDesign().cat) };
+  for (const k of DETAIL_KEYS) { const el = $("cd-b-" + k); if (el && document.activeElement !== el) el.value = k in own ? (typeof d[k] === "string" ? d[k] : own[k]) : d[k] || ""; }
 }
 function bind() {
   for (const k of ["name", "phone", "site", "where", "points", "models"]) $("cd-" + k).addEventListener("input", e => { state[k] = e.target.value; keep(); later(); if ($("cd-g-" + k)) $("cd-g-" + k).value = state[k]; });

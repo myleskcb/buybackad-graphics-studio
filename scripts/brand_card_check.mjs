@@ -22,7 +22,7 @@ import { readdirSync } from 'node:fs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const imp = (p) => import(pathToFileURL(join(ROOT, p)).href);
-const E = await imp('logo/engine.js'), C = await imp('logo/card.js'), KIT = await imp('logo/kit.js'), PT = await imp('logo/pdf.js');
+const E = await imp('logo/engine.js'), C = await imp('logo/card.js'), KIT = await imp('logo/kit.js'), PT = await imp('logo/pdf.js'), BW = await imp('motion/banned-words.js');
 let fails = 0, passes = 0;
 const seen = new Map();
 const ok = (c, m, key = m) => { if (c) { passes++; return true; } fails++; const n = (seen.get(key) || 0) + 1; seen.set(key, n); if (n <= 3) console.log('  FAIL ' + m); return false; };
@@ -41,16 +41,19 @@ const DETAILS = {
   long: { person: 'Maria Guadalupe Hernandez', role: 'Owner and Lead Buyer', phone: '+1 (562) 999-4994', email: 'maria.hernandez@longbeachgoldexchange.com', site: 'longbeachgoldexchange.com', address: '12345 East Pacific Coast Hwy, Long Beach', hours: 'Mon to Sat 10am to 7pm, Sun 12 to 5' },
   person: { person: 'Maria Lopez' },
   phone: { phone: '(562) 999-4994' },
+  bare: { phone: '(562) 999-4994', email: 'hi@harbor.com', buys: '', points: '' },
+  custom: { person: 'Maria Lopez', phone: '(562) 999-4994', site: 'harborexchange.com', buys: 'iPhone, Samsung Galaxy, iPad, MacBook Pro, Apple Watch, AirPods', points: 'Top dollar paid, Cash same day, Free quotes, Trade-ins welcome' },
 };
 const QR = { cells: Array.from({ length: 29 }, (_, r) => Array.from({ length: 29 }, (_, c) => (r * 7 + c * 3) % 5 < 2)), label: 'Scan to visit' };
 const SAMPLES = /555-0123|yourshop|123 Main St|MON-SAT 10AM/i;
+const rowsAll = (x) => ['phone', 'email', 'site', 'handle', 'address', 'hours'].filter((k) => x[k]).length;
 const WORD = (b) => !['logo', 'mark', 'qr', 'bigmark'].includes(b.role);
 const overlap = (a, b) => Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0)) * Math.max(0, Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0)) > 4;
 
 let sides = 0;
 for (const [di, d] of designs.entries()) {
   for (const L of C.CARD_LAYOUTS) for (const G of C.CARD_GROUNDS) for (const side of ['front', 'back']) {
-    const dk = Object.keys(DETAILS)[(di + C.CARD_LAYOUTS.indexOf(L) + C.CARD_GROUNDS.indexOf(G)) % 5], x = KIT.cleanDetails(DETAILS[dk]);
+    const dk = Object.keys(DETAILS)[(di + C.CARD_LAYOUTS.indexOf(L) + C.CARD_GROUNDS.indexOf(G)) % 7], x = KIT.cleanDetails(DETAILS[dk]);
     const qr = side === 'back' && (di + C.CARD_GROUNDS.indexOf(G)) % 3 === 0 ? QR : null;
     const r = C.brandCardSvg(d, x, faces, { side, layout: L.key, ground: G.key, qr });
     sides++;
@@ -69,9 +72,24 @@ for (const [di, d] of designs.entries()) {
     const P = r.palette;
     ok(E.contrast(P.I, P.G) >= 4.5 && E.contrast(P.A, P.G) >= 3 && E.contrast(P.Q, P.P) >= 4.5, `the colours read: words ${E.contrast(P.I, P.G).toFixed(2)}, small ${E.contrast(P.A, P.G).toFixed(2)}, band ${E.contrast(P.Q, P.P).toFixed(2)} (${tag})`, 'contrast ' + G.key);
     for (const t of r.tones) ok(E.contrast(P.I, t) >= 4.5 && (P.A === P.I || E.contrast(P.A, t) >= 3), `words keep their contrast on the ${G.key} (${tag}: ${E.contrast(P.I, t).toFixed(2)})`, 'texture ' + G.key);
+    // the words on a band stand inside it (the band's own colours are what they are held to)
+    const bandTop = L.key === 'band' ? (side === 'front' ? 675 * .74 : 675 * .78) : null;
+    for (const b of r.boxes.filter((b) => bandTop && ((side === 'front' && ['buys', 'band'].includes(b.role)) || (side === 'back' && b.role === 'points'))))
+      ok(b.y0 >= bandTop + 2, `"${b.text}" stands inside the band (${tag}: top ${Math.round(b.y0)}, band ${Math.round(bandTop)})`, 'band words');
     const texts = r.boxes.map((b) => b.text).join(' | ');
     ok(!SAMPLES.test(texts), `no sample detail is printed (${tag}: ${texts})`, 'sample');
-    if (side === 'front') ok(r.boxes.every((b) => ['logo', 'bigmark', 'name', 'small', 'band'].includes(b.role)) && !texts.includes(x.phone || '@@'), `the front sells nothing (${tag}: ${texts})`, 'front');
+    const buys = C.listOf(x.buys, C.buysFor(d.cat)), sells = C.listOf(x.points, C.sellsFor(d.cat)).map((t) => t.toUpperCase());
+    if (side === 'front') {
+      ok(r.boxes.every((b) => ['logo', 'bigmark', 'name', 'small', 'band', 'buys'].includes(b.role)) && !texts.includes(x.phone || '@@') && !texts.includes(x.email || '@@'), `the front is the logo and what is bought, no number or contact (${tag}: ${texts})`, 'front');
+      const shown = r.boxes.filter((b) => b.role === 'buys').map((b) => b.text).join('  ·  ');
+      ok(buys.length ? shown.startsWith(buys.slice(0, 2).join('  ·  ')) : !shown, `the front lists what is bought: the line's own unless changed, nothing when cleared (${tag}: "${shown}")`, 'buys');
+    }
+    if (side === 'back') {
+      const shown = r.boxes.filter((b) => b.role === 'points').map((b) => b.text).join('  ·  ');
+      const room = !(rowsAll(x) === 0 && !x.person && qr);   // a back that is only a QR has no line for them
+      ok(sells.length ? (!room || shown.startsWith(sells[0])) : !shown, `the back gives the selling points: the line's own unless changed, nothing when cleared (${tag}: "${shown}")`, 'points');
+      if (x.points === undefined && room) ok(sells.every((t) => shown.includes(t)), `the line's three selling points all fit (${tag}: "${shown}")`, 'points all');
+    }
     if (side === 'back') {
       const norm = (t) => String(t).replace(/[\s,|]/g, '').toLowerCase(), all = norm(texts);
       const want = ['person', 'role', 'phone', 'email', 'site', 'handle', 'address', 'hours'].map((k) => x[k]).filter(Boolean);
@@ -81,6 +99,14 @@ for (const [di, d] of designs.entries()) {
   }
 }
 console.log(`  ${sides} sides drawn (${designs.length} logos × ${C.CARD_LAYOUTS.length} layouts × ${C.CARD_GROUNDS.length} backgrounds × 2)`);
+
+/* what is bought and the selling points: every line has its own, and they pass the house's banned words */
+for (const cat of E.LINES) {
+  const words = C.buysFor(cat) + ', ' + C.sellsFor(cat), hit = BW.bannedIn(words, cat);
+  ok(C.listOf(undefined, C.buysFor(cat)).length >= 3 && hit.length === 0, `${cat}: what is bought and the selling points read well and pass the banned words (${words}${hit.length ? ': ' + hit.map((b) => b.label).join(', ') : ''})`);
+}
+ok(C.buysFor('phones') === 'iPhone, iPad, Mac, MacBook', 'a phone buyer\'s card lists iPhone, iPad, Mac, MacBook (the owner\'s own)');
+ok(KIT.cleanDetails({}).buys === undefined && KIT.cleanDetails({ buys: '' }).buys === '' && KIT.cleanDetails({ points: 'Free quotes' }).points === 'Free quotes', 'the kit keeps a list never set apart from one cleared');
 
 /* every pair the logo maker offers, on every background: the roles hold their contrast */
 for (const pair of E.LOGO_PAIRS) for (const G of C.CARD_GROUNDS) {

@@ -364,6 +364,13 @@ for (const [scheme, mode] of [['dark', 'promo'], ['light', 'promo'], ['dark', 'b
   ok(/MARIA LOPEZ/.test(texts) && texts.includes('maria@longbeachphonebuyers.com') && texts.includes('(562) 999-4994') && texts.includes('Mon to Sat, 10 to 7'), 'the back says what was typed, and the studio\'s number (' + texts + ')');
   ok(!/555-0123|yourshop|123 Main/i.test(texts), 'no sample detail on the back');
   ok(sides.f.concat(sides.b).filter((x) => x.role !== 'bigmark').every((x) => x.x0 >= 74 && x.x1 <= 1051 && x.y0 >= 74 && x.y1 <= 601), 'every word, the logo and the QR inside the safe area');
+  // what is bought (the front) and the selling points (the back): the line's own until changed, nothing when cleared
+  const lists0 = await page.evaluate(() => ({ buys: document.getElementById('cd-b-buys').value, points: document.getElementById('cd-b-points').value }));
+  ok(lists0.buys === 'iPhone, iPad, Mac, MacBook' && /Top dollar paid/.test(lists0.points), 'the form shows the line\'s own: ' + JSON.stringify(lists0));
+  await page.fill('#cd-b-buys', 'iPhone, iPad, Apple Watch'); await page.fill('#cd-b-points', '');
+  const lists = await page.evaluate(async () => { const f = await CardMaker.render('front'), b = await CardMaker.render('back'); return { buys: f.boxes.filter((x) => x.role === 'buys').map((x) => x.text).join(' | '), points: b.boxes.filter((x) => x.role === 'points').length, kit: JSON.parse(localStorage.getItem('pgfx_logo') || '{}').details }; });
+  ok(lists.buys === 'iPhone  ·  iPad  ·  Apple Watch' && lists.points === 0 && lists.kit.buys === 'iPhone, iPad, Apple Watch' && lists.kit.points === '', 'a list typed is the card\'s, a list cleared prints nothing, and the kit keeps both (' + JSON.stringify(lists) + ')');
+  await page.fill('#cd-b-points', 'Top dollar paid, Free quotes');
   const before = await page.evaluate(() => CardMaker.brandChoice());
   await page.click('#cd-shuffle');
   const after = await page.evaluate(() => ({ c: CardMaker.brandChoice(), kit: JSON.parse(localStorage.getItem('pgfx_logo') || '{}').card }));
