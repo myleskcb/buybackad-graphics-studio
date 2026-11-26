@@ -65,7 +65,13 @@ A Release build has neither (`release.sh` refuses a binary that does).
   first under Certificates, Identifiers & Profiles, Identifiers, if the list
   does not offer it), SKU `webuyad-ios`. Availability: United States only.
 - Build 1 (1.0.0) was uploaded on 2026-11-19 at 22:28 (App Store Connect:
-  Processing). The next build is 2.
+  Processing).
+- Build 2 (1.0.0) was uploaded on 2026-11-25 at 18:20: the new icon (the mint
+  tag over lowercase webuy.ad, DESIGN-LAW 153). The next build is 3. Its first
+  export failed with "No Accounts": `release.sh` signs through Xcode's own
+  sign-in (Xcode, Settings, Accounts), not the Mac's Apple ID or a browser's,
+  and that list had been emptied. Check it before a release:
+  `defaults read com.apple.dt.Xcode DVTDeveloperAccountManagerAppleIDLists`.
 - Then `ios/release.sh 1 --upload` on this Mac (Xcode signed in to the
   account). Each later build: a higher number.
 - App Privacy answers (App Store Connect): Email Address, Photos or Videos,
