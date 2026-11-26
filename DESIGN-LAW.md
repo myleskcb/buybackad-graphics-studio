@@ -7795,3 +7795,37 @@ in the kit, New look, the chips, the print PDF, 390 px light and dark in both ta
 (the card maker opening on twelve brand cards in all eight layouts, a pick written to the kit).
 
 Not done here: OPEN-ITEMS §CL.
+
+## 187. A Reselling.US plan includes one of ours, switched on for the account that signs in here
+
+The owner, 2026-11-25: "why can't we give more webuy credits or offer it to the $50 plan?", "so they know
+it's 2 products in 1 with lots of value", then "Build the link". Every paid Reselling.US plan includes one of
+our plans: Starter (`basic`) with Side Hustle, Pro with Reseller and Automator, Business with Enterprise and
+Autopilot (reselling.us `resale/plans.py` STUDIO; its cards say so beside both wordmarks). It costs us almost
+nothing: a picture and a video are drawn in the customer's browser, and only an AI background is paid, in the
+plan's own credits.
+
+1. **The link.** The shop's owner presses Open WeBuy.AD on Reselling.US's Plan page and lands on
+   `/included.html` with a token after the # (no server log or Referer holds it; the page takes it out of the
+   address bar). Reselling.US signed it with the secret both sites keep (`RSUS_LINK_SECRET` here,
+   `RESALE_WEBUYAD_SECRET` there): `body.signature`, base64url, the body `{ v, shop, plan, name, via, until,
+   exp, n }`. It works for minutes and once (`rsn:<n>`).
+2. **An email is never the key.** Reselling.US does not check its addresses by mail yet, so nobody is signed
+   in here on its word. The person signs in or makes an account here (Google and Apple too), and
+   `POST /api/rsus/claim` puts the plan on THAT account. One shop, one account: a claim from another account
+   moves it (`rsus:shop:<n>`).
+3. **`plan` is what the account is billed for; `planOf` is what it may do**, the higher of the two while the
+   included one holds (`netlify/lib/plans.mjs`). Every allowance reads `planOf`: credits, downloads, size and
+   watermark, video, cards, logo files, the kit, the library. Stripe moves only `plan`. Checkout refuses a
+   plan the included one already covers.
+4. **It follows Reselling.US by itself.** Every six hours, and sooner when it is about to run out, we ask
+   `POST <RSUS_URL>/api/partner/webuyad/plan` (signed the same way) which plan the shop is on: a move up or
+   down is followed, a shop back on Free ends it, and no answer keeps it until its own `until` (the period
+   paid for plus three days), never longer. A plan ended over a month ago is not asked about again.
+
+Checked by `scripts/rsus_link_check.mjs`: Reselling.US's golden token (the same one its
+`resale/tests/test_webuyad.py` makes), a changed body or signature, another secret, an expired token, the
+claim signed out and in, Starter's credits and downloads, a token spent twice, a claim moving the shop, the
+checkout refusal before Stripe is asked, the check-back up, down, unanswered and long over, and the link off
+without the secret. `--serve <port>` runs the site and the function on a stand-in store for a local run
+against a local Reselling.US.

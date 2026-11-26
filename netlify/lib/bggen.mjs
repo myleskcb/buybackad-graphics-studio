@@ -64,7 +64,7 @@
  *   3. the operator's override, saved from the AI Studio (blob recipe/v1)
  */
 
-import { creditState, spendCredits, refundCredits, creditsFor, modelCosts, planId } from './plans.mjs';
+import { creditState, spendCredits, refundCredits, creditsFor, modelCosts, planId, planOf } from './plans.mjs';
 
 export const CATALOGUE_PATH = '/assets/bggen-entities.json';
 const MAX_ENTITIES = 4;
@@ -773,7 +773,7 @@ export async function bggenRoute(req, url, p, env, deps) {
        profitable by construction and only meet the runaway guard (as main's
        /generate-bg did before this file took it over) */
     const day = new Date().toISOString().slice(0, 10);
-    if (spent.fromPlan && planId(user.plan) === 'free'
+    if (spent.fromPlan && planOf(user) === 'free'
       && !(await deps.bumpBy('ai:free:' + day, spent.fromPlan, parseInt(env.AI_FREE_DAILY_CREDITS || '100', 10)))) {
       return json({ error: 'Free AI backgrounds are used up for today. Try again tomorrow, or go Pro. Nothing was charged.', credits: balanceOf(await deps.getUser(em), false) }, 429);
     }
