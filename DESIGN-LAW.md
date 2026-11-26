@@ -6222,22 +6222,29 @@ Added 2026-11-19, after rule 152's colours. The owner chose the wordmark
 "WeBuy.AD". Every rule below is reselling.us's own (its `docs/brand/source/`
 and `/static/app.css`), applied to the new name, so the two read as one family.
 
-- **The wordmark**: `WeBuy` and `.AD` in Inter Tight 750, -0.035em (-0.04em
-  at display size), the `.AD` in the blue (#3d8bff; #0a5fe0 on light). No
-  mark beside it in a header; 22px, 21px on a phone, where it now stays (the
-  poster hid it there). The face is reselling.us's own file, OFL, in
-  `assets/fonts/`, and sets the wordmark and nothing else.
+- **The wordmark** (2026-11-25, the owner picked direction D in lowercase, "Lowercase webuy.ad", from
+  `tools/brand/logo-d-2026-11-23.html`; the Inter Tight "WeBuy.AD" before it was called bad): the mint
+  tag, then `webuy` and `.ad` in Inter Tight 800, -0.045em, the tag and `.ad` in the mint (#2fd58f;
+  #0e9f6a on light, `--mark`). The tag is `assets/brand/tag.svg`, drawn as a CSS mask 1.05em square
+  with .28em after it (a margin, not a flex gap, which would split `webuy` from `.ad`). Pages draw it
+  from `pages.css` `.brand::before`; the studio from `styles.css` `.logo .logo-mark` in the family skin.
+  22px, 21px on a phone, 18px at 360 px and under (at 320 px the bar's menu ran 11 px off at 21). The
+  face is reselling.us's own file, OFL, in `assets/fonts/`, and sets the wordmark and nothing else.
+  The explainer videos were rendered with the old mark (`tools/explainers/stage.html` keeps it until
+  they are rendered again); `logo-directions-2026-11-23.html` is history.
 - **The type**: headlines and text in the system face (SF Pro on an Apple
   device), headlines 700 and tight (-0.04em on the hero, -0.03em on h1 and
   h2): the `system` type, the default. Ads keep their own faces.
 - **Sentence case** for the kicker (a blue-tinted pill with a mint dot) and the
   landing's section labels. The editor's small labels keep their capitals.
-- **The icon**: a white W in Inter Tight 800 with the period in mint, on the
-  navy with the blue glow (`tools/brand/icon.html`), as Reselling.US's R.
-  `assets/brand/icon-{32,180,192,512,1024}.png`; `favicon.svg` carries it for
-  anything that asks for that file by name.
+- **The icon**: the mint tag over `webuy.ad` on the navy (#0b1222), the two set as one block 7 units
+  apart in 120 and centred by their ink (`tools/brand/icon.html`). The owner, of the first drawing,
+  where the gap was about 22: "closer logo / wordmark?". `assets/brand/icon-{180,192,512,1024}.png` and
+  the iPhone app's `AppIcon.png` (flattened: App Store Connect refuses an alpha channel). The word stops
+  reading under about 40 px, so `icon-32.png`, `favicon.svg` and the sign-in window's tile are the tag
+  alone (`assets/brand/tag-tile.svg`).
 - **The share card** (og:image, `assets/brand/share-card.jpg`, 1200 x 630,
-  under 300 KB): the wordmark, the home page's own kicker and headline, word
+  under 300 KB): the wordmark (the tag and `webuy.ad`), the home page's own kicker and headline, word
   for word, and four real ads from its wall. All of it is drawn by
   `sh tools/brand/make.sh` with headless Chrome; draw it again after the
   kicker or the headline changes.

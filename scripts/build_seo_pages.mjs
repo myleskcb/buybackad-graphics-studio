@@ -373,7 +373,7 @@ const COMMON_FAQ = [
 
 const nav = (up) => `<a class="skip" href="#main">Skip to content</a>
 <header class="top">
-  <a class="brand" href="${up}index.html">WeBuy<em>.AD</em></a>
+  <a class="brand" href="${up}index.html">webuy<em>.ad</em></a>
   <nav aria-label="Site">
     <a href="${up}index.html#lp-templates">Templates</a>
     <a href="${up}motion/">Video ads</a>

@@ -679,7 +679,7 @@
 [data-skin=family] #page-landing .lpf-base{max-width:none;margin:64px 0 0;padding:22px 0 0;border-top:1px solid var(--hairline);font-size:13px;color:var(--text-dim)}
 [data-skin=family] #page-landing .lpf-mark{
   display:block;margin:clamp(40px,5vw,72px) 0 0;line-height:.78;white-space:nowrap;
-  font-family:'Inter Tight',var(--x-disp);font-weight:750;letter-spacing:-.06em;
+  font-family:'Inter Tight',var(--x-disp);font-weight:800;letter-spacing:-.06em;
   font-size:clamp(84px,20.4vw,290px);color:#101b33;user-select:none;
   transform:translateY(.16em);
 }
